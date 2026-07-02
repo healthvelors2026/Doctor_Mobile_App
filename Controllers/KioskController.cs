@@ -13,7 +13,7 @@ using static DoctorMobileApp.Models.KioskModel;
 namespace DoctorMobileApp.Controllers
 {
     //testss chetanss
-    //testss Deep
+    //testss Deep sai 123
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
