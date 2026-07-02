@@ -18,6 +18,7 @@ namespace DoctorMobileApp.WebServices
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
         }
+        //TEST
         public async Task<List<PatientDetail>> GetPatientSearchListAsync(PatientSearchModel searchModel, int hospitalidf)
         {
             var list = new List<PatientDetail>();
