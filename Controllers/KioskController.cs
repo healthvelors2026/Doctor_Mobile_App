@@ -12,7 +12,7 @@ using static DoctorMobileApp.Models.KioskModel;
 
 namespace DoctorMobileApp.Controllers
 {
-    //test123
+    //test12344
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
