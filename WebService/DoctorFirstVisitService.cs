@@ -491,6 +491,53 @@ namespace DoctorMobileApp.WebService
                     await _dbHelper.ExecuteNonQueryAsync("API_SP_InsertUpdateTestRadioServiceRegAmt", CommandType.StoredProcedure, parameterspathoTest);
                 }
                 #endregion
+                #region Insert-Update-Delete Procedure Test
+                if (model.ProcedureTestList != null && model.ProcedureTestList.Count > 0)
+                {
+                    tbIPDTestServiceRegAmtTVP.Clear();
+                    foreach (var item in model.ProcedureTestList)
+                    {
+                        item.CashFlag = CheckCashFlag(VisitDetails.NonCashLess, item.NotApplicable, VisitDetails.ClassForReimbursement);
+                        tbIPDTestServiceRegAmtTVP.Rows.Add(
+                         item.TestReportIDP,    // TestReportIDP
+                         item.ServiceIDF,       // ServiceIDF
+                         item.CategoryIDF,      // TestGroupIDF
+                         item.LabFlag,          // LabFlag
+                         item.LabIDF,           // LabIDF
+                         item.NotApplicable,    // NotApplicable
+                         item.IsPortable,       // IsPortable
+                         item.CashFlag,         // CashFlag
+                         item.Qty,              // Qty
+                         item.OriginalAmt,      // Rate
+                         item.CostAddRate,      // CostAdditionRate
+                         item.DiscountPer,      // DiscPercent
+                         item.DiscountAmt,      // DiscountAmt
+                         item.RoundingAmt,      // RoundingAmt
+                         item.Amount,           // NetServiceRate
+                         item.IsSelected        // IsDelete
+                        );
+
+                    }
+                    SqlParameter[] parameterspathoTest =
+                    {
+                      new SqlParameter("@RegistrationIDF", VisitDetails.AdmissionIDF),
+                      new SqlParameter("@OPDIPDFlag",1),
+                      new SqlParameter("@VisitIDF",VisitDetails.DocVisitIDP),
+                      new SqlParameter("@VisitFlag",0),
+                      new SqlParameter("@DiscLedgerIDF", VisitDetails.DiscLedgerIDF),
+                      new SqlParameter("@Remarks",VisitDetails.PathoRemarks),
+                      new SqlParameter("@UserIDF",VisitDetails.UserIDF),
+                      new SqlParameter("@HospitalIDF",VisitDetails.HospitalIDF),
+                      new SqlParameter("@HospitalGroupIDF",VisitDetails.HospitalGroupIDF),
+                      new SqlParameter("@tbIPDTestServiceRegAmtTVP", SqlDbType.Structured)
+                      {
+                       TypeName = "dbo.tbIPDTestServiceRegAmtTVP",
+                       Value = tbIPDTestServiceRegAmtTVP
+                     }
+                  };
+                    await _dbHelper.ExecuteNonQueryAsync("API_SP_InsertUpdateTestProcedureServiceRegAmt", CommandType.StoredProcedure, parameterspathoTest);
+                }
+                #endregion
                 // ✅ Commit everything
                 scope.Complete();
                 return "All Data Saved Successfully";
