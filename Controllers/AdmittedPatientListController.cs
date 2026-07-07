@@ -42,6 +42,7 @@ namespace DoctorMobileApp.Controllers
                 Data.DoctorList
             });
         }
+
         [Authorize]
         [HttpPost("search")]
         public async Task<IActionResult> GetAdmittedPatientList(AdmittedPatienttRequest request)

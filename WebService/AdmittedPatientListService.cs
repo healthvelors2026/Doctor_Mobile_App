@@ -14,6 +14,7 @@ namespace DoctorMobileApp.WebService
             _dbHelper = db;
             _configuration = configuration;
         }
+
         public async Task<AdmittedPatientListRequest> GetWardListAsync(int hospitalidf)
         {
             var response = new AdmittedPatientListRequest
