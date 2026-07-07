@@ -14,6 +14,7 @@ namespace DoctorMobileApp.Controllers
         private readonly IDbConnectionFactory _db;
         private readonly IConfiguration _configuration;
         private int hospitalidf => int.TryParse(User.FindFirst("HospitalIDF")?.Value, out var id) ? id : 0;
+        private int employeeIDF => int.TryParse(User.FindFirst("EmployeeIDF")?.Value, out var id) ? id : 0; 
         public AdmittedPatientListController(IDbConnectionFactory db, IConfiguration configuration)
         {
             _db = db;
@@ -22,13 +23,22 @@ namespace DoctorMobileApp.Controllers
             
         }
         [Authorize]
-        [HttpPost("get-ward-doctor")]
+        [HttpPost("get-ward-list")]
+        public async Task<IActionResult> GetWardList()
+        {
+            var Data = await _AdmittedListservice.GetWardListAsync(hospitalidf);
+            return Ok(new
+            {
+                Data.WardList
+            });
+        }
+        [Authorize]
+        [HttpPost("get-ward-doctor-list")]
         public async Task<IActionResult> GetWardDoctorList()
         {
             var Data = await _AdmittedListservice.GetWardDoctorListAsync(hospitalidf);
             return Ok(new
             {
-                Data.WardList,
                 Data.DoctorList
             });
         }
@@ -43,6 +53,15 @@ namespace DoctorMobileApp.Controllers
                 Data.TotalRecords,
                 Data.TotalPages
             });
+        }
+
+        [Authorize]
+        [HttpPost("get-bed-transfer")]
+        public async Task<IActionResult> GetBedTransfer([FromBody] BedTransferRequest request)
+        {
+            var data = await _AdmittedListservice.GetBedTransferAsync(request, hospitalidf);
+
+            return Ok(data);
         }
     }
 }

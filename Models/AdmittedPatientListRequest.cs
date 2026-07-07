@@ -66,4 +66,68 @@
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
     }
+
+    public class BedTransferRequest
+    {
+        public int PatientID { get; set; }
+    }
+    public class BedTransferResponse
+    {
+        public int AdmissionID { get; set; }
+        public string PatientName { get; set; }
+        public string AdmissionDate { get; set; }
+        public string IPDRegistrationCode { get; set; }
+        public string Age { get; set; }
+        public string Gender { get; set; }
+        public string ClassName { get; set; }
+        public string ConsultDoctor { get; set; }
+
+        public List<BedTransferHistoryModel> BedTransferHistory { get; set; } = new List<BedTransferHistoryModel>();
+    }
+    public class BedTransferHistoryModel
+    {
+        public int TransferType { get; set; }
+        public string BedName { get; set; }
+        public string WardName { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+        public string UserName { get; set; }
+        public string ReBedname { get; set; }
+        public bool? CurrentBed { get; set; }
+        public string Mode { get; set; }
+        public string TransferBy { get; set; }
+    }
+    public class BedTransferPatientDBModel
+    {
+        public int IPDAdmissionDischargeIDP { get; set; }
+
+        public string IPDRegistrationCode { get; set; }
+
+        public string FName { get; set; }
+
+        public string MName { get; set; }
+
+        public string LName { get; set; }
+
+        public DateTime AdmissionDateTime { get; set; }
+
+        public DateTime DateOfBirth { get; set; }
+
+        public int Gender { get; set; }
+
+        public string ClassName { get; set; }
+
+        public string EmpFName { get; set; }
+
+        public string EmpMName { get; set; }
+
+        public string EmpLName { get; set; }
+        public int BedIDP { get; set; }
+
+        public string BedName { get; set; }
+
+        public int WardIDP { get; set; }
+
+        public string WardName { get; set; }
+    }
 }
