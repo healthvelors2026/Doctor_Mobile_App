@@ -33,15 +33,16 @@ namespace DoctorMobileApp.Controllers
             });
         }
         [Authorize]
-        [HttpPost("get-ward-doctor-list")]
-        public async Task<IActionResult> GetWardDoctorList()
+        [HttpPost("get-doctor-list")]
+        public async Task<IActionResult> GetDoctorList()
         {
-            var Data = await _AdmittedListservice.GetWardDoctorListAsync(hospitalidf);
+            var Data = await _AdmittedListservice.GetDoctorListAsync(hospitalidf);
             return Ok(new
             {
                 Data.DoctorList
             });
         }
+
         [Authorize]
         [HttpPost("search")]
         public async Task<IActionResult> GetAdmittedPatientList(AdmittedPatienttRequest request)

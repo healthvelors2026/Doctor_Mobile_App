@@ -14,6 +14,7 @@ namespace DoctorMobileApp.WebService
             _dbHelper = db;
             _configuration = configuration;
         }
+
         public async Task<AdmittedPatientListRequest> GetWardListAsync(int hospitalidf)
         {
             var response = new AdmittedPatientListRequest
@@ -25,14 +26,14 @@ namespace DoctorMobileApp.WebService
             {
                     new SqlParameter("@HospitalIDF", hospitalidf)
             };
-            var wardTask = _dbHelper.QueryAsync<WardList>(
+            var wardTask = await _dbHelper.QueryAsync<WardList>(
                 "API_GetWardName",
                 CommandType.StoredProcedure,
                 wardParams);
-            response.WardList = wardTask.Result;
+            response.WardList = wardTask;
             return response;
         }
-        public async Task<AdmittedPatientListRequest> GetWardDoctorListAsync(int hospitalidf)
+        public async Task<AdmittedPatientListRequest> GetDoctorListAsync(int hospitalidf)
         {
             var response = new AdmittedPatientListRequest
             {
@@ -42,8 +43,8 @@ namespace DoctorMobileApp.WebService
             {
                  new SqlParameter("@HospitalIDF", hospitalidf)
             };
-            var doctorTask = _dbHelper.QueryAsync<DoctorList>("API_DoctorList",CommandType.StoredProcedure,doctorParams);
-            response.DoctorList = doctorTask.Result;
+            var doctorTask = await _dbHelper.QueryAsync<DoctorList>("API_DoctorList",CommandType.StoredProcedure,doctorParams);
+            response.DoctorList = doctorTask;
             return response;
         }
         public async Task<AdmittedPatientListRequest> GetAdmittedPatientListAsync(AdmittedPatienttRequest request, int hospitalidf)
