@@ -1,0 +1,456 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Patient Feedback</title>
+
+    <link rel="stylesheet" href="~/css/opd-feedback.css" />
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="phone-frame">
+
+            <!-- HEADER -->
+            <div class="header">
+                <div>
+                    <h1 id="formTitle">Loading...</h1>
+                    <p id="subTitle">Submit your feedback</p>
+                </div>
+                <div class="badge-active" id="statusBadge">Active</div>
+            </div>
+
+            <!-- INFO -->
+            <div class="info-grid">
+
+                <div class="info-item">
+                    <label>CR Number</label>
+                    <strong id="crNumber"></strong>
+                </div>
+
+                <div class="info-item">
+                    <label id="regLabel">Registration No.</label>
+                    <strong id="registrationCode"></strong>
+                </div>
+
+                <div class="info-item">
+                    <label>Doctor</label>
+                    <strong id="doctorName"></strong>
+                </div>
+
+                <div class="info-item">
+                    <label id="dateLabel">Date</label>
+                    <strong id="registrationDate"></strong>
+                </div>
+
+
+                <!-- IPD ONLY -->
+                <div class="info-item ipd-only" style="display:none;">
+                    <label>Class</label>
+                    <strong id="className"></strong>
+                </div>
+
+                <div class="info-item ipd-only" style="display:none;">
+                    <label>Discharge Date</label>
+                    <strong id="dischargeDate"></strong>
+                </div>
+
+            </div>
+            <!-- QUESTIONS -->
+            <div class="content" id="questionContainer"></div>
+
+            <!-- FIX 1: always render textarea containers safely -->
+            <div id="dynamicTextSections"></div>
+
+            <!-- FOOTER -->
+            <div class="footer">
+                <button class="submit-btn" id="submitBtn">Submit Feedback</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function resolveOptionText(opt) {
+            return opt.type ?? opt.code ?? opt.optionText ?? opt.label ?? "";
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return "-";
+            const date = new Date(dateString);
+
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = date.toLocaleString("en-GB", { month: "short" });
+            const year = date.getFullYear();
+
+            return `${day}/${month}/${year}`;
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+             try {
+                  const params = new URLSearchParams(window.location.search);
+
+        // Read encrypted token from URL
+        const token = params.get("t") || params.get("token");
+        // Store token globally
+        window.feedbackToken = token;
+        if (!token) {
+            document.getElementById("submitBtn").disabled = true;
+            alert("Invalid feedback link.");
+            return;
+        }
+
+        // Resolve token
+              const tokenResponse = await fetch(
+            `/api/token/ResolveToken?token=${encodeURIComponent(token)}`
+        );
+
+                 if (!tokenResponse.ok) {
+            document.getElementById("submitBtn").disabled = true;
+            throw new Error("This feedback link is invalid or has expired.");
+        }
+
+        const tokenData = await tokenResponse.json();
+
+        const patientId = tokenData.patientId;
+        const registrationId = tokenData.registrationId;
+        const flag = tokenData.opdIpdFlag;
+
+        const isIpd = flag === 1;
+        const baseUrl = isIpd ? "/api/Ipd" : "/api/Opd";
+
+        document.getElementById("formTitle").innerText =
+            isIpd ? "IPD Feedback" : "OPD Feedback";
+
+        document.getElementById("statusBadge").innerText =
+            isIpd ? "Admitted" : "Active";
+
+              const apiUrl =
+        `/api/PatientFeedback/feedback?patientId=${patientId}&registrationId=${registrationId}&opdIpdFlag=${flag}`;
+
+        const res = await fetch(apiUrl);
+
+                if (!res.ok) {
+              document
+        .querySelectorAll("button, textarea")
+        .forEach(x => x.disabled = true);
+            throw new Error("Unable to load feedback.");
+        }
+
+        const data = await res.json();
+
+        window._feedbackData = data;
+
+        document.getElementById("crNumber").innerText = data.crNumber || "-";
+        document.getElementById("doctorName").innerText = data.doctorName || "-";
+
+        document.getElementById("registrationCode").innerText =
+            isIpd
+                ? (data.ipdRegistrationCode || "-")
+                : (data.registrationCode || "-");
+
+        document.getElementById("registrationDate").innerText =
+            isIpd
+                ? formatDate(data.admissionDateTime)
+                : formatDate(data.registrationDate);
+                        // IPD extra fields
+        if (isIpd) {
+
+            document.querySelectorAll(".ipd-only")
+                .forEach(x => x.style.display = "block");
+
+
+            document.getElementById("regLabel").innerText =
+                "IPD Number";
+
+
+            document.getElementById("dateLabel").innerText =
+                "Admission Date";
+
+
+            document.getElementById("className").innerText =
+                data.className || "-";
+
+
+            document.getElementById("dischargeDate").innerText =
+                data.dischargeDate
+                    ? formatDate(data.dischargeDate)
+                    : "-";
+
+        }
+        else {
+
+            document.querySelectorAll(".ipd-only")
+                .forEach(x => x.style.display = "none");
+
+        }
+
+        const categories = data.feedbackForm?.categories || [];
+
+        const selectedMap = new Map();
+
+        categories.forEach(c => {
+            (c.questions || []).forEach(q => {
+                if (q.selectedOptionIDF != null) {
+
+                    const key = String(q.feedbackQuestionId);
+
+                    if (!selectedMap.has(key))
+                        selectedMap.set(key, []);
+
+                    selectedMap.get(key).push(String(q.selectedOptionIDF));
+                }
+            });
+        });
+
+        const container = document.getElementById("questionContainer");
+        container.innerHTML = "";
+
+        let suggestionCat = null;
+        let appreciationCat = null;
+
+        categories.forEach(cat => {
+
+            const isText =
+                !cat.questions ||
+                cat.questions.length === 0 ||
+                cat.questions.every(q => q.type === 2);
+
+            if (isText) {
+
+                if (cat.categoryName?.toLowerCase().includes("suggest"))
+                    suggestionCat = cat;
+
+                if (cat.categoryName?.toLowerCase().includes("appreciate"))
+                    appreciationCat = cat;
+            }
+        });
+
+                // ================= LEGACY FIX: render ALL questions =================
+                categories.forEach(cat => {
+
+                    const isText =
+                        !cat.questions || cat.questions.length === 0 ||
+                        cat.questions.every(q => q.type === 2);
+
+                    if (isText) return;
+
+                    const section = document.createElement("div");
+                    section.className = "section";
+
+                    section.innerHTML = `<div class="section-title">${cat.categoryName}</div>`;
+
+                    (cat.questions || []).forEach(q => {
+
+                        const card = document.createElement("div");
+                        card.className = "question-card";
+
+                        let html = "";
+
+                        (q.options || []).forEach(opt => {
+
+                            const qid = String(q.feedbackQuestionId);
+                            const optId = String(opt.feedbackOptionTypeId);
+
+                            const selected =
+                                selectedMap.has(qid) &&
+                                selectedMap.get(qid).includes(optId);
+
+                            html += `
+                                <button type="button"
+                                    class="${selected ? "selected" : ""}"
+                                    data-qid="${q.feedbackQuestionId}"
+                                    data-cat="${cat.feedbackCategoryId}"
+                                    data-type="${q.type}"
+                                    data-opt="${opt.feedbackOptionTypeId}"
+                                    onclick="selectOption(this)">
+                                    ${resolveOptionText(opt)}
+                                </button>
+                            `;
+                        });
+
+                        card.innerHTML = `
+                            <div class="question-text">${q.question}</div>
+                            <div class="rating-row">${html}</div>
+                        `;
+
+                        section.appendChild(card);
+                    });
+
+                    container.appendChild(section);
+                });
+
+                        // ================= TEXT SECTIONS =================
+        if (suggestionCat) {
+
+            const suggestionValue =
+                suggestionCat.questions?.[0]?.textAnswer ?? "";
+
+            const section = document.createElement("div");
+            section.className = "section";
+
+            section.innerHTML = `
+                <div class="section-title">${suggestionCat.categoryName}</div>
+                <div class="question-card">
+                    <textarea id="suggestionText"
+                              rows="4"
+                              placeholder="Write your suggestions...">${suggestionValue}</textarea>
+                </div>
+            `;
+
+            container.appendChild(section);
+        }
+
+        if (appreciationCat) {
+
+            const appreciationValue =
+                appreciationCat.questions?.[0]?.textAnswer ?? "";
+
+            const section = document.createElement("div");
+            section.className = "section";
+
+            section.innerHTML = `
+                <div class="section-title">${appreciationCat.categoryName}</div>
+                <div class="question-card">
+                    <textarea id="appreciationText"
+                              rows="4"
+                              placeholder="Write your appreciation...">${appreciationValue}</textarea>
+                </div>
+            `;
+
+            container.appendChild(section);
+        }
+
+                     // ================= SUBMIT =================
+        document.getElementById("submitBtn").addEventListener("click", async () => {
+
+            const details = [];
+
+            categories.forEach(cat => {
+
+                (cat.questions || []).forEach(q => {
+
+                    if (q.type === 2) return;
+
+
+                    const selectedBtn = document.querySelector(
+                        `.rating-row button.selected[data-qid="${q.feedbackQuestionId}"]`
+                    );
+
+
+                    // YES / NO TYPE
+                    if (q.type === 0 || q.type === 4) {
+
+                        details.push({
+                            feedbackCategoryIDF: cat.feedbackCategoryId,
+                            feedbackQuestionIDF: q.feedbackQuestionId,
+                            selectedOptionIDF: null,
+                            textAnswer: null,
+                            type: q.type,
+                            isSelected: selectedBtn ? true : false
+                        });
+
+                        return;
+                    }
+
+                    // OPTION TYPE
+                    if (q.type === 1 || q.type === 3) {
+
+                        (q.options || []).forEach(opt => {
+
+                            details.push({
+                                feedbackCategoryIDF: cat.feedbackCategoryId,
+                                feedbackQuestionIDF: q.feedbackQuestionId,
+                                selectedOptionIDF: opt.feedbackOptionTypeId,
+                                textAnswer: null,
+                                type: q.type,
+                                isSelected:
+                                    selectedBtn &&
+                                    Number(selectedBtn.dataset.opt) === opt.feedbackOptionTypeId
+                            });
+
+                        });
+
+                    }
+
+                });
+
+            });
+            console.log("DETAIL COUNT :", details.length);
+            console.log(details);
+                    // TEXT (LEGACY STYLE)
+                    const suggestionText = (document.getElementById("suggestionText")?.value || "").trim();
+                    if (suggestionCat) {
+                        details.push({
+                            feedbackCategoryIDF: suggestionCat.feedbackCategoryId,
+                            feedbackQuestionIDF: null,
+                            selectedOptionIDF: null,
+                            textAnswer: suggestionText,
+                            type: 2,
+                            isSelected: true
+                        });
+                    }
+
+                    const appreciationText = (document.getElementById("appreciationText")?.value || "").trim();
+                    if (appreciationCat) {
+                        details.push({
+                            feedbackCategoryIDF: appreciationCat.feedbackCategoryId,
+                            feedbackQuestionIDF: null,
+                            selectedOptionIDF: null,
+                            textAnswer: appreciationText,
+                            type: 2,
+                            isSelected: true
+                        });
+                    }
+
+                    const payload = {
+                         token: window.feedbackToken,
+                        master: {
+                            patientIDF: patientId,
+                            registrationIDF: registrationId,
+                            // use registration code returned by API for IPD (do not rely on query string)
+                            registrationCode: isIpd ? (window._feedbackData?.ipdRegistrationCode || null) : null,
+                            registrationType: flag,
+                            doctorIDF: window._feedbackData?.doctorIDF || 0,
+                            remarks: ""
+                        },
+                        details: details
+                    };
+                    document.getElementById("submitBtn").disabled = true;
+                          const saveRes = await fetch("/api/PatientFeedback/save", {
+                         method: "POST",
+                         headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload)
+               });
+                   
+
+                            if (!saveRes.ok) {
+            document.getElementById("submitBtn").disabled = false;
+            alert(await saveRes.text());
+            return;
+        }
+                          alert("Thank you for your feedback.");
+                         document.getElementById("submitBtn").disabled = true;
+                });
+
+                    } catch (err) {
+            console.error(err);
+            document.getElementById("submitBtn").disabled = true;
+            alert(err.message || "Failed to load feedback.");
+        }
+        });
+
+        function selectOption(btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll("button").forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+        }
+    </script>
+
+</body>
+</html>
