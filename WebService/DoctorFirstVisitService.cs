@@ -186,8 +186,7 @@ namespace DoctorMobileApp.WebService
             }
             return list;
         }
-
-        public async Task<List<InvestigationTestReport>> GetVisitPathoListAsync(
+        public async Task<List<InvestigationTestReport>> GetVisitPathoTestListAsync(
            VisitTestRequest request, int hospitalidf, int hospitalgroupidf)
         {
             var list = new List<InvestigationTestReport>();
@@ -205,7 +204,6 @@ namespace DoctorMobileApp.WebService
               patientParams);
             return list;
         }
-
         public async Task<List<IDNamePair>> GetRadioCategoryListAsync(int hospitaligroupdf)
         {
             var list = new List<IDNamePair>();
@@ -253,6 +251,24 @@ namespace DoctorMobileApp.WebService
                 CommandType.StoredProcedure,
                 patientParams);
             }
+            return list;
+        }
+        public async Task<List<InvestigationTestReport>> GetVisitRadioTestListAsync(
+          VisitTestRequest request, int hospitalidf, int hospitalgroupidf)
+        {
+            var list = new List<InvestigationTestReport>();
+            SqlParameter[] patientParams =
+             {
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@VisitIDF", request.VisitIDF),
+                new SqlParameter("@VisitFlag", request.VisitFlag),
+                new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
+            };
+            list = await _dbHelper.QueryAsync<InvestigationTestReport>(
+              "API_SP_GetVisitRadioTestList",
+              CommandType.StoredProcedure,
+              patientParams);
             return list;
         }
         public async Task<List<IDNamePair>> GetProcedureCategoryListAsync(int hospitaligroupdf)
