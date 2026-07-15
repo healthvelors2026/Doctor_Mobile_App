@@ -186,6 +186,26 @@ namespace DoctorMobileApp.WebService
             }
             return list;
         }
+
+        public async Task<List<InvestigationTestReport>> GetVisitPathoListAsync(
+           VisitTestRequest request, int hospitalidf, int hospitalgroupidf)
+        {
+            var list = new List<InvestigationTestReport>();
+            SqlParameter[] patientParams =
+             {
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@VisitIDF", request.VisitIDF),
+                new SqlParameter("@VisitFlag", request.VisitFlag),
+                new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
+            };
+            list = await _dbHelper.QueryAsync<InvestigationTestReport>(
+              "API_SP_GetVisitPathoTestList",
+              CommandType.StoredProcedure,
+              patientParams);
+            return list;
+        }
+
         public async Task<List<IDNamePair>> GetRadioCategoryListAsync(int hospitaligroupdf)
         {
             var list = new List<IDNamePair>();

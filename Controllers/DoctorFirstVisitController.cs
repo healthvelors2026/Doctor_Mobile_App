@@ -66,6 +66,14 @@ namespace DoctorMobileApp.Controllers
             return Ok(result);
         }
         [Authorize]
+        // 🔹 POST: api/doctor-visit/get-visit-patholist
+        [HttpPost("get-visit-patholist")]
+        public async Task<IActionResult> GetVisitPathoList(VisitTestRequest request)
+        {
+            var result = await _DoctorFirstservice.GetVisitPathoListAsync(request, hospitalidf, hospitalgroupidf);
+            return Ok(result);
+        }
+        [Authorize]
         // 🔹 POST: api/doctor-visit/get-radio-categorylist
         [HttpPost("get-radio-categorylist")]
         public async Task<IActionResult> GetRadioCategoryList()

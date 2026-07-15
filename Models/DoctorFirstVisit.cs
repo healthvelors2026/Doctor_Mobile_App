@@ -208,4 +208,10 @@
         public int NonCashLess { get; set; }
         public int IPDForNew { get; set; }
     }
+    public class VisitTestRequest
+    {
+        public int AdmissionIDF { get; set; }
+        public int VisitIDF { get; set; }
+        public int VisitFlag { get; set; }
+    }
 }
