@@ -66,6 +66,14 @@ namespace DoctorMobileApp.Controllers
             return Ok(result);
         }
         [Authorize]
+        // 🔹 POST: api/doctor-visit/get-visit-pathotestlist
+        [HttpPost("get-visit-patholist")]
+        public async Task<IActionResult> GetVisitPathoTestList(VisitTestRequest request)
+        {
+            var result = await _DoctorFirstservice.GetVisitPathoTestListAsync(request, hospitalidf, hospitalgroupidf);
+            return Ok(result);
+        }
+        [Authorize]
         // 🔹 POST: api/doctor-visit/get-radio-categorylist
         [HttpPost("get-radio-categorylist")]
         public async Task<IActionResult> GetRadioCategoryList()
@@ -79,6 +87,14 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetRadioTestPriceList(TestPriceRequest request)
         {
             var result = await _DoctorFirstservice.GetRadioTestPriceListAsync(request, hospitalidf, hospitalgroupidf);
+            return Ok(result);
+        }
+        [Authorize]
+        // 🔹 POST: api/doctor-visit/get-visit-radiotestlist
+        [HttpPost("get-visit-radiolist")]
+        public async Task<IActionResult> GetVisitRadioTestList(VisitTestRequest request)
+        {
+            var result = await _DoctorFirstservice.GetVisitRadioTestListAsync(request, hospitalidf, hospitalgroupidf);
             return Ok(result);
         }
         [Authorize]

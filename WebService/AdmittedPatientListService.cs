@@ -37,6 +37,7 @@ namespace DoctorMobileApp.WebService
         public async Task<AdmittedPatientListRequest> GetDoctorListAsync(int hospitalidf)
         {
             var response = new AdmittedPatientListRequest
+
             {
                 DoctorList = new List<DoctorList>(),
             };

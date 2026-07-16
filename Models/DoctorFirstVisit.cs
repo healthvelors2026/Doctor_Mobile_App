@@ -27,6 +27,9 @@
         public int? PatientIDF { get; set; }
         public int? BedIDF { get; set; }
         public int? WardIDF { get; set; }
+        public int? WardTypeIDF { get; set; }
+        public int? OtherWardIDF { get; set; }
+        public int? OtherWardTypeIDF { get; set; }
         public string Complaints { get; set; } = string.Empty;
         public string FindingAndSuggestions { get; set; } = string.Empty;
         public string DietOrOtherInstruction { get; set; } = string.Empty;
@@ -73,6 +76,7 @@
         public int IPDForNew { get; set; }
         public string BedName { get; set; } = string.Empty;
         public string WardName { get; set; } = string.Empty;
+        public string OtherWardName { get; set; } = string.Empty;
         public string FloorName { get; set; } = string.Empty;
         public string BlockName { get; set; } = string.Empty;
         public int? SkillSetIDF { get; set; }
@@ -203,5 +207,11 @@
         public int VistType { get; set; }
         public int NonCashLess { get; set; }
         public int IPDForNew { get; set; }
+    }
+    public class VisitTestRequest
+    {
+        public int AdmissionIDF { get; set; }
+        public int VisitIDF { get; set; }
+        public int VisitFlag { get; set; }
     }
 }
