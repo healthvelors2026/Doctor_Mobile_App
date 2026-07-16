@@ -189,12 +189,58 @@ namespace DoctorMobileApp.Controllers
                 ReceiptID = receiptId
             });
         }
+        // Add by deep for an Kiosk
+        [HttpPost]
+        [Route("get-last-visit-doctor")]
+        public async Task<IActionResult> GetLastvisitDoctor([FromBody] LastVisitDrRequestmodel requestmodel)
+        {
+            var data = await _kioskService.GetLastVisitDoctorAsync(requestmodel, hospitalidf);
+
+            if (data == null)
+            {
+                return NotFound(new
+                {
+                    Status = false,
+                    Message = "Record Not Found"
+                });
+            }
+
+            return Ok(new
+            {
+                Status = true,
+                Message = "Success",
+                Data = data
+            });
+        }
+
+        [HttpPost]
+        [Route("get-patient-appointment-detail")]
+        public async Task<IActionResult> GetPatientAppointmentDetail([FromBody] PatientLatestAppointmentRequestModel requestmodel)
+        {
+            var data = await _kioskService.GetLatestPatientAppointmentDetailAsync(requestmodel, hospitalidf);
+
+            if (data == null)
+            {
+                return NotFound(new
+                {
+                    Status = false,
+                    Message = "Record Not Found"
+                });
+            }
+
+            return Ok(new
+            {
+                Status = true,
+                Message = "Success",
+                Data = data
+            });
+        }
 
         [HttpPost]
         [Route("get-doctor-list")]
         public async Task<IActionResult> GetDoctorList([FromBody] DoctorRequestModel requestModel)
         {
-            var doctorList = await _kioskService.GetDoctorListAsync(requestModel,hospitalidf);
+            var doctorList = await _kioskService.GetDoctorListAsync(requestModel, hospitalidf);
             if (doctorList == null || doctorList.Count == 0)
             {
                 return NotFound(new
@@ -237,6 +283,38 @@ namespace DoctorMobileApp.Controllers
                 Status = true,
                 Message = "Advance Deposit Saved Successfully",
                 VoucherID = voucherId
+            });
+        }
+
+        [HttpPost]
+        [Route("save-opd-registration")]
+        public async Task<IActionResult> SaveOPDRegistration([FromBody] SaveOPDRegistrationModel receiptModel)
+        {
+            if (receiptModel == null)
+            {
+                return BadRequest(new
+                {
+                    Status = false,
+                    Message = "Invalid Request"
+                });
+            }
+
+            var receiptId = await _kioskService.SaveOPDRegistrationAsync(receiptModel);
+
+            if (receiptId <= 0)
+            {
+                return BadRequest(new
+                {
+                    Status = false,
+                    Message = "Failed to Save OPD Registration"
+                });
+            }
+
+            return Ok(new
+            {
+                Status = true,
+                Message = "OPD Registration Saved Successfully",
+                ReceiptID = receiptId
             });
         }
     }

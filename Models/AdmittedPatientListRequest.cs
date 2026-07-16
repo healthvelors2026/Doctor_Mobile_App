@@ -67,9 +67,34 @@
         public int PageSize { get; set; }
     }
 
+    public class AddmisionCheckRequest
+    {
+        public int CheckListType { get; set; }
+        public bool NonActive { get; set; } = false;
+        public int AdmissionIDF {  get; set; }
+        public int RegistrationIDF { get; set; }
+        public int RegistrationType { get; set; }
+    }
+
+    public class AddmisionCheckResponse
+    {
+        public int CheckListQuestionIDP { get; set; }
+        public string? Question {  get; set; } 
+        public int SrNo { get; set; }
+        public int Type { get; set; }
+        public int CheckListQuestionDetailIDP { get; set; }
+        public bool Value {  get; set; }
+        public string? Remarks { get; set; }
+        public int CategoryIDF { get; set; }
+        public string? CategoryName { get; set; }
+
+    }
     public class BedTransferRequest
     {
         public int PatientID { get; set; }
+        public string? Filter { get; set; } = string.Empty;
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 20;
     }
     public class BedTransferResponse
     {
@@ -81,7 +106,8 @@
         public string Gender { get; set; }
         public string ClassName { get; set; }
         public string ConsultDoctor { get; set; }
-
+        public int TotalRecords { get; set; }
+        public int TotalPages { get; set; }
         public List<BedTransferHistoryModel> BedTransferHistory { get; set; } = new List<BedTransferHistoryModel>();
     }
     public class BedTransferHistoryModel
@@ -129,5 +155,120 @@
         public int WardIDP { get; set; }
 
         public string WardName { get; set; }
+    }
+
+    public class BedTransferEditRequest
+    {
+        public int AdmissionID { get; set; }
+
+        public int BedID { get; set; }
+
+        public int WardID { get; set; }
+
+        public int WardTypeID { get; set; }
+
+        public int ClassID { get; set; }
+
+        public int OtherWardID { get; set; }
+
+        public bool IsDayCare { get; set; }
+
+        public DateTime FromDate { get; set; }
+
+        public string CurrentBed { get; set; }
+    }
+    public class BedTransferEditResponse
+    {
+        public string CurrentBed { get; set; }
+
+        public string TransferDate { get; set; }
+
+        public DateTime FromDate { get; set; }
+
+        public List<BedDropdownModel> AvailableBeds { get; set; } = new();
+
+        public List<CheckListQuestionModel> AdmissionChecklist { get; set; } = new();
+
+        public List<SwapPatientModel> SwapPatients { get; set; } = new();
+    }
+    public class BedDropdownModel
+    {
+        public int BedID { get; set; }
+
+        public string BedName { get; set; }
+
+        public int WardID { get; set; }
+
+        public string WardName { get; set; }
+    }
+    public class CheckListQuestionModel
+    {
+        public int CheckListQuestionIDP { get; set; }
+
+        public string Question { get; set; }
+
+        public bool Value { get; set; }
+
+        public string Remarks { get; set; }
+
+        public string CategoryName { get; set; }
+    }
+    public class SwapPatientModel
+    {
+        public int AdmissionID { get; set; }
+
+        public int PatientID { get; set; }
+
+        public string PatientName { get; set; }
+
+        public string BedName { get; set; }
+    }
+    public class AvailableBedDBModel
+    {
+        public int BedIDP { get; set; }
+
+        public string BedName { get; set; }
+
+        public string BedCode { get; set; }
+
+        public int WardIDP { get; set; }
+
+        public string WardName { get; set; }
+
+        public int WardTypeIDF { get; set; }
+
+        public bool Status { get; set; }
+
+        public bool IsICUWard { get; set; }
+
+        public bool IsOTWard { get; set; }
+    }
+
+    // For Swap 
+    public class SwapPatientRequest
+    {
+        public int AdmissionID { get; set; }
+
+        public int BedID { get; set; }
+
+        public int WardID { get; set; }
+    }
+    public class SwapPatientResponse
+    {
+        public int AdmissionID { get; set; }
+
+        public int PatientID { get; set; }
+
+        public string PatientName { get; set; }
+
+        public string IPDRegistrationCode { get; set; }
+
+        public string BedName { get; set; }
+
+        public string WardName { get; set; }
+
+        public string Gender { get; set; }
+
+        public string Age { get; set; }
     }
 }
