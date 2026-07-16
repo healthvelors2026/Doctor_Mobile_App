@@ -15,6 +15,7 @@ namespace DoctorMobileApp.Controllers
         private readonly IConfiguration _configuration;
         private int hospitalidf => int.TryParse(User.FindFirst("HospitalIDF")?.Value, out var id) ? id : 0;
         private int employeeIDF => int.TryParse(User.FindFirst("EmployeeIDF")?.Value, out var id) ? id : 0; 
+        private int hospitalGroupIDF => int.TryParse(User.FindFirst("HospitalGroupIDF")?.Value,out var id) ? id : 0;
         public AdmittedPatientListController(IDbConnectionFactory db, IConfiguration configuration)
         {
             _db = db;
@@ -64,5 +65,31 @@ namespace DoctorMobileApp.Controllers
 
             return Ok(data);
         }
+
+        [Authorize]
+        [HttpPost("get-addmision-check-list")]
+        public async Task<IActionResult> GetAddmisionCheckList([FromBody] AddmisionCheckRequest request)
+        {
+            var data = await _AdmittedListservice.GetAddmisionCheckListAsync(request, hospitalidf,hospitalGroupIDF);
+            return Ok(data);
+        }
+
+        [Authorize]
+        [HttpPost("get-bed-transfer-edit")]
+        public async Task<IActionResult> GetBedTransferEdit([FromBody] BedTransferEditRequest request)
+        {
+            var result = await _AdmittedListservice.GetBedTransferEditAsync(request, hospitalidf);
+
+            return Ok(result);
+        }
+
+        //[Authorize]
+        //[HttpPost("get-swap-patient-list")]
+        //public async Task<IActionResult> GetSwapPatientList([FromBody] SwapPatientRequest request)
+        //{
+        //    var data = await _AdmittedListservice.GetSwapPatientListAsync(request, hospitalidf);
+
+        //    return Ok(data);
+        //}
     }
 }

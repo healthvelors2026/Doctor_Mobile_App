@@ -95,7 +95,7 @@ namespace DoctorMobileApp.WebServices
             return result.FirstOrDefault();
         }
 
-        public async Task<List<PathoReportResponseModel>> GetPathoReportListForPrintAsync(PathoReportRequestModel requestModel,int hospitalidf)
+        public async Task<List<PathoReportResponseModel>> GetPathoReportListForPrintAsync(PathoReportRequestModel requestModel, int hospitalidf)
         {
             var list = new List<PathoReportResponseModel>();
             var pathoReportParams = new[]
@@ -170,19 +170,42 @@ namespace DoctorMobileApp.WebServices
                 throw;
             }
         }
+        public async Task<LastVisitDrResponseModel> GetLastVisitDoctorAsync(LastVisitDrRequestmodel requestModel, int hospitalidf)
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@PatientID", requestModel.PatientIDF),
+                new SqlParameter("@HospitalID",hospitalidf)
+            };
 
-        public async Task<List<DoctorResponseModel>> GetDoctorListAsync(DoctorRequestModel requestModel,int hospitalidf)
+            var result = await _dbHelper.QueryAsync<LastVisitDrResponseModel>("Kiosk_API_GetLastVisitDoctorDetail", CommandType.StoredProcedure, parameters);
+
+            return result.FirstOrDefault();
+        }
+        public async Task<List<DoctorResponseModel>> GetDoctorListAsync(DoctorRequestModel requestModel, int hospitalidf)
         {
             var list = new List<DoctorResponseModel>();
             var doctorParams = new[]
             {
-                new SqlParameter("@HospitalIDF", hospitalidf),
-                new SqlParameter("@SkillSetIDF", requestModel.SkillSetIDF)
+                new SqlParameter("@HospitalID", hospitalidf),
+                new SqlParameter("@SkillSetID", requestModel.SkillSetID)
             };
-            list = await _dbHelper.QueryAsync<DoctorResponseModel>("Kiosk_API_Doctor_GetList", CommandType.StoredProcedure, doctorParams);
+            list = await _dbHelper.QueryAsync<DoctorResponseModel>("KIOSK_API_GetSkillSetWise_Doctor", CommandType.StoredProcedure, doctorParams);
             return list;
         }
 
+        public async Task<List<PatientLatestAppointmentResponseModel>> GetLatestPatientAppointmentDetailAsync(PatientLatestAppointmentRequestModel requestModel, int hospitalidf)
+        {
+            var list = new List<PatientLatestAppointmentResponseModel>();
+            var AppointmentParams = new[]
+            {
+                new SqlParameter("@HospitalID", hospitalidf),
+                new SqlParameter("@PatientID", requestModel.PatientID)
+            };
+            list = await _dbHelper.QueryAsync<PatientLatestAppointmentResponseModel>("Kiosk_API_GetPatientLatestAppointmentDetail", CommandType.StoredProcedure, AppointmentParams);
+            return list;
+
+        }
         public async Task<int> SaveAdvanceDepositAsync(AdvanceDepositModel model)
         {
             try
@@ -199,10 +222,44 @@ namespace DoctorMobileApp.WebServices
                     // new SqlParameter("@HospitalIDF", model.HospitalIDF),
                      new SqlParameter("@ModeOfPaymentIDF", model.ModeOfPaymentIDF),
                      new SqlParameter("@Kiosk_UserIDF", model.Kiosk_UserIDF),
+                       new SqlParameter("@BrowserName",string.IsNullOrWhiteSpace(model.BrowserName)? DBNull.Value: (object)model.BrowserName),
+                    new SqlParameter("@IPAdress",string.IsNullOrWhiteSpace(model.IPAdress)? DBNull.Value: (object)model.IPAdress),
                      voucherParam
                 };
                 await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_InsertPatientAdvance", CommandType.StoredProcedure, parameters);
                 return Convert.ToInt32(voucherParam.Value);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public async Task<int> SaveOPDRegistrationAsync(SaveOPDRegistrationModel model)
+        {
+            try
+            {
+                var voucherParam = new SqlParameter("@VoucherIDP", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@PatientIDF", model.PatientIDF),
+                    new SqlParameter("@DoctorIDF", model.DoctorIDF),
+                    new SqlParameter("@HospitalIDF", model.HospitalIDF),
+                    new SqlParameter("@Kiosk_UserIDF", model.Kiosk_UserIDF),
+                    new SqlParameter("@UPITransactionNo",string.IsNullOrWhiteSpace(model.UPITransactionNo)? DBNull.Value: (object)model.UPITransactionNo),
+                    new SqlParameter("@BrowserName",string.IsNullOrWhiteSpace(model.BrowserName)? DBNull.Value: (object)model.BrowserName),
+                    new SqlParameter("@IPAdress",string.IsNullOrWhiteSpace(model.IPAdress)? DBNull.Value: (object)model.IPAdress),
+                    voucherParam
+
+                };
+
+            await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_Insert_OPD_Registration",CommandType.StoredProcedure,parameters);
+                return Convert.ToInt32(voucherParam.Value);
+
             }
             catch
             {

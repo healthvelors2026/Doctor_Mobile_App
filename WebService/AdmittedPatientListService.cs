@@ -2,6 +2,7 @@
 using DoctorMobileApp.Models;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using static DoctorMobileApp.Models.KioskModel;
 
 namespace DoctorMobileApp.WebService
 {
@@ -20,7 +21,7 @@ namespace DoctorMobileApp.WebService
             var response = new AdmittedPatientListRequest
             {
                 WardList = new List<WardList>(),
-              
+
             };
             var wardParams = new[]
             {
@@ -43,7 +44,7 @@ namespace DoctorMobileApp.WebService
             {
                  new SqlParameter("@HospitalIDF", hospitalidf)
             };
-            var doctorTask = await _dbHelper.QueryAsync<DoctorList>("API_DoctorList",CommandType.StoredProcedure,doctorParams);
+            var doctorTask = await _dbHelper.QueryAsync<DoctorList>("API_DoctorList", CommandType.StoredProcedure, doctorParams);
             response.DoctorList = doctorTask;
             return response;
         }
@@ -122,11 +123,16 @@ namespace DoctorMobileApp.WebService
             var patientParams = new[]
             {
                 new SqlParameter("@HospitalIDP", hospitalidf),
-                new SqlParameter("@PatientIDF", request.PatientID)
+                new SqlParameter("@PatientIDF", request.PatientID),
+                new SqlParameter("@Filter", request.Filter ?? string.Empty),
+                new SqlParameter("@PageNumber", request.PageNumber),
+                new SqlParameter("@PageSize", request.PageSize),
+                new SqlParameter("@TotalRecords", SqlDbType.Int) { Direction = ParameterDirection.Output },
+                new SqlParameter("@TotalPages", SqlDbType.Int) { Direction = ParameterDirection.Output }
             };
-            var patient = (await _dbHelper.QueryAsync<BedTransferPatientDBModel>("DoctorApp_API_GetBedTransferPatientDetail",CommandType.StoredProcedure,
+            var patient = (await _dbHelper.QueryAsync<BedTransferPatientDBModel>("DoctorApp_API_GetBedTransferPatientDetail", CommandType.StoredProcedure,
              patientParams)).FirstOrDefault();
-            
+
             if (patient == null)
                 return response;
 
@@ -191,5 +197,69 @@ namespace DoctorMobileApp.WebService
             response.BedTransferHistory = history;
             return response;
         }
+            
+        public async Task<List<AddmisionCheckResponse>> GetAddmisionCheckListAsync(AddmisionCheckRequest request, int hospitalIDF, int hospitalGroupIDF)
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@Type", request.CheckListType),
+                new SqlParameter("@NonActive", request.NonActive),
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@RegistrationIDF", request.RegistrationIDF),
+                new SqlParameter("@RegistrationType", request.RegistrationType),
+                new SqlParameter("@HospitalGroupIDF", hospitalGroupIDF),
+                new SqlParameter("@HospitalIDF", hospitalIDF)
+            };
+
+            var result = await _dbHelper.QueryAsync<AddmisionCheckResponse>("GET_IPDCheckListQuestionDetail",
+                CommandType.StoredProcedure,
+                parameters);
+
+            return result;
+        }
+
+        public async Task<BedTransferEditResponse> GetBedTransferEditAsync(BedTransferEditRequest request,int hospitalIDF)
+        {
+            var response = new BedTransferEditResponse();
+
+            // Current Bed
+            response.CurrentBed = request.CurrentBed;
+
+            // From Date
+            response.FromDate = request.FromDate;
+
+            // Transfer Date
+            response.TransferDate = DateTime.Now.ToString("dd/MM/yyyy hh:mm tt");
+
+            // Available Beds
+            var filter =
+                $"BedIDP <> {request.BedID} " +
+                "AND Status = 0 " +
+                "AND tbBedMaster.NonActive = 0 " +
+                "AND tbRoomMaster.NonActive = 0 " +
+                "AND tbWardMaster.NonActive = 0";
+
+            var bedParams = new[]
+            {
+                new SqlParameter("@HospitalIDF", hospitalIDF),
+                new SqlParameter("@FilterCondition", filter)
+            };
+
+            var beds = await _dbHelper.QueryAsync<AvailableBedDBModel>("sp_GetAllBedMasterWithWard",CommandType.StoredProcedure,bedParams);
+            response.AvailableBeds = beds.Select(x => new BedDropdownModel
+            {
+                BedID = x.BedIDP,
+                BedName = x.BedName,
+                WardID = x.WardIDP,
+                WardName = x.WardName
+            }).ToList();
+            return response;
+        }
+
+        //public async Task<SwapPatientResponse> GetSwapPatientListAsync(SwapPatientRequest request, int hospitalidf)
+        //{
+        //    var response = new SwapPatientResponse();
+
+        //}
     }
 }
