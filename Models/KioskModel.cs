@@ -117,15 +117,53 @@ namespace DoctorMobileApp.Models
         {
             public int VoucherIDP { get; set; }
         }
+        // for Last visit Doctor For Kiosk
+        public class LastVisitDrRequestmodel
+        {
+            public int PatientIDF { get; set; }
+        }
+        public class LastVisitDrResponseModel
+        {
+            public int OPDRegistrationIDP { get; set; }    
+            public int PatientIDF { get; set; }
+            public int DoctorIDF {  get; set; }
+            public string? DoctorName { get; set; }
+            public string? SkillSetName { get; set; }
+            public string? ServiceName { get; set; }
+            public double TotalAmount { get; set; }
+            public string? LastConsultation {  get; set; }
+        }
+        //end
+        public class PatientLatestAppointmentRequestModel
+        {
+            public int PatientID { get; set; }
+        }
 
+        public class PatientLatestAppointmentResponseModel
+        {
+            public int EmployeeIDP { get; set; }
+            public string DoctorName { get; set; }
+            public string DepartmentName { get; set; }
+            public string ServiceName { get; set; }
+            public DateTime TodayDate { get; set; }
+            public string Slot { get; set; }
+            public string Status { get; set; }
+        }
+
+        // Get Doctor List Skill Set wise 
         public class DoctorRequestModel
         {
-            public int SkillSetIDF { get; set; }
+            public int? SkillSetID { get; set; }
         }
         public class DoctorResponseModel
         {
-            public int DoctorID { get; set; }
-            public string? DoctorName { get; set; }
+            public int EmployeeIDP { get; set; }
+            public string? EmployeeName { get; set; }
+            public string? SkillSetName { get; set; }
+            public string? SkillSetLocalLanguage { get; set; }
+            public string? TimeSlot { get; set; }
+            public decimal Amount { get; set; }
+            public string? Photo { get; set; }
         }
 
         public class AdvanceDepositModel
@@ -136,6 +174,18 @@ namespace DoctorMobileApp.Models
             public string? TransactionId { get; set; }
             public int ModeOfPaymentIDF { get; set; }
             public int Kiosk_UserIDF { get; set; }
+            public string? BrowserName { get; set; }
+            public string? IPAdress { get; set; }
+        }
+        public class SaveOPDRegistrationModel
+        {
+            public int PatientIDF { get; set; }
+            public int DoctorIDF { get; set; }
+            public int HospitalIDF { get; set; }
+            public int Kiosk_UserIDF { get; set; }
+            public string? UPITransactionNo { get; set; }
+            public string? BrowserName { get; set; }
+            public string? IPAdress { get; set; }
         }
     }
 }

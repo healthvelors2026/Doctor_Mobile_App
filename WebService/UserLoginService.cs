@@ -91,7 +91,8 @@ namespace DoctorMobileApp.WebService
                 HospitalName = row.ToStr("HospitalName"),
                 HospitalCode = row.ToStr("HospitalCode"),
                 EmployeeIDF = row.ToInt("EmployeeIDF"),
-                EmployeeName = row.ToStr("EmployeeName")
+                EmployeeName = row.ToStr("EmployeeName"),
+                FASModeOFPaymentIDF = row.ToInt("FASModeOFPaymentIDF")
             };
             user.Token = GenerateToken(user);
             var refreshToken = GenerateRefreshToken();
@@ -126,6 +127,7 @@ namespace DoctorMobileApp.WebService
                 new Claim("HospitalCode", obj.HospitalCode ?? ""),
                 new Claim("EmployeeIDF", obj.EmployeeIDF.ToString()),
                 new Claim("EmployeeName", obj.EmployeeName ?? ""),
+                new Claim("FASModeOFPaymentIDF", obj.FASModeOFPaymentIDF.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             var key = new SymmetricSecurityKey(
