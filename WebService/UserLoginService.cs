@@ -24,7 +24,9 @@ namespace DoctorMobileApp.WebService
             var parameters = new SqlParameter[]
             {
                 new SqlParameter("@userName", request.username),
-                new SqlParameter("@password", request.password) // ideally hashed
+                new SqlParameter("@password", request.password), // ideally hashed
+                new SqlParameter("@IsKioskUser", request.IsKioskUser)
+
             };
             var dataTable = await _dbHelper.ExecuteDataTableAsync(
                 "Api_UserLogin",
