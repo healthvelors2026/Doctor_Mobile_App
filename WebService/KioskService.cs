@@ -32,8 +32,6 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<PatientDetail>("Kiosk_API_PatientSearch", CommandType.StoredProcedure, patientParams);
             return list;
         }
-
-
         public async Task<List<SkillSetResponseModel>> GetSkillSetListAsync(int hospitalgroupidf = 0)
         {
             var request = _httpContextAccessor.HttpContext!.Request;
@@ -69,8 +67,6 @@ namespace DoctorMobileApp.WebServices
             }
             return list;
         }
-
-
         public async Task<GeneratePatientOTPResponseModel> GenerateOTPAsync(GeneratePatientOTPRequestModel requestModel, int hospitalidf)
         {
             var otpParams = new[]
@@ -94,7 +90,6 @@ namespace DoctorMobileApp.WebServices
             var result = await _dbHelper.QueryAsync<VerifyPatientOTPResponseModel>("Kiosk_API_VerifyPatientOTP", CommandType.StoredProcedure, otpParams);
             return result.FirstOrDefault();
         }
-
         public async Task<List<PathoReportResponseModel>> GetPathoReportListForPrintAsync(PathoReportRequestModel requestModel, int hospitalidf)
         {
             var list = new List<PathoReportResponseModel>();
@@ -106,7 +101,6 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<PathoReportResponseModel>("Kiosk_API_GetPathologyReportListForPrint", CommandType.StoredProcedure, pathoReportParams);
             return list;
         }
-
         public async Task<List<OPDTestReceiptResponseModel>> GetOPDTestReceiptListAsync(OPDTestReceiptRequestModel requestModel, int hospitalidf)
         {
             var list = new List<OPDTestReceiptResponseModel>();
@@ -119,7 +113,7 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<OPDTestReceiptResponseModel>("Kiosk_API_OPDTestReceipt_GetList", CommandType.StoredProcedure, OPDParams);
             return list;
         }
-        public async Task<int> SaveOPDTestReceiptAsync(SaveOPDTestReceiptRequestModel model)
+        public async Task<int> SaveOPDTestReceiptAsync(SaveOPDTestReceiptRequestModel model, int userIdf, int hospitalidf)
         {
             try
             {
@@ -153,11 +147,11 @@ namespace DoctorMobileApp.WebServices
                 };
                 var parameters = new SqlParameter[]
                 {
-                   new SqlParameter("@HospitalIDF", model.HospitalIDF),
+                   new SqlParameter("@HospitalIDF",hospitalidf),
                    new SqlParameter("@PatientIDF", model.PatientIDF),
                    new SqlParameter("@OPDRegistrationIDF", model.OPDRegistrationIDF),
                    tvpParam,
-                   new SqlParameter("@UserIDF", model.UserIDF),
+                   new SqlParameter("@UserIDF",userIdf),
                    new SqlParameter("@UPITransactionNo",
                    string.IsNullOrWhiteSpace(model.UPITransactionNo)? DBNull.Value: (object)model.UPITransactionNo),
                    voucherParam
@@ -193,7 +187,6 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<DoctorResponseModel>("KIOSK_API_GetSkillSetWise_Doctor", CommandType.StoredProcedure, doctorParams);
             return list;
         }
-
         public async Task<List<PatientLatestAppointmentResponseModel>> GetLatestPatientAppointmentDetailAsync(PatientLatestAppointmentRequestModel requestModel, int hospitalidf)
         {
             var list = new List<PatientLatestAppointmentResponseModel>();
@@ -206,7 +199,7 @@ namespace DoctorMobileApp.WebServices
             return list;
 
         }
-        public async Task<int> SaveAdvanceDepositAsync(AdvanceDepositModel model)
+        public async Task<int> SaveAdvanceDepositAsync(AdvanceDepositModel model, int hospitalidf, int fasModeOFPaymentIDF, int userIdf)
         {
             try
             {
@@ -219,9 +212,9 @@ namespace DoctorMobileApp.WebServices
                      new SqlParameter("@PatientIDF", model.PatientIDF),
                      new SqlParameter("@AdvanceAmount", model.AdvanceAmount),
                      new SqlParameter("@TransactionId",string.IsNullOrEmpty(model.TransactionId)? DBNull.Value: (object)model.TransactionId),
-                    // new SqlParameter("@HospitalIDF", model.HospitalIDF),
-                     new SqlParameter("@ModeOfPaymentIDF", model.ModeOfPaymentIDF),
-                     new SqlParameter("@Kiosk_UserIDF", model.Kiosk_UserIDF),
+                     new SqlParameter("@HospitalIDF",hospitalidf),
+                     new SqlParameter("@ModeOfPaymentIDF", fasModeOFPaymentIDF),
+                     new SqlParameter("@Kiosk_UserIDF", userIdf),
                        new SqlParameter("@BrowserName",string.IsNullOrWhiteSpace(model.BrowserName)? DBNull.Value: (object)model.BrowserName),
                     new SqlParameter("@IPAdress",string.IsNullOrWhiteSpace(model.IPAdress)? DBNull.Value: (object)model.IPAdress),
                      voucherParam
@@ -234,8 +227,7 @@ namespace DoctorMobileApp.WebServices
                 return 0;
             }
         }
-
-        public async Task<int> SaveOPDRegistrationAsync(SaveOPDRegistrationModel model)
+        public async Task<int> SaveOPDRegistrationAsync(SaveOPDRegistrationModel model,int userIdf,int hospitalidf)
         {
             try
             {
@@ -248,8 +240,8 @@ namespace DoctorMobileApp.WebServices
                 {
                     new SqlParameter("@PatientIDF", model.PatientIDF),
                     new SqlParameter("@DoctorIDF", model.DoctorIDF),
-                    new SqlParameter("@HospitalIDF", model.HospitalIDF),
-                    new SqlParameter("@Kiosk_UserIDF", model.Kiosk_UserIDF),
+                    new SqlParameter("@HospitalIDF", hospitalidf),
+                    new SqlParameter("@Kiosk_UserIDF", userIdf),
                     new SqlParameter("@UPITransactionNo",string.IsNullOrWhiteSpace(model.UPITransactionNo)? DBNull.Value: (object)model.UPITransactionNo),
                     new SqlParameter("@BrowserName",string.IsNullOrWhiteSpace(model.BrowserName)? DBNull.Value: (object)model.BrowserName),
                     new SqlParameter("@IPAdress",string.IsNullOrWhiteSpace(model.IPAdress)? DBNull.Value: (object)model.IPAdress),
