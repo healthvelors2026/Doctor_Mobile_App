@@ -24,10 +24,11 @@ namespace DoctorMobileApp.Controllers
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-
         private int hospitalidf => int.TryParse(User.FindFirst("HospitalIDF")?.Value, out var id) ? id : 0;
         private int hospitalgroupidf => int.TryParse(User.FindFirst("HospitalGroupIDF")?.Value, out var id) ? id : 0;
-        private int UserIdf => int.TryParse(User.FindFirst("UserIdf")?.Value, out var id) ? id : 0;
+        private int userIdf => int.TryParse(User.FindFirst("UserIdf")?.Value, out var id) ? id : 0;
+        private int fasModeOFPaymentIDF => int.TryParse(User.FindFirst("FASModeOFPaymentIDF")?.Value, out var id) ? id : 0;
+
         public KioskController( IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
            // _kioskService = kioskService;
@@ -173,7 +174,7 @@ namespace DoctorMobileApp.Controllers
                     Message = "Invalid Request"
                 });
             }
-            var receiptId = await _kioskService.SaveOPDTestReceiptAsync(receiptModel);
+            var receiptId = await _kioskService.SaveOPDTestReceiptAsync(receiptModel,userIdf,hospitalidf);
             if (receiptId <= 0)
             {
                 return BadRequest(new
@@ -189,7 +190,7 @@ namespace DoctorMobileApp.Controllers
                 ReceiptID = receiptId
             });
         }
-        // Add by deep for an Kiosk
+      
         [HttpPost]
         [Route("get-last-visit-doctor")]
         public async Task<IActionResult> GetLastvisitDoctor([FromBody] LastVisitDrRequestmodel requestmodel)
@@ -269,7 +270,7 @@ namespace DoctorMobileApp.Controllers
                     Message = "Invalid Request"
                 });
             }
-            var voucherId = await _kioskService.SaveAdvanceDepositAsync(depositmodel);
+            var voucherId = await _kioskService.SaveAdvanceDepositAsync(depositmodel, hospitalidf, fasModeOFPaymentIDF, userIdf);
             if (voucherId <= 0)
             {
                 return BadRequest(new
@@ -299,7 +300,7 @@ namespace DoctorMobileApp.Controllers
                 });
             }
 
-            var receiptId = await _kioskService.SaveOPDRegistrationAsync(receiptModel);
+            var receiptId = await _kioskService.SaveOPDRegistrationAsync(receiptModel, userIdf, hospitalidf);
 
             if (receiptId <= 0)
             {

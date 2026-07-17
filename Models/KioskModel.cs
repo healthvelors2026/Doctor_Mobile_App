@@ -100,10 +100,8 @@ namespace DoctorMobileApp.Models
         }
         public class SaveOPDTestReceiptRequestModel
         {
-            public int HospitalIDF { get; set; }
             public int PatientIDF { get; set; }
             public int OPDRegistrationIDF { get; set; }
-            public int UserIDF { get; set; }
             public string? UPITransactionNo { get; set; }
             public List<OPDTestReceiptDetailModel> OPDTestReceiptList { get; set; } = new List<OPDTestReceiptDetailModel>();
         }
@@ -142,12 +140,12 @@ namespace DoctorMobileApp.Models
         public class PatientLatestAppointmentResponseModel
         {
             public int EmployeeIDP { get; set; }
-            public string DoctorName { get; set; }
-            public string DepartmentName { get; set; }
-            public string ServiceName { get; set; }
+            public string? DoctorName { get; set; }
+            public string? DepartmentName { get; set; }
+            public string? ServiceName { get; set; }
             public DateTime TodayDate { get; set; }
-            public string Slot { get; set; }
-            public string Status { get; set; }
+            public string? Slot { get; set; }
+            public string? Status { get; set; }
         }
 
         // Get Doctor List Skill Set wise 
@@ -169,11 +167,8 @@ namespace DoctorMobileApp.Models
         public class AdvanceDepositModel
         {
             public int PatientIDF { get; set; }
-            public int HospitalIDF { get; set; }
             public decimal AdvanceAmount { get; set; }
             public string? TransactionId { get; set; }
-            public int ModeOfPaymentIDF { get; set; }
-            public int Kiosk_UserIDF { get; set; }
             public string? BrowserName { get; set; }
             public string? IPAdress { get; set; }
         }
@@ -181,8 +176,6 @@ namespace DoctorMobileApp.Models
         {
             public int PatientIDF { get; set; }
             public int DoctorIDF { get; set; }
-            public int HospitalIDF { get; set; }
-            public int Kiosk_UserIDF { get; set; }
             public string? UPITransactionNo { get; set; }
             public string? BrowserName { get; set; }
             public string? IPAdress { get; set; }
