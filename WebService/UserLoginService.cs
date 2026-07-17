@@ -40,13 +40,13 @@ namespace DoctorMobileApp.WebService
                 return null;
             return response;
         }
-        public async Task<bool> LogoutAsync(string RefreshToken)
+        public async Task<bool> LogoutAsync(TokenRequest request)
         {
-            if (string.IsNullOrWhiteSpace(RefreshToken))
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
                 return false;
             var parameters = new SqlParameter[]
             {
-               new SqlParameter("@Token", RefreshToken),
+               new SqlParameter("@Token", request.RefreshToken),
                new SqlParameter("@Message", SqlDbType.VarChar, 100)
                {
                     Direction = ParameterDirection.Output
@@ -60,11 +60,11 @@ namespace DoctorMobileApp.WebService
             var message = parameters[1].Value?.ToString();
             return message == "Logout successful";
         }
-        public async Task<LoginResponse?> GetRefreshTokenAsync(string RefreshToken)
+        public async Task<LoginResponse?> GetRefreshTokenAsync(TokenRequest request)
         {
             var parameters = new SqlParameter[]
             {
-                new SqlParameter("@Token", RefreshToken)
+                new SqlParameter("@Token", request.RefreshToken)
             };
             var dataTable = await _dbHelper.ExecuteDataTableAsync(
                 "API_SP_RefreshToken",

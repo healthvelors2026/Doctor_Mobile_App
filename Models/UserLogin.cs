@@ -30,4 +30,8 @@ namespace DoctorMobileApp.Models
         public string password { get; set; } = string.Empty;
         public int IsKioskUser { get; set; }
     }
+    public class TokenRequest
+    {
+        public string RefreshToken { get; set; } = string.Empty;
+    }
 }
