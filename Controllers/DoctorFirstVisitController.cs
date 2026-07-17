@@ -114,6 +114,14 @@ namespace DoctorMobileApp.Controllers
             return Ok(result);
         }
         [Authorize]
+        // 🔹 POST: api/doctor-visit/get-visit-proceduretestlist
+        [HttpPost("get-visit-procedurelist")]
+        public async Task<IActionResult> GetVisitProcedureTestList(VisitTestRequest request)
+        {
+            var result = await _DoctorFirstservice.GetVisitProcedureTestListAsync(request, hospitalidf, hospitalgroupidf);
+            return Ok(result);
+        }
+        [Authorize]
         // 🔹 POST: api/doctor-visit/save-visit
         [HttpPost("save-visit")]
         public async Task<IActionResult> SaveVisit([FromBody] DoctorFirstVisit model)
