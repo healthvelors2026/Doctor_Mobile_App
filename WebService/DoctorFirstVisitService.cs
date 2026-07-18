@@ -41,9 +41,9 @@ namespace DoctorMobileApp.WebService
 
             var response = new DoctorFirstVisit
             {
-                VisitDetails = ReadSingle<VisitDetails>(result, 0),
+                VisitDetails = ReadSingle<VisitDetails>(result, 0) ?? new VisitDetails(),
                 TabDetaillist = ReadList<TabDetail>(result, 1),
-                VisitChargeDetail = ReadSingle<VisitChargeDetail>(result, 2),
+                VisitChargeDetail = ReadSingle<VisitChargeDetail>(result, 2) ?? new VisitChargeDetail(),
                 DoctorList = ReadList<Doctor>(result, 4),
                 VisitTypeList = ReadList<IDNamePair>(result, 5),
                 VitalDetails = ReadList<VitalDetail>(result, 6),
