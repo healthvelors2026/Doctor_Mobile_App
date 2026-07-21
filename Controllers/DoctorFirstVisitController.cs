@@ -141,7 +141,11 @@ namespace DoctorMobileApp.Controllers
                 {
                     success = true,
                     //message = result
-                    message = isUpdate ? "Visit updated successfully" : "Visit saved successfully"
+                    message = isUpdate ? "Visit updated successfully" : "Visit saved successfully",
+                    data = new
+                    {
+                        DocVisitID = model.VisitDetails.DocVisitIDP
+                    }
                 });
             }
             catch (Exception ex)
@@ -153,6 +157,14 @@ namespace DoctorMobileApp.Controllers
                     error = ex.Message
                 });
             }
+        }
+        [Authorize]
+        // 🔹 POST: api/doctor-visit/get-routinedetails
+        [HttpPost("get-routinedetails")]
+        public async Task<IActionResult> GetRoutineVisitDetails(VisitDetailsRequest request)
+        {
+            var Data = await _DoctorFirstservice.GetRoutineVisitDetailsAsync(request, hospitalidf, hospitalgroupidf);
+            return Ok(Data);
         }
     }
 }
