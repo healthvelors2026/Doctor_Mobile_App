@@ -20,7 +20,8 @@ namespace DoctorMobileApp.WebService
             {
                 new SqlParameter("@DocVisitIDF", request.DocVisitIDF),
                 new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
-                new SqlParameter("@DoctorIDF", request.DoctorIDF), new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@DoctorIDF", request.DoctorIDF), 
+                new SqlParameter("@HospitalIDF", hospitalidf),
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
 
@@ -41,9 +42,9 @@ namespace DoctorMobileApp.WebService
 
             var response = new DoctorFirstVisit
             {
-                VisitDetails = ReadSingle<VisitDetails>(result, 0),
+                VisitDetails = ReadSingle<VisitDetails>(result, 0) ?? new VisitDetails(),
                 TabDetaillist = ReadList<TabDetail>(result, 1),
-                VisitChargeDetail = ReadSingle<VisitChargeDetail>(result, 2),
+                VisitChargeDetail = ReadSingle<VisitChargeDetail>(result, 2) ?? new VisitChargeDetail(),
                 DoctorList = ReadList<Doctor>(result, 4),
                 VisitTypeList = ReadList<IDNamePair>(result, 5),
                 VitalDetails = ReadList<VitalDetail>(result, 6),
@@ -576,6 +577,55 @@ namespace DoctorMobileApp.WebService
                 // ❌ Rollback everything if any step fails
                 return "Transaction Failed: " + ex.Message;
             }
+        }
+        public async Task<DoctorFirstVisit> GetRoutineVisitDetailsAsync(VisitDetailsRequest request, int hospitalidf, int hospitalgroupidf)
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@DocVisitIDF", request.DocVisitIDF),
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@DoctorIDF", request.DoctorIDF), 
+                new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
+            };
+
+            var result = await _dbHelper.QueryMultipleAsync(
+                "API_SP_GetRoutineVisitDetails",
+                new Func<SqlDataReader, object>[]
+                {
+                    r => ReadRowExtensions.MapToClass<VisitDetails>(r),
+                    r => ReadRowExtensions.MapToClass<VisitChargeDetail>(r),
+                    r => ReadRowExtensions.MapToClass<DiagnosisModel>(r),
+                    r => ReadRowExtensions.MapToClass<Doctor>(r),
+                    r => ReadRowExtensions.MapToClass<IDNamePair>(r),
+                    r => ReadRowExtensions.MapToClass<VitalDetail>(r),
+                    r => ReadRowExtensions.MapToClass<IDNamePair>(r)
+                },
+                parameters);
+
+            var response = new DoctorFirstVisit
+            {
+                VisitDetails = ReadSingle<VisitDetails>(result, 0) ?? new VisitDetails(),
+                VisitChargeDetail = ReadSingle<VisitChargeDetail>(result, 1) ?? new VisitChargeDetail(),
+                DoctorList = ReadList<Doctor>(result,3),
+                VisitTypeList = ReadList<IDNamePair>(result, 4),
+                VitalDetails = ReadList<VitalDetail>(result, 5),
+                DietCategoryList = ReadList<IDNamePair>(result, 6),
+                RegTypeList = new List<IDNamePair>
+                {
+                  new() { ID = 0, Name = "Normal" },
+                  new() { ID = 1, Name = "Day Emer" },
+                  new() { ID = 2, Name = "Night Emer" }
+                }
+            };
+            var diagnosisList = ReadList<DiagnosisModel>(result, 2);
+            response.ProvisionalDiagnosisList = diagnosisList
+                .Where(x => x.DiagnosisType == 0)
+                .ToList();
+            response.FinalDiagnosisList = diagnosisList
+                .Where(x => x.DiagnosisType == 1)
+                .ToList();
+            return response;
         }
         public bool CheckCashFlag(int nonCashLess, int na, bool classForReimbursement)
         {
