@@ -20,7 +20,7 @@ namespace DoctorMobileApp.WebService
             {
                 new SqlParameter("@DocVisitIDF", request.DocVisitIDF),
                 new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
-                new SqlParameter("@DoctorIDF", request.DoctorIDF), 
+                new SqlParameter("@DoctorIDF", request.DoctorIDF),
                 new SqlParameter("@HospitalIDF", hospitalidf),
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
@@ -314,6 +314,31 @@ namespace DoctorMobileApp.WebService
               patientParams);
             return list;
         }
+        public async Task<TodayInvestigationsResponse?> GetVisitTodayInvestigationsAsync(TodayInvestigationsRequest request)
+        {
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("@AdmissionDischargeIDP", request.AdmissionIDF),
+                new SqlParameter("@VisitFlag", request.VisitFlag), // ideally hashed
+                new SqlParameter("@OPDIPDFlag", request.OPDIPDFlag)
+
+            };
+            var dataTable = await _dbHelper.ExecuteDataTableAsync(
+                "SP_GetDoctorVisitInvestigationsForCurrentDay",
+                CommandType.StoredProcedure,
+                parameters
+            );
+            if (dataTable == null || dataTable.Rows.Count == 0)
+                return null;
+            var row = dataTable.Rows[0];
+            var response = new TodayInvestigationsResponse
+            {
+                PathoItems = row.ToStr("PathoItems"),
+                RadioItems = row.ToStr("RadioItems"),
+                ProcedureItem = row.ToStr("ProcedureItem")
+            };
+            return response;
+        }
         public async Task<string> SaveVisitAsync(DoctorFirstVisit model)
         {
             using TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
@@ -584,7 +609,7 @@ namespace DoctorMobileApp.WebService
             {
                 new SqlParameter("@DocVisitIDF", request.DocVisitIDF),
                 new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
-                new SqlParameter("@DoctorIDF", request.DoctorIDF), 
+                new SqlParameter("@DoctorIDF", request.DoctorIDF),
                 new SqlParameter("@HospitalIDF", hospitalidf),
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
@@ -607,7 +632,7 @@ namespace DoctorMobileApp.WebService
             {
                 VisitDetails = ReadSingle<VisitDetails>(result, 0) ?? new VisitDetails(),
                 VisitChargeDetail = ReadSingle<VisitChargeDetail>(result, 1) ?? new VisitChargeDetail(),
-                DoctorList = ReadList<Doctor>(result,3),
+                DoctorList = ReadList<Doctor>(result, 3),
                 VisitTypeList = ReadList<IDNamePair>(result, 4),
                 VitalDetails = ReadList<VitalDetail>(result, 5),
                 DietCategoryList = ReadList<IDNamePair>(result, 6),
