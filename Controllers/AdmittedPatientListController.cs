@@ -16,6 +16,8 @@ namespace DoctorMobileApp.Controllers
         private int hospitalidf => int.TryParse(User.FindFirst("HospitalIDF")?.Value, out var id) ? id : 0;
         private int employeeIDF => int.TryParse(User.FindFirst("EmployeeIDF")?.Value, out var id) ? id : 0; 
         private int hospitalGroupIDF => int.TryParse(User.FindFirst("HospitalGroupIDF")?.Value,out var id) ? id : 0;
+        private int userIdf => int.TryParse(User.FindFirst("UserIdf")?.Value, out var id) ? id : 0;
+
         public AdmittedPatientListController(IDbConnectionFactory db, IConfiguration configuration)
         {
             _db = db;
@@ -78,18 +80,136 @@ namespace DoctorMobileApp.Controllers
         [HttpPost("get-bed-transfer-edit")]
         public async Task<IActionResult> GetBedTransferEdit([FromBody] BedTransferEditRequest request)
         {
-            var result = await _AdmittedListservice.GetBedTransferEditAsync(request, hospitalidf);
+            var result = await _AdmittedListservice.GetBedTransferEditAsync(request,hospitalidf,hospitalGroupIDF);
+
+            if (result == null)
+            {
+                return NotFound(new
+                {
+                    message = "Active patient admission was not found."
+                });
+            }
 
             return Ok(result);
         }
 
-        //[Authorize]
-        //[HttpPost("get-swap-patient-list")]
-        //public async Task<IActionResult> GetSwapPatientList([FromBody] SwapPatientRequest request)
-        //{
-        //    var data = await _AdmittedListservice.GetSwapPatientListAsync(request, hospitalidf);
+        [Authorize]
+        [HttpPost("save-bed-transfer")]
+        public async Task<IActionResult> SaveBedTransfer([FromBody] SaveBedTransferRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest(new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -1,
+                    Message = "Request body is required."
+                });
+            }
+            if (hospitalidf <= 0)
+            {
+                return Unauthorized(new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -401,
+                    Message = "Hospital information was not found."
+                });
+            }
+            if (userIdf <= 0)
+            {
+                return Unauthorized(new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -401,
+                    Message = "User information was not found."
+                });
+            }
+            if (employeeIDF <= 0)
+            {
+                return Unauthorized(new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -401,
+                    Message = "Employee information was not found."
+                });
+            }
+            var result = await _AdmittedListservice.SaveBedTransferAsync(
+                request,
+                hospitalidf,
+                userIdf,
+                employeeIDF);
 
-        //    return Ok(data);
-        //}
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return result.ResultCode switch
+            {
+                -500 => StatusCode(StatusCodes.Status500InternalServerError, result),
+                -401 => Unauthorized(result),
+                -1 => BadRequest(result),
+                2 => BadRequest(result),
+                3 => Conflict(result),
+                4 => NotFound(result),
+                5 => BadRequest(result),
+                6 => Conflict(result),
+                7 => Conflict(result),
+                8 => Conflict(result),
+                9 => Conflict(result),
+                10 => StatusCode(StatusCodes.Status403Forbidden, result),
+                11 => BadRequest(result),
+                12 => Conflict(result),
+                13 => Conflict(result),
+                _ => BadRequest(result)
+            };
+        }
     }
 }
+
+
+//[Authorize]
+//[HttpPost("request-bed-transfer")]
+//public async Task<IActionResult> RequestBedTransfer([FromBody] RequestBedTransferRequest request)
+//{
+//    if (request == null)
+//    {
+//        return BadRequest(new RequestBedTransferResponse
+//        {
+//            Success = false,
+//            ResultCode = -1,
+//            Message = "Request body is required."
+//        });
+//    }
+
+//    if (hospitalidf <= 0 || hospitalGroupIDF <= 0 || userIdf <= 0 || employeeIDF <= 0)
+//    {
+//        return Unauthorized(new RequestBedTransferResponse
+//        {
+//            Success = false,
+//            ResultCode = -401,
+//            Message = "Authenticated hospital, hospital group, user, and employee information is required."
+//        });
+//    }
+
+//    var result = await _AdmittedListservice.RequestBedTransferAsync(
+//        request,
+//        hospitalidf,
+//        hospitalGroupIDF,
+//        userIdf,
+//        employeeIDF);
+
+//    if (result.Success)
+//    {
+//        return Ok(result);
+//    }
+
+//    return result.ResultCode switch
+//    {
+//        -500 => StatusCode(StatusCodes.Status500InternalServerError, result),
+//        -401 => Unauthorized(result),
+//        10 => StatusCode(StatusCodes.Status403Forbidden, result),
+//        4 => NotFound(result),
+//        3 or 6 or 7 or 8 or 9 => Conflict(result),
+//        _ => BadRequest(result)
+//    };
+//}
