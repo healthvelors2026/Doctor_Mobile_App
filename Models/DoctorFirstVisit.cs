@@ -83,6 +83,9 @@
         public string PathoRemarks { get; set; } = string.Empty;
         public string RadioRemarks { get; set; } = string.Empty;
         public string ProcRemarks { get; set; } = string.Empty;
+        public string PathoItems { get; set; } = string.Empty;
+        public string RadioItems { get; set; } = string.Empty;
+        public string ProcedureItems { get; set; } = string.Empty;
     }
     public class TabDetail
     {
@@ -178,7 +181,13 @@
         public int IsSampleCollection { get; set; }
         public bool IsReject { get; set; }
     }
-   
+    public class TodayInvestigationsResponse
+    {
+        public string PathoItems { get; set; } = string.Empty;
+        public string RadioItems { get; set; } = string.Empty;
+        public string ProcedureItem { get; set; } = string.Empty;
+    }
+
     //Use Only Request Parameter
     public class VisitDetailsRequest
     {
@@ -213,5 +222,11 @@
         public int AdmissionIDF { get; set; }
         public int VisitIDF { get; set; }
         public int VisitFlag { get; set; }
+    }
+    public class TodayInvestigationsRequest
+    {
+        public int AdmissionIDF { get; set; }
+        public int VisitFlag { get; set; }
+        public int OPDIPDFlag { get; set; }
     }
 }
