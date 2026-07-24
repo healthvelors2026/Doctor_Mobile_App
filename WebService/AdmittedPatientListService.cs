@@ -303,6 +303,60 @@ namespace DoctorMobileApp.WebService
             response.SwapPatients = swapPatients.ToList();
             return response;
         }
+
+        public async Task<SwapPatientResponse?> GetBedSwapAsync(SwapPatientRequest request, int hospitalIDF)
+        {
+            if (request.PatientID <= 0)
+            {
+                return null;
+            }
+
+            var patientParameters = new[]
+            {
+                new SqlParameter("@HospitalIDP", hospitalIDF),
+                new SqlParameter("@PatientIDF", request.PatientID)
+            };
+
+            var patient = (await _dbHelper.QueryAsync<BedTransferPatientDBModel>(
+                "DoctorApp_API_GetBedTransferPatientDetail",
+                CommandType.StoredProcedure,
+                patientParameters)).FirstOrDefault();
+
+            if (patient == null)
+            {
+                return null;
+            }
+
+            var swapPatientParameters = new[]
+            {
+                new SqlParameter("@HospitalIDF", hospitalIDF),
+                new SqlParameter("@CurrentAdmissionIDF", patient.IPDAdmissionDischargeIDP),
+                new SqlParameter("@CurrentBedIDF", patient.BedIDP),
+                new SqlParameter("@IsDayCare", patient.IsDayCare)
+            };
+
+            var swapPatients = await _dbHelper.QueryAsync<SwapPatientModel>(
+                "DoctorApp_API_GetSwapPatients",
+                CommandType.StoredProcedure,
+                swapPatientParameters);
+
+            return new SwapPatientResponse
+            {
+                PatientID = patient.PatientIDP,
+                AdmissionID = patient.IPDAdmissionDischargeIDP,
+                PatientName = $"{patient.FName} {patient.MName} {patient.LName}".Trim(),
+                IPDRegistrationCode = patient.IPDRegistrationCode ?? string.Empty,
+                CurrentTrackingID = patient.IPDBedAmenityTrackingIDP,
+                CurrentBedID = patient.BedIDP,
+                CurrentBed = patient.BedName ?? string.Empty,
+                CurrentWardID = patient.WardIDP,
+                CurrentWard = patient.WardName ?? string.Empty,
+                CurrentFromDate = patient.FromDate,
+                IsDayCare = patient.IsDayCare,
+                SwapPatients = swapPatients.ToList()
+            };
+        }
+
         public async Task<SaveBedTransferResponse> SaveBedTransferAsync(SaveBedTransferRequest request,int hospitalIDF,int userIDF,int employeeIDF)
         {
             if (request.AdmissionID <= 0)

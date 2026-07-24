@@ -94,6 +94,50 @@ namespace DoctorMobileApp.Controllers
         }
 
         [Authorize]
+        [HttpPost("get-bed-swap")]
+        public async Task<IActionResult> GetBedSwap([FromBody] SwapPatientRequest request)
+        {
+            if (request == null || request.PatientID <= 0)
+            {
+                return BadRequest(new
+                {
+                    message = "Valid patient ID is required."
+                });
+            }
+
+            if (hospitalidf <= 0)
+            {
+                return Unauthorized(new
+                {
+                    message = "Hospital information was not found."
+                });
+            }
+
+            try
+            {
+                var result = await _AdmittedListservice.GetBedSwapAsync(request, hospitalidf);
+
+                if (result == null)
+                {
+                    return NotFound(new
+                    {
+                        message = "Active patient admission and current bed tracking were not found."
+                    });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _db.LogError(ex, "DoctorApp_API_GetSwapPatients");
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    message = "Unable to load eligible swap patients."
+                });
+            }
+        }
+
+        [Authorize]
         [HttpPost("save-bed-transfer")]
         public async Task<IActionResult> SaveBedTransfer([FromBody] SaveBedTransferRequest request)
         {
