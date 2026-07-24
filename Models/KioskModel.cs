@@ -152,6 +152,7 @@ namespace DoctorMobileApp.Models
         public class DoctorRequestModel
         {
             public int? SkillSetID { get; set; }
+            public int? PatientID { get; set; }
         }
         public class DoctorResponseModel
         {
