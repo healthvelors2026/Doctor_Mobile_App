@@ -314,7 +314,7 @@ namespace DoctorMobileApp.WebService
               patientParams);
             return list;
         }
-        public async Task<TodayInvestigationsResponse?> GetVisitTodayInvestigationsAsync(TodayInvestigationsRequest request)
+        public async Task<TodayInvestigations?> GetVisitTodayInvestigationsAsync(TodayInvestigationsRequest request)
         {
             var parameters = new SqlParameter[]
             {
@@ -331,7 +331,7 @@ namespace DoctorMobileApp.WebService
             if (dataTable == null || dataTable.Rows.Count == 0)
                 return null;
             var row = dataTable.Rows[0];
-            var response = new TodayInvestigationsResponse
+            var response = new TodayInvestigations
             {
                 PathoItems = row.ToStr("PathoItems"),
                 RadioItems = row.ToStr("RadioItems"),
@@ -651,6 +651,21 @@ namespace DoctorMobileApp.WebService
                 .Where(x => x.DiagnosisType == 1)
                 .ToList();
             return response;
+        }
+        public async Task<List<DoctorVisitHistory>> GetDoctorVisitHistoryListAsync(
+          DoctorVisitHistoryRequest request, int hospitalidf)
+        {
+            var list = new List<DoctorVisitHistory>();
+            SqlParameter[] patientParams =
+             {
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@HospitalIDF", hospitalidf)
+            };
+            list = await _dbHelper.QueryAsync<DoctorVisitHistory>(
+              "API_SP_GetDoctorVisitHistory",
+              CommandType.StoredProcedure,
+              patientParams);
+            return list;
         }
         public bool CheckCashFlag(int nonCashLess, int na, bool classForReimbursement)
         {
