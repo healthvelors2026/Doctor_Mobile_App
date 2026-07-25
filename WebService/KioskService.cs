@@ -182,7 +182,8 @@ namespace DoctorMobileApp.WebServices
             var doctorParams = new[]
             {
                 new SqlParameter("@HospitalID", hospitalidf),
-                new SqlParameter("@SkillSetID", requestModel.SkillSetID)
+                new SqlParameter("@SkillSetID", requestModel.SkillSetID),
+                new SqlParameter("@PatientID", requestModel.PatientID)
             };
             list = await _dbHelper.QueryAsync<DoctorResponseModel>("KIOSK_API_GetSkillSetWise_Doctor", CommandType.StoredProcedure, doctorParams);
             return list;
