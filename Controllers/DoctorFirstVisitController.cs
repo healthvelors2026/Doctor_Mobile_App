@@ -174,5 +174,13 @@ namespace DoctorMobileApp.Controllers
             var Data = await _DoctorFirstservice.GetRoutineVisitDetailsAsync(request, hospitalidf, hospitalgroupidf);
             return Ok(Data);
         }
+        [Authorize]
+        // 🔹 POST: api/doctor-visit/get-doctorvisit-historylist
+        [HttpPost("get-doctorvisit-historylist")]
+        public async Task<IActionResult> GetDoctorVisitHistoryList(DoctorVisitHistoryRequest request)
+        {
+            var result = await _DoctorFirstservice.GetDoctorVisitHistoryListAsync(request, hospitalidf);
+            return Ok(result);
+        }
     }
 }

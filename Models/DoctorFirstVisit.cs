@@ -181,11 +181,27 @@
         public int IsSampleCollection { get; set; }
         public bool IsReject { get; set; }
     }
-    public class TodayInvestigationsResponse
+    public class TodayInvestigations
     {
         public string PathoItems { get; set; } = string.Empty;
         public string RadioItems { get; set; } = string.Empty;
         public string ProcedureItem { get; set; } = string.Empty;
+    }
+    public class DoctorVisitHistory
+    {
+        public int VisitIDF { get; set; }
+        public int AdmissionIDF { get; set; }
+        public int PatientIDF { get; set; }
+        public string? VisitCode { get; set; }
+        public DateTime VisitDateTime { get; set; }
+        public string? VisitTypeName { get; set; }
+        public int IsFirstVisit { get; set; }
+        public string? DoctorName { get; set; }
+        public string? Complaints { get; set; }
+        public string? FindingAndSuggestions { get; set; }
+        public string? DietOrOtherInstruction { get; set; }
+        public string? DietCategoryName { get; set; }
+        public string? DietFood { get; set; }
     }
 
     //Use Only Request Parameter
@@ -228,5 +244,9 @@
         public int AdmissionIDF { get; set; }
         public int VisitFlag { get; set; }
         public int OPDIPDFlag { get; set; }
+    }
+    public class DoctorVisitHistoryRequest
+    {
+        public int AdmissionIDF { get; set; }
     }
 }
