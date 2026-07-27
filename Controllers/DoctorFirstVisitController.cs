@@ -175,11 +175,19 @@ namespace DoctorMobileApp.Controllers
             return Ok(Data);
         }
         [Authorize]
-        // 🔹 POST: api/doctor-visit/get-doctorvisit-historylist
-        [HttpPost("get-doctorvisit-historylist")]
-        public async Task<IActionResult> GetDoctorVisitHistoryList(DoctorVisitHistoryRequest request)
+        // 🔹 POST: api/doctor-visit/get-doctorvisit-summary
+        [HttpPost("get-doctorvisit-summary")]
+        public async Task<IActionResult> GetDoctorVisittSummary(DoctorVisitSummaryRequest request)
         {
-            var result = await _DoctorFirstservice.GetDoctorVisitHistoryListAsync(request, hospitalidf);
+            var result = await _DoctorFirstservice.GetDoctorVisitSummaryAsync(request, hospitalidf);
+            return Ok(result);
+        }
+        [Authorize]
+        // 🔹 POST: api/doctor-visit/get-doctorvisit-summary-details
+        [HttpPost("get-doctorvisit-summary-details")]
+        public async Task<IActionResult> GetDoctorVisittSummaryDetails(DoctorVisitSummaryDetailsRequest request)
+        {
+            var result = await _DoctorFirstservice.GetDoctorVisittSummaryDetailsAsync(request);
             return Ok(result);
         }
     }
