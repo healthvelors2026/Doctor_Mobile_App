@@ -187,7 +187,7 @@
         public string RadioItems { get; set; } = string.Empty;
         public string ProcedureItem { get; set; } = string.Empty;
     }
-    public class DoctorVisitHistory
+    public class DoctorVisitSummary
     {
         public int VisitIDF { get; set; }
         public int AdmissionIDF { get; set; }
@@ -202,6 +202,36 @@
         public string? DietOrOtherInstruction { get; set; }
         public string? DietCategoryName { get; set; }
         public string? DietFood { get; set; }
+    }
+    public class DoctorVisitSummaryDetails
+    {
+        public List<VitalDetail> VitalSummary { get; set; } = new();
+        public List<VisitInvestigationSummary> InvestigationsSummary { get; set; } = new();
+        public List<VisitMedicationSummary> MedicationsSummary { get; set; } = new();
+        public List<VisitServiceSummary> ServicesSummary { get; set; } = new();
+    }
+    public class VisitInvestigationSummary
+    {
+        public string TestName { get; set; } = string.Empty;
+        public int TestType { get; set; }
+    }
+    public class VisitMedicationSummary
+    {
+        public string MedicationName { get; set; } = string.Empty;
+        public decimal RequestedQty { get; set; } 
+        public string IPDInstruction { get; set; } = string.Empty;
+        public string Instruction { get; set; } = string.Empty;
+        public string ItemContentName { get; set; } = string.Empty;
+    }
+    public class VisitServiceSummary
+    {
+        public string ServiceName { get; set; } = string.Empty;
+        public DateTime SerDate { get; set; }
+        public decimal Qty { get; set; }
+        public decimal Rate { get; set; }
+        public decimal TotalRate { get; set; }
+        public decimal DiscountAmt { get; set; }
+        public decimal Amount { get; set; }
     }
 
     //Use Only Request Parameter
@@ -245,8 +275,15 @@
         public int VisitFlag { get; set; }
         public int OPDIPDFlag { get; set; }
     }
-    public class DoctorVisitHistoryRequest
+    public class DoctorVisitSummaryRequest
     {
         public int AdmissionIDF { get; set; }
     }
+    public class DoctorVisitSummaryDetailsRequest
+    {
+        public int IsFirstVisit { get; set; }
+        public int VisitIDF { get; set; }
+        public int RegistrationIDF { get; set; }
+    }
+
 }
