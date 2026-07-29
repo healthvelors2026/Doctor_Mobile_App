@@ -314,7 +314,7 @@ namespace DoctorMobileApp.WebService
               patientParams);
             return list;
         }
-        public async Task<TodayInvestigationsResponse?> GetVisitTodayInvestigationsAsync(TodayInvestigationsRequest request)
+        public async Task<TodayInvestigations?> GetVisitTodayInvestigationsAsync(TodayInvestigationsRequest request)
         {
             var parameters = new SqlParameter[]
             {
@@ -331,7 +331,7 @@ namespace DoctorMobileApp.WebService
             if (dataTable == null || dataTable.Rows.Count == 0)
                 return null;
             var row = dataTable.Rows[0];
-            var response = new TodayInvestigationsResponse
+            var response = new TodayInvestigations
             {
                 PathoItems = row.ToStr("PathoItems"),
                 RadioItems = row.ToStr("RadioItems"),
@@ -650,6 +650,48 @@ namespace DoctorMobileApp.WebService
             response.FinalDiagnosisList = diagnosisList
                 .Where(x => x.DiagnosisType == 1)
                 .ToList();
+            return response;
+        }
+        public async Task<List<DoctorVisitSummary>> GetDoctorVisitSummaryAsync(
+          DoctorVisitSummaryRequest request, int hospitalidf)
+        {
+            var list = new List<DoctorVisitSummary>();
+            SqlParameter[] patientParams =
+             {
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@HospitalIDF", hospitalidf)
+            };
+            list = await _dbHelper.QueryAsync<DoctorVisitSummary>(
+              "API_SP_GetDoctorVisitSummary",
+              CommandType.StoredProcedure,
+              patientParams);
+            return list;
+        }
+        public async Task<DoctorVisitSummaryDetails> GetDoctorVisittSummaryDetailsAsync(DoctorVisitSummaryDetailsRequest request)
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@IsFirstVisit", request.IsFirstVisit),
+                new SqlParameter("@VisitIDF", request.VisitIDF),
+                new SqlParameter("@RegistrationIDF", request.RegistrationIDF)
+            };
+            var result = await _dbHelper.QueryMultipleAsync(
+                "API_SP_GetDoctorVisitSummaryDetails",
+                new Func<SqlDataReader, object>[]
+                {
+                    r => ReadRowExtensions.MapToClass<VitalDetail>(r),
+                    r => ReadRowExtensions.MapToClass<VisitInvestigationSummary>(r),
+                    r => ReadRowExtensions.MapToClass<VisitMedicationSummary>(r),
+                    r => ReadRowExtensions.MapToClass<VisitServiceSummary>(r)
+                },
+                parameters);
+            var response = new DoctorVisitSummaryDetails
+            {
+                VitalSummary = ReadList<VitalDetail>(result, 0),
+                InvestigationsSummary = ReadList<VisitInvestigationSummary>(result, 1),
+                MedicationsSummary = ReadList<VisitMedicationSummary>(result, 2),
+                ServicesSummary = ReadList<VisitServiceSummary>(result, 3),
+            };
             return response;
         }
         public bool CheckCashFlag(int nonCashLess, int na, bool classForReimbursement)
