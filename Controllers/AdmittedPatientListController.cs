@@ -177,11 +177,7 @@ namespace DoctorMobileApp.Controllers
                     Message = "Employee information was not found."
                 });
             }
-            var result = await _AdmittedListservice.SaveBedTransferAsync(
-                request,
-                hospitalidf,
-                userIdf,
-                employeeIDF);
+            var result = await _AdmittedListservice.SaveBedTransferAsync(request,hospitalidf,userIdf,employeeIDF);
 
             if (result.Success)
             {
@@ -207,6 +203,55 @@ namespace DoctorMobileApp.Controllers
                 _ => BadRequest(result)
             };
         }
+
+        //[Authorize]
+        //[HttpPost("save-bed-swap")]
+        //public async Task<IActionResult> SaveBedSwap([FromBody] SaveBedSwapRequest request)
+        //{
+        //    if (request == null)
+        //    {
+        //        return BadRequest(new SaveBedSwapResponse
+        //        {
+        //            Success = false,
+        //            ResultCode = -1,
+        //            Message = "Request body is required."
+        //        });
+        //    }
+
+        //    if (hospitalidf <= 0 || hospitalGroupIDF <= 0 || userIdf <= 0)
+        //    {
+        //        return Unauthorized(new SaveBedSwapResponse
+        //        {
+        //            Success = false,
+        //            ResultCode = -401,
+        //            Message = "Hospital, hospital group, or user information was not found."
+        //        });
+        //    }
+
+        //    var result = await _AdmittedListservice.SaveBedSwapAsync(
+        //        request,
+        //        hospitalidf,
+        //        hospitalGroupIDF,
+        //        userIdf,
+        //        employeeIDF);
+
+        //    if (result.Success)
+        //    {
+        //        return Ok(result);
+        //    }
+
+        //    return result.ResultCode switch
+        //    {
+        //        -500 => StatusCode(StatusCodes.Status500InternalServerError, result),
+        //        -401 => Unauthorized(result),
+        //        -1 => BadRequest(result),
+        //        2 or 3 or 8 or 10 or 13 or 14 or 15 => BadRequest(result),
+        //        4 or 5 => NotFound(result),
+        //        6 or 7 or 9 or 11 => Conflict(result),
+        //        12 => StatusCode(StatusCodes.Status403Forbidden, result),
+        //        _ => BadRequest(result)
+        //    };
+        //}
     }
 }
 

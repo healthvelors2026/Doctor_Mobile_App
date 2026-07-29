@@ -521,6 +521,119 @@ namespace DoctorMobileApp.WebService
                 };
             }
         }
+
+        //public async Task<SaveBedSwapResponse> SaveBedSwapAsync(SaveBedSwapRequest request,int hospitalIDF,int hospitalGroupIDF,int userIDF,int employeeIDF)
+        //{
+        //    static SaveBedSwapResponse Invalid(string message, int resultCode = -1) => new()
+        //    {
+        //        Success = false,
+        //        ResultCode = resultCode,
+        //        Message = message
+        //    };
+
+        //    if (request.PatientID <= 0 || request.SwapPatientID <= 0)
+        //    {
+        //        return Invalid("Valid primary and swap patient IDs are required.");
+        //    }
+
+        //    if (request.PatientID == request.SwapPatientID)
+        //    {
+        //        return Invalid("Primary and swap patients must be different.", 13);
+        //    }
+
+        //    if (request.TransferDate == default)
+        //    {
+        //        return Invalid("Transfer date and time are required.");
+        //    }
+
+        //    if (!string.IsNullOrWhiteSpace(request.Remarks) && request.Remarks.Trim().Length > 250)
+        //    {
+        //        return Invalid("Remarks cannot exceed 250 characters.");
+        //    }
+
+        //    if (request.ICUChargeType is < 0 or > 2)
+        //    {
+        //        return Invalid("Invalid ICU charge type.", 8);
+        //    }
+
+        //    if (request.ChecklistCompletedByEmployeeID is <= 0)
+        //    {
+        //        return Invalid("Checklist employee must be a valid employee when supplied.", 14);
+        //    }
+
+        //    if (hospitalIDF <= 0 || hospitalGroupIDF <= 0 || userIDF <= 0)
+        //    {
+        //        return Invalid("Authenticated hospital, hospital group, and user information is required.", -401);
+        //    }
+
+        //    var answers = request.ChecklistAnswers ?? new List<BedSwapChecklistAnswer>();
+        //    if (answers.Any(x => x.QuestionID <= 0)
+        //        || answers.GroupBy(x => x.QuestionID).Any(group => group.Count() > 1)
+        //        || answers.Any(x => (x.Remarks?.Length ?? 0) > 2000))
+        //    {
+        //        return Invalid("Checklist answers contain an invalid, duplicate, or oversized value.", 10);
+        //    }
+
+        //    var checklistTable = new DataTable();
+        //    checklistTable.Columns.Add("QuestionID", typeof(int));
+        //    checklistTable.Columns.Add("Value", typeof(bool));
+        //    checklistTable.Columns.Add("Remarks", typeof(string));
+
+        //    foreach (var answer in answers)
+        //    {
+        //        checklistTable.Rows.Add(answer.QuestionID,answer.Value,string.IsNullOrWhiteSpace(answer.Remarks) ? DBNull.Value : answer.Remarks.Trim());
+        //    }
+
+        //    var parameters = new[]
+        //    {
+        //        new SqlParameter("@HospitalIDF", SqlDbType.Int) { Value = hospitalIDF },
+        //        new SqlParameter("@HospitalGroupIDF", SqlDbType.Int) { Value = hospitalGroupIDF },
+        //        new SqlParameter("@PrimaryPatientIDF", SqlDbType.Int) { Value = request.PatientID },
+        //        new SqlParameter("@SwapPatientIDF", SqlDbType.Int) { Value = request.SwapPatientID },
+        //        new SqlParameter("@TransferDateTime", SqlDbType.SmallDateTime) { Value = request.TransferDate },
+        //        new SqlParameter("@Remarks", SqlDbType.NVarChar, 250)
+        //        {
+        //            Value = string.IsNullOrWhiteSpace(request.Remarks) ? DBNull.Value : request.Remarks.Trim()
+        //        },
+        //        new SqlParameter("@ICUChargeType", SqlDbType.TinyInt)
+        //        {
+        //            Value = request.ICUChargeType.HasValue ? request.ICUChargeType.Value : DBNull.Value
+        //        },
+        //        new SqlParameter("@ChecklistEmployeeIDF", SqlDbType.Int)
+        //        {
+        //            Value = request.ChecklistCompletedByEmployeeID.HasValue ? request.ChecklistCompletedByEmployeeID.Value : DBNull.Value
+        //        },
+        //        new SqlParameter("@EmployeeIDF", SqlDbType.Int) { Value = employeeIDF },
+        //        new SqlParameter("@UserIDF", SqlDbType.Int) { Value = userIDF },
+        //        new SqlParameter("@ChecklistAnswers", SqlDbType.Structured)
+        //        {
+        //            TypeName = "dbo.DoctorApp_BedSwapChecklistAnswerType",
+        //            Value = checklistTable
+        //        }
+        //    };
+        //    try
+        //    {
+        //        var dbResult = (await _dbHelper.QueryAsync<SaveBedSwapDBModel>("DoctorApp_API_SaveBedSwap",CommandType.StoredProcedure,parameters)).FirstOrDefault();
+
+        //        if (dbResult == null)
+        //        {
+        //            return Invalid("Bed swap could not be completed.", -500);
+        //        }
+
+        //        if (dbResult.ResultCode < 0 && dbResult.ResultCode != -1)
+        //        {
+        //            dbResult.Success = false;
+        //            dbResult.ResultCode = -500;
+        //            dbResult.Message = "An unexpected error occurred while completing the bed swap.";
+        //        }
+        //        return dbResult;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _dbHelper.LogError(ex, "DoctorApp_API_SaveBedSwap", parameters);
+        //        return Invalid("An unexpected error occurred while completing the bed swap.", -500);
+        //    }
+        //}
     }
 }
 //public async Task<RequestBedTransferResponse> RequestBedTransferAsync(RequestBedTransferRequest request,
