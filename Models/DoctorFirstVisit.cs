@@ -213,7 +213,7 @@
     public class VisitInvestigationSummary
     {
         public string TestName { get; set; } = string.Empty;
-        public int TestType { get; set; }
+        public int Type { get; set; }
     }
     public class VisitMedicationSummary
     {
