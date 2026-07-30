@@ -263,6 +263,10 @@
         public int WardID { get; set; }
 
         public string WardName { get; set; } = string.Empty;
+
+        public bool IsICUWard { get; set; }
+
+        public DateTime? FromDate { get; set; }
     }
     public class AvailableBedDBModel
     {
@@ -288,29 +292,33 @@
     // For Swap 
     public class SwapPatientRequest
     {
-        public int AdmissionID { get; set; }
-
-        public int BedID { get; set; }
-
-        public int WardID { get; set; }
+        public int PatientID { get; set; }
     }
     public class SwapPatientResponse
     {
-        public int AdmissionID { get; set; }
+        public int PatientID { get; set; }
 
-        public int PatientIDF { get; set; }
+        public int AdmissionID { get; set; }
 
         public string PatientName { get; set; } = string.Empty;
 
-        public int TrackingID { get; set; }
+        public string IPDRegistrationCode { get; set; } = string.Empty;
 
-        public int BedID { get; set; }
+        public int CurrentTrackingID { get; set; }
 
-        public string BedName { get; set; } = string.Empty;
+        public int CurrentBedID { get; set; }
 
-        public int WardID { get; set; }
+        public string CurrentBed { get; set; } = string.Empty;
 
-        public string WardName { get; set; } = string.Empty;
+        public int CurrentWardID { get; set; }
+
+        public string CurrentWard { get; set; } = string.Empty;
+
+        public DateTime CurrentFromDate { get; set; }
+
+        public bool IsDayCare { get; set; }
+
+        public List<SwapPatientModel> SwapPatients { get; set; } = new();
     }
     public class SaveBedTransferRequest
     {
@@ -381,6 +389,67 @@
 
         public int TrackingID { get; set; }
     }
+
+    //public class SaveBedSwapRequest
+    //{
+    //    public int PatientID { get; set; }
+
+    //    public int SwapPatientID { get; set; }
+
+    //    public DateTime TransferDate { get; set; }
+
+    //    public string? Remarks { get; set; }
+
+    //    public int? ICUChargeType { get; set; }
+
+    //    public int? ChecklistCompletedByEmployeeID { get; set; }
+
+    //    public List<BedSwapChecklistAnswer> ChecklistAnswers { get; set; } = new();
+    //}
+
+    //public class BedSwapChecklistAnswer
+    //{
+    //    public int QuestionID { get; set; }
+
+    //    public bool Value { get; set; }
+
+    //    public string? Remarks { get; set; }
+    //}
+
+    //public class SaveBedSwapResponse
+    //{
+    //    public bool Success { get; set; }
+
+    //    public int ResultCode { get; set; }
+
+    //    public string Message { get; set; } = string.Empty;
+
+    //    public int PrimaryAdmissionID { get; set; }
+
+    //    public int SwapAdmissionID { get; set; }
+
+    //    public int PrimaryOldTrackingID { get; set; }
+
+    //    public int PrimaryNewTrackingID { get; set; }
+
+    //    public int SwapOldTrackingID { get; set; }
+
+    //    public int SwapNewTrackingID { get; set; }
+
+    //    public int PrimaryOldBedID { get; set; }
+
+    //    public int PrimaryNewBedID { get; set; }
+
+    //    public int SwapOldBedID { get; set; }
+
+    //    public int SwapNewBedID { get; set; }
+
+    //    public DateTime? EffectiveSwapDateTime { get; set; }
+    //}
+
+    //public class SaveBedSwapDBModel : SaveBedSwapResponse
+    //{
+    //}
 }
 
 //public class RequestBedTransferRequest
