@@ -389,6 +389,67 @@
 
         public int TrackingID { get; set; }
     }
+
+    //public class SaveBedSwapRequest
+    //{
+    //    public int PatientID { get; set; }
+
+    //    public int SwapPatientID { get; set; }
+
+    //    public DateTime TransferDate { get; set; }
+
+    //    public string? Remarks { get; set; }
+
+    //    public int? ICUChargeType { get; set; }
+
+    //    public int? ChecklistCompletedByEmployeeID { get; set; }
+
+    //    public List<BedSwapChecklistAnswer> ChecklistAnswers { get; set; } = new();
+    //}
+
+    //public class BedSwapChecklistAnswer
+    //{
+    //    public int QuestionID { get; set; }
+
+    //    public bool Value { get; set; }
+
+    //    public string? Remarks { get; set; }
+    //}
+
+    //public class SaveBedSwapResponse
+    //{
+    //    public bool Success { get; set; }
+
+    //    public int ResultCode { get; set; }
+
+    //    public string Message { get; set; } = string.Empty;
+
+    //    public int PrimaryAdmissionID { get; set; }
+
+    //    public int SwapAdmissionID { get; set; }
+
+    //    public int PrimaryOldTrackingID { get; set; }
+
+    //    public int PrimaryNewTrackingID { get; set; }
+
+    //    public int SwapOldTrackingID { get; set; }
+
+    //    public int SwapNewTrackingID { get; set; }
+
+    //    public int PrimaryOldBedID { get; set; }
+
+    //    public int PrimaryNewBedID { get; set; }
+
+    //    public int SwapOldBedID { get; set; }
+
+    //    public int SwapNewBedID { get; set; }
+
+    //    public DateTime? EffectiveSwapDateTime { get; set; }
+    //}
+
+    //public class SaveBedSwapDBModel : SaveBedSwapResponse
+    //{
+    //}
 }
 
 //public class RequestBedTransferRequest
