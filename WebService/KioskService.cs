@@ -32,39 +32,66 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<PatientDetail>("Kiosk_API_PatientSearch", CommandType.StoredProcedure, patientParams);
             return list;
         }
-        public async Task<List<SkillSetResponseModel>> GetSkillSetListAsync(int hospitalgroupidf = 0)
+        public async Task<List<SkillSetResponseModel>> GetSkillSetListAsync(
+            int hospitalgroupidf,
+            string hospitalCode,
+            string baseUrl,
+            CancellationToken cancellationToken = default)
         {
-            var request = _httpContextAccessor.HttpContext!.Request;
-
-            string baseUrl = $"{request.Scheme}://{request.Host}";
-
-            var list = new List<SkillSetResponseModel>();
-
             var skillSetParams = new[]
             {
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
 
-            list = await _dbHelper.QueryAsync<SkillSetResponseModel>("API_SP_GetStandardSkillSetList", CommandType.StoredProcedure, skillSetParams);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var list = await _dbHelper.QueryAsync<SkillSetResponseModel>(
+                "API_SP_GetStandardSkillSetList",
+                CommandType.StoredProcedure,
+                skillSetParams);
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             foreach (var item in list)
             {
-                if (!string.IsNullOrEmpty(item.IconPath))
+                if (string.IsNullOrWhiteSpace(item.IconPath) ||
+                    string.IsNullOrWhiteSpace(hospitalCode) ||
+                    string.IsNullOrWhiteSpace(baseUrl))
                 {
-                    string[] pathParts = item.IconPath.Split('\\');
-                    string hospitalCode = "";
-                    if (pathParts.Length > 1)
-                    {
-                        hospitalCode = pathParts[2];
-                    }
-                    int index = item.IconPath.IndexOf("MobileApp", StringComparison.OrdinalIgnoreCase);
-                    if (index >= 0)
-                    {
-                        string relativePath = item.IconPath.Substring(index).Replace("\\", "/");
-                        item.IconPath = $"{baseUrl}/{hospitalCode}/{relativePath}";
-                    }
+                    item.IconPath = null;
+                    continue;
                 }
+
+                string fileName;
+                try
+                {
+                    fileName = Path.GetFileName(item.IconPath);
+                }
+                catch (ArgumentException)
+                {
+                    item.IconPath = null;
+                    continue;
+                }
+
+                string extension = Path.GetExtension(fileName);
+                string nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+
+                bool hasSupportedExtension =
+                    extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                    extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                    extension.Equals(".png", StringComparison.OrdinalIgnoreCase) ||
+                    extension.Equals(".gif", StringComparison.OrdinalIgnoreCase);
+
+                bool hasValidFileName =
+                    !string.IsNullOrWhiteSpace(nameWithoutExtension) &&
+                    nameWithoutExtension.All(character =>
+                        char.IsLetterOrDigit(character) || character == '_' || character == '-');
+
+                item.IconPath = hasSupportedExtension && hasValidFileName
+                    ? $"{baseUrl.TrimEnd('/')}/{hospitalCode}/MobileApp/DoctorSkillset/{fileName}"
+                    : null;
             }
+
             return list;
         }
         public async Task<GeneratePatientOTPResponseModel> GenerateOTPAsync(GeneratePatientOTPRequestModel requestModel, int hospitalidf)
