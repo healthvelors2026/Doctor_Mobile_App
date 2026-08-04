@@ -26,6 +26,7 @@ namespace DoctorMobileApp.Controllers
 
         private int hospitalidf => int.TryParse(User.FindFirst("HospitalIDF")?.Value, out var id) ? id : 0;
         private int hospitalgroupidf => int.TryParse(User.FindFirst("HospitalGroupIDF")?.Value, out var id) ? id : 0;
+        private string hospitalCode => User.FindFirst("HospitalCode")?.Value ?? string.Empty;
         private int userIdf => int.TryParse(User.FindFirst("UserIdf")?.Value, out var id) ? id : 0;
         private int fasModeOFPaymentIDF => int.TryParse(User.FindFirst("FASModeOFPaymentIDF")?.Value, out var id) ? id : 0;
 
@@ -61,9 +62,14 @@ namespace DoctorMobileApp.Controllers
 
         [HttpPost]
         [Route("get-skill-set")]
-        public async Task<IActionResult> GetSkillSet()
+        public async Task<IActionResult> GetSkillSet(CancellationToken cancellationToken)
         {
-            var skillSetList = await _kioskService.GetSkillSetListAsync(hospitalgroupidf);
+            string baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var skillSetList = await _kioskService.GetSkillSetListAsync(
+                hospitalgroupidf,
+                hospitalCode,
+                baseUrl,
+                cancellationToken);
             if (skillSetList == null || skillSetList.Count == 0)
             {
                 return NotFound(new
