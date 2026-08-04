@@ -181,6 +181,26 @@
         public int IsSampleCollection { get; set; }
         public bool IsReject { get; set; }
     }
+    public class ServicePriceModel
+    {
+        public int SerRegIDP { get; set; }
+        public int ServiceIDF { get; set; }
+        public string ServiceName { get; set; } = string.Empty;
+        public bool? ServiceTaxApplicable { get; set; }
+        public int? ServiceTaxPlanIDF { get; set; }
+        public int NotApplicable { get; set; }
+        public bool CashFlag { get; set; }
+        public decimal Qty { get; set; }
+        public decimal SerivceRate { get; set; }
+        public decimal CostAdditionRate { get; set; }
+        public decimal DiscPercent { get; set; }
+        public decimal DiscountAmt { get; set; }
+        public decimal RoundingAmt { get; set; }
+        public decimal NetServiceRate { get; set; }
+        public string Remarks { get; set; } = string.Empty;
+        public bool IsSelected { get; set; }
+        public int Paid { get; set; }
+    }
     public class TodayInvestigations
     {
         public string PathoItems { get; set; } = string.Empty;
