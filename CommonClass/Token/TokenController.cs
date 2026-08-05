@@ -21,7 +21,6 @@ namespace DoctorMobileApp.commonclass.CommonController
         }
         #region Generate Token
 
-        #region Generate Token
 
         [HttpPost("GenerateToken")]
         public async Task<IActionResult> GenerateToken(
@@ -76,7 +75,7 @@ namespace DoctorMobileApp.commonclass.CommonController
 
         #endregion
 
-        #endregion
+     
 
         #region Resolve Token
 

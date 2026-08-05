@@ -74,7 +74,6 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Implementation
         #region Check Existing Active Token
 
         // Checks whether patient already has a valid feedback token
-        //
         // Prevents creating duplicate tokens for the same visit
 
         public async Task<tbFeedbackToken?> GetActiveTokenAsync(
@@ -135,13 +134,7 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Implementation
         #region Mark Token Used
 
         // Called after successful feedback submission
-        //
-        // Changes:
-        // IsUsed = false
-        //
-        // to:
-        //
-        // IsUsed = true
+      
 
         public async Task<bool> MarkAsUsedAsync(string token)
         {
