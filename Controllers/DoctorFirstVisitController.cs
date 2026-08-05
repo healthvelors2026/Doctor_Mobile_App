@@ -66,6 +66,14 @@ namespace DoctorMobileApp.Controllers
             return Ok(result);
         }
         [Authorize]
+        // 🔹 POST: api/doctor-visit/get-visit-pathotestlist
+        [HttpPost("get-visit-patholist")]
+        public async Task<IActionResult> GetVisitPathoTestList(VisitTestRequest request)
+        {
+            var result = await _DoctorFirstservice.GetVisitPathoTestListAsync(request, hospitalidf, hospitalgroupidf);
+            return Ok(result);
+        }
+        [Authorize]
         // 🔹 POST: api/doctor-visit/get-radio-categorylist
         [HttpPost("get-radio-categorylist")]
         public async Task<IActionResult> GetRadioCategoryList()
@@ -82,6 +90,14 @@ namespace DoctorMobileApp.Controllers
             return Ok(result);
         }
         [Authorize]
+        // 🔹 POST: api/doctor-visit/get-visit-radiotestlist
+        [HttpPost("get-visit-radiolist")]
+        public async Task<IActionResult> GetVisitRadioTestList(VisitTestRequest request)
+        {
+            var result = await _DoctorFirstservice.GetVisitRadioTestListAsync(request, hospitalidf, hospitalgroupidf);
+            return Ok(result);
+        }
+        [Authorize]
         // 🔹 POST: api/doctor-visit/get-procedure-categorylist
         [HttpPost("get-procedure-categorylist")]
         public async Task<IActionResult> GetProcedureCategoryList()
@@ -95,6 +111,22 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetProcedureTestPriceList(TestPriceRequest request)
         {
             var result = await _DoctorFirstservice.GetProcedureTestPriceListAsync(request, hospitalidf, hospitalgroupidf);
+            return Ok(result);
+        }
+        [Authorize]
+        // 🔹 POST: api/doctor-visit/get-visit-proceduretestlist
+        [HttpPost("get-visit-procedurelist")]
+        public async Task<IActionResult> GetVisitProcedureTestList(VisitTestRequest request)
+        {
+            var result = await _DoctorFirstservice.GetVisitProcedureTestListAsync(request, hospitalidf, hospitalgroupidf);
+            return Ok(result);
+        }
+        [Authorize]
+        // 🔹 POST: api/doctor-visit/get-visit-todayInvestigations
+        [HttpPost("get-visit-todayInvestigations")]
+        public async Task<IActionResult> GetVisitTodayInvestigations(TodayInvestigationsRequest request)
+        {
+            var result = await _DoctorFirstservice.GetVisitTodayInvestigationsAsync(request);
             return Ok(result);
         }
         [Authorize]
@@ -117,7 +149,11 @@ namespace DoctorMobileApp.Controllers
                 {
                     success = true,
                     //message = result
-                    message = isUpdate ? "Visit updated successfully" : "Visit saved successfully"
+                    message = isUpdate ? "Visit updated successfully" : "Visit saved successfully",
+                    data = new
+                    {
+                        DocVisitID = model.VisitDetails.DocVisitIDP
+                    }
                 });
             }
             catch (Exception ex)
@@ -129,6 +165,30 @@ namespace DoctorMobileApp.Controllers
                     error = ex.Message
                 });
             }
+        }
+        [Authorize]
+        // 🔹 POST: api/doctor-visit/get-routinedetails
+        [HttpPost("get-routinedetails")]
+        public async Task<IActionResult> GetRoutineVisitDetails(VisitDetailsRequest request)
+        {
+            var Data = await _DoctorFirstservice.GetRoutineVisitDetailsAsync(request, hospitalidf, hospitalgroupidf);
+            return Ok(Data);
+        }
+        [Authorize]
+        // 🔹 POST: api/doctor-visit/get-doctorvisit-summary
+        [HttpPost("get-doctorvisit-summary")]
+        public async Task<IActionResult> GetDoctorVisittSummary(DoctorVisitSummaryRequest request)
+        {
+            var result = await _DoctorFirstservice.GetDoctorVisitSummaryAsync(request, hospitalidf);
+            return Ok(result);
+        }
+        [Authorize]
+        // 🔹 POST: api/doctor-visit/get-doctorvisit-summary-details
+        [HttpPost("get-doctorvisit-summary-details")]
+        public async Task<IActionResult> GetDoctorVisittSummaryDetails(DoctorVisitSummaryDetailsRequest request)
+        {
+            var result = await _DoctorFirstservice.GetDoctorVisittSummaryDetailsAsync(request);
+            return Ok(result);
         }
     }
 }

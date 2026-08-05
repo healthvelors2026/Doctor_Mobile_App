@@ -18,75 +18,51 @@ namespace DoctorMobileApp.WebService
         {
             var parameters = new[]
             {
-                new SqlParameter("@DocVisitIDF",request.DocVisitIDF),
+                new SqlParameter("@DocVisitIDF", request.DocVisitIDF),
                 new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
                 new SqlParameter("@DoctorIDF", request.DoctorIDF),
                 new SqlParameter("@HospitalIDF", hospitalidf),
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
+
             var result = await _dbHelper.QueryMultipleAsync(
                 "API_SP_GetFirstVisitDetails",
                 new Func<SqlDataReader, object>[]
                 {
-                    r =>ReadRowExtensions.MapToClass<VisitDetails>(r),
-                    r =>ReadRowExtensions.MapToClass<TabDetail>(r),
-                    r =>ReadRowExtensions.MapToClass<VisitChargeDetail>(r),
-                    r =>ReadRowExtensions.MapToClass<DiagnosisModel>(r),
-                    r =>ReadRowExtensions.MapToClass<Doctor>(r),
-                    r =>ReadRowExtensions.MapToClass<IDNamePair>(r),
-                    r =>ReadRowExtensions.MapToClass<VitalDetail>(r),
-                    r =>ReadRowExtensions.MapToClass<IDNamePair>(r),
+                    r => ReadRowExtensions.MapToClass<VisitDetails>(r),
+                    r => ReadRowExtensions.MapToClass<TabDetail>(r),
+                    r => ReadRowExtensions.MapToClass<VisitChargeDetail>(r),
+                    r => ReadRowExtensions.MapToClass<DiagnosisModel>(r),
+                    r => ReadRowExtensions.MapToClass<Doctor>(r),
+                    r => ReadRowExtensions.MapToClass<IDNamePair>(r),
+                    r => ReadRowExtensions.MapToClass<VitalDetail>(r),
+                    r => ReadRowExtensions.MapToClass<IDNamePair>(r)
                 },
-                parameters
-            );
-            var response = new DoctorFirstVisit();
-            var VisitDetails = result[0] as List<object>;
-            if (VisitDetails != null && VisitDetails.Count > 0)
+                parameters);
+
+            var response = new DoctorFirstVisit
             {
-                response.VisitDetails = (VisitDetails)VisitDetails[0];
-            }
-            var TabDetaillist = result[1] as List<object>;
-            if (TabDetaillist != null && TabDetaillist.Count > 0)
-            {
-                response.TabDetaillist = TabDetaillist.Cast<TabDetail>().ToList();
-            }
-            var VisitChargeDetail = result[2] as List<object>;
-            if (VisitChargeDetail != null && VisitChargeDetail.Count > 0)
-            {
-                response.VisitChargeDetail = (VisitChargeDetail)VisitChargeDetail[0];
-            }
-            var diagnosisList = result[3] as List<object>;
-            if (diagnosisList != null)
-            {
-                response.ProvisionalDiagnosisList = diagnosisList.Cast<DiagnosisModel>().Where(x => x.DiagnosisType == 0).ToList();
-                response.FinalDiagnosisList = diagnosisList.Cast<DiagnosisModel>().Where(x => x.DiagnosisType == 1).ToList();
-            }
-            var DoctorList = result[4] as List<object>;
-            if (DoctorList != null && DoctorList.Count > 0)
-            {
-                response.DoctorList = DoctorList.Cast<Doctor>().ToList();
-            }
-            var VisitTypeList = result[5] as List<object>;
-            if (VisitTypeList != null && VisitTypeList.Count > 0)
-            {
-                response.VisitTypeList = VisitTypeList.Cast<IDNamePair>().ToList();
-            }
-            var VitalDetails = result[6] as List<object>;
-            if (VitalDetails != null && VitalDetails.Count > 0)
-            {
-                response.VitalDetails = VitalDetails.Cast<VitalDetail>().ToList();
-            }
-            var DietCategoryList = result[7] as List<object>;
-            if (DietCategoryList != null && DietCategoryList.Count > 0)
-            {
-                response.DietCategoryList = DietCategoryList.Cast<IDNamePair>().ToList();
-            }
-            response.RegTypeList = new List<IDNamePair>
+                VisitDetails = ReadSingle<VisitDetails>(result, 0) ?? new VisitDetails(),
+                TabDetaillist = ReadList<TabDetail>(result, 1),
+                VisitChargeDetail = ReadSingle<VisitChargeDetail>(result, 2) ?? new VisitChargeDetail(),
+                DoctorList = ReadList<Doctor>(result, 4),
+                VisitTypeList = ReadList<IDNamePair>(result, 5),
+                VitalDetails = ReadList<VitalDetail>(result, 6),
+                DietCategoryList = ReadList<IDNamePair>(result, 7),
+                RegTypeList = new List<IDNamePair>
                 {
-                      new IDNamePair { ID = 0, Name = "Normal" },
-                      new IDNamePair { ID = 1, Name = "Day Emer" },
-                      new IDNamePair { ID = 2, Name = "Night Emer"}
-               };
+                  new() { ID = 0, Name = "Normal" },
+                  new() { ID = 1, Name = "Day Emer" },
+                  new() { ID = 2, Name = "Night Emer" }
+                }
+            };
+            var diagnosisList = ReadList<DiagnosisModel>(result, 3);
+            response.ProvisionalDiagnosisList = diagnosisList
+                .Where(x => x.DiagnosisType == 0)
+                .ToList();
+            response.FinalDiagnosisList = diagnosisList
+                .Where(x => x.DiagnosisType == 1)
+                .ToList();
             return response;
         }
         public async Task<VisitChargeDetail?> GetCalcVisitChargeAsync(VisitChargeRequest request, int hospitalidf, int hospitalgroupidf)
@@ -150,7 +126,7 @@ namespace DoctorMobileApp.WebService
             return list;
         }
         public async Task<List<InvestigationTestReport>> GetPathoTestPriceListAsync(
-            TestPriceRequest request, int HospitalIDF = 0, int HospitalGroupIDF = 0)
+            TestPriceRequest request, int hospitalidf, int hospitalgroupidf)
         {
             var list = new List<InvestigationTestReport>();
             DateTime visitDateValue = string.IsNullOrEmpty(request.Visitdate)
@@ -167,8 +143,8 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@WardTypeIDF", request.WardTypeIDF),
                 new SqlParameter("@BedTrackingIDF", request.BedTrackingIDF),
                 new SqlParameter("@SearchTest", request.SearchTest ?? ""),
-                new SqlParameter("@HospitalIDF", HospitalIDF),
-                new SqlParameter("@HospitalGroupIDF", HospitalGroupIDF)
+                new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
             if (request.NonCashLess == 0 || request.NonCashLess == 1)
             {
@@ -186,6 +162,24 @@ namespace DoctorMobileApp.WebService
             }
             return list;
         }
+        public async Task<List<InvestigationTestReport>> GetVisitPathoTestListAsync(
+           VisitTestRequest request, int hospitalidf, int hospitalgroupidf)
+        {
+            var list = new List<InvestigationTestReport>();
+            SqlParameter[] patientParams =
+             {
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@VisitIDF", request.VisitIDF),
+                new SqlParameter("@VisitFlag", request.VisitFlag),
+                new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
+            };
+            list = await _dbHelper.QueryAsync<InvestigationTestReport>(
+              "API_SP_GetVisitPathoTestList",
+              CommandType.StoredProcedure,
+              patientParams);
+            return list;
+        }
         public async Task<List<IDNamePair>> GetRadioCategoryListAsync(int hospitaligroupdf)
         {
             var list = new List<IDNamePair>();
@@ -200,7 +194,7 @@ namespace DoctorMobileApp.WebService
             return list;
         }
         public async Task<List<InvestigationTestReport>> GetRadioTestPriceListAsync(
-            TestPriceRequest request, int HospitalIDF = 0, int HospitalGroupIDF = 0)
+            TestPriceRequest request, int hospitalidf, int hospitalgroupidf)
         {
             var list = new List<InvestigationTestReport>();
             DateTime visitDateValue = string.IsNullOrEmpty(request.Visitdate)
@@ -216,8 +210,8 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@WardTypeIDF", request.WardTypeIDF),
                 new SqlParameter("@BedTrackingIDF", request.BedTrackingIDF),
                 new SqlParameter("@SearchTest", request.SearchTest ?? ""),
-                new SqlParameter("@HospitalIDF", HospitalIDF),
-                new SqlParameter("@HospitalGroupIDF", HospitalGroupIDF)
+                new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
             if (request.NonCashLess == 0 || request.NonCashLess == 1)
             {
@@ -235,6 +229,24 @@ namespace DoctorMobileApp.WebService
             }
             return list;
         }
+        public async Task<List<InvestigationTestReport>> GetVisitRadioTestListAsync(
+          VisitTestRequest request, int hospitalidf, int hospitalgroupidf)
+        {
+            var list = new List<InvestigationTestReport>();
+            SqlParameter[] patientParams =
+             {
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@VisitIDF", request.VisitIDF),
+                new SqlParameter("@VisitFlag", request.VisitFlag),
+                new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
+            };
+            list = await _dbHelper.QueryAsync<InvestigationTestReport>(
+              "API_SP_GetVisitRadioTestList",
+              CommandType.StoredProcedure,
+              patientParams);
+            return list;
+        }
         public async Task<List<IDNamePair>> GetProcedureCategoryListAsync(int hospitaligroupdf)
         {
             var list = new List<IDNamePair>();
@@ -249,7 +261,7 @@ namespace DoctorMobileApp.WebService
             return list;
         }
         public async Task<List<InvestigationTestReport>> GetProcedureTestPriceListAsync(
-          TestPriceRequest request, int HospitalIDF = 0, int HospitalGroupIDF = 0)
+          TestPriceRequest request, int hospitalidf, int hospitalgroupidf)
         {
             var list = new List<InvestigationTestReport>();
             DateTime visitDateValue = string.IsNullOrEmpty(request.Visitdate)
@@ -265,8 +277,8 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@WardTypeIDF", request.WardTypeIDF),
                 new SqlParameter("@BedTrackingIDF", request.BedTrackingIDF),
                 new SqlParameter("@SearchTest", request.SearchTest ?? ""),
-                new SqlParameter("@HospitalIDF", HospitalIDF),
-                new SqlParameter("@HospitalGroupIDF", HospitalGroupIDF)
+                new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
             if (request.NonCashLess == 0 || request.NonCashLess == 1)
             {
@@ -283,6 +295,49 @@ namespace DoctorMobileApp.WebService
                    patientParams);
             }
             return list;
+        }
+        public async Task<List<InvestigationTestReport>> GetVisitProcedureTestListAsync(
+         VisitTestRequest request, int hospitalidf, int hospitalgroupidf)
+        {
+            var list = new List<InvestigationTestReport>();
+            SqlParameter[] patientParams =
+             {
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@VisitIDF", request.VisitIDF),
+                new SqlParameter("@VisitFlag", request.VisitFlag),
+                new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
+            };
+            list = await _dbHelper.QueryAsync<InvestigationTestReport>(
+              "API_SP_GetVisitProcedureTestList",
+              CommandType.StoredProcedure,
+              patientParams);
+            return list;
+        }
+        public async Task<TodayInvestigations?> GetVisitTodayInvestigationsAsync(TodayInvestigationsRequest request)
+        {
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("@AdmissionDischargeIDP", request.AdmissionIDF),
+                new SqlParameter("@VisitFlag", request.VisitFlag), // ideally hashed
+                new SqlParameter("@OPDIPDFlag", request.OPDIPDFlag)
+
+            };
+            var dataTable = await _dbHelper.ExecuteDataTableAsync(
+                "SP_GetDoctorVisitInvestigationsForCurrentDay",
+                CommandType.StoredProcedure,
+                parameters
+            );
+            if (dataTable == null || dataTable.Rows.Count == 0)
+                return null;
+            var row = dataTable.Rows[0];
+            var response = new TodayInvestigations
+            {
+                PathoItems = row.ToStr("PathoItems"),
+                RadioItems = row.ToStr("RadioItems"),
+                ProcedureItem = row.ToStr("ProcedureItem")
+            };
+            return response;
         }
         public async Task<string> SaveVisitAsync(DoctorFirstVisit model)
         {
@@ -548,6 +603,97 @@ namespace DoctorMobileApp.WebService
                 return "Transaction Failed: " + ex.Message;
             }
         }
+        public async Task<DoctorFirstVisit> GetRoutineVisitDetailsAsync(VisitDetailsRequest request, int hospitalidf, int hospitalgroupidf)
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@DocVisitIDF", request.DocVisitIDF),
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@DoctorIDF", request.DoctorIDF),
+                new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
+            };
+
+            var result = await _dbHelper.QueryMultipleAsync(
+                "API_SP_GetRoutineVisitDetails",
+                new Func<SqlDataReader, object>[]
+                {
+                    r => ReadRowExtensions.MapToClass<VisitDetails>(r),
+                    r => ReadRowExtensions.MapToClass<VisitChargeDetail>(r),
+                    r => ReadRowExtensions.MapToClass<DiagnosisModel>(r),
+                    r => ReadRowExtensions.MapToClass<Doctor>(r),
+                    r => ReadRowExtensions.MapToClass<IDNamePair>(r),
+                    r => ReadRowExtensions.MapToClass<VitalDetail>(r),
+                    r => ReadRowExtensions.MapToClass<IDNamePair>(r)
+                },
+                parameters);
+
+            var response = new DoctorFirstVisit
+            {
+                VisitDetails = ReadSingle<VisitDetails>(result, 0) ?? new VisitDetails(),
+                VisitChargeDetail = ReadSingle<VisitChargeDetail>(result, 1) ?? new VisitChargeDetail(),
+                DoctorList = ReadList<Doctor>(result, 3),
+                VisitTypeList = ReadList<IDNamePair>(result, 4),
+                VitalDetails = ReadList<VitalDetail>(result, 5),
+                DietCategoryList = ReadList<IDNamePair>(result, 6),
+                RegTypeList = new List<IDNamePair>
+                {
+                  new() { ID = 0, Name = "Normal" },
+                  new() { ID = 1, Name = "Day Emer" },
+                  new() { ID = 2, Name = "Night Emer" }
+                }
+            };
+            var diagnosisList = ReadList<DiagnosisModel>(result, 2);
+            response.ProvisionalDiagnosisList = diagnosisList
+                .Where(x => x.DiagnosisType == 0)
+                .ToList();
+            response.FinalDiagnosisList = diagnosisList
+                .Where(x => x.DiagnosisType == 1)
+                .ToList();
+            return response;
+        }
+        public async Task<List<DoctorVisitSummary>> GetDoctorVisitSummaryAsync(
+          DoctorVisitSummaryRequest request, int hospitalidf)
+        {
+            var list = new List<DoctorVisitSummary>();
+            SqlParameter[] patientParams =
+             {
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@HospitalIDF", hospitalidf)
+            };
+            list = await _dbHelper.QueryAsync<DoctorVisitSummary>(
+              "API_SP_GetDoctorVisitSummary",
+              CommandType.StoredProcedure,
+              patientParams);
+            return list;
+        }
+        public async Task<DoctorVisitSummaryDetails> GetDoctorVisittSummaryDetailsAsync(DoctorVisitSummaryDetailsRequest request)
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@IsFirstVisit", request.IsFirstVisit),
+                new SqlParameter("@VisitIDF", request.VisitIDF),
+                new SqlParameter("@RegistrationIDF", request.RegistrationIDF)
+            };
+            var result = await _dbHelper.QueryMultipleAsync(
+                "API_SP_GetDoctorVisitSummaryDetails",
+                new Func<SqlDataReader, object>[]
+                {
+                    r => ReadRowExtensions.MapToClass<VitalDetail>(r),
+                    r => ReadRowExtensions.MapToClass<VisitInvestigationSummary>(r),
+                    r => ReadRowExtensions.MapToClass<VisitMedicationSummary>(r),
+                    r => ReadRowExtensions.MapToClass<VisitServiceSummary>(r)
+                },
+                parameters);
+            var response = new DoctorVisitSummaryDetails
+            {
+                VitalSummary = ReadList<VitalDetail>(result, 0),
+                InvestigationsSummary = ReadList<VisitInvestigationSummary>(result, 1),
+                MedicationsSummary = ReadList<VisitMedicationSummary>(result, 2),
+                ServicesSummary = ReadList<VisitServiceSummary>(result, 3),
+            };
+            return response;
+        }
         public bool CheckCashFlag(int nonCashLess, int na, bool classForReimbursement)
         {
             return nonCashLess != Convert.ToByte(2)//EnmCashLess=2
@@ -574,6 +720,24 @@ namespace DoctorMobileApp.WebService
             dt.Columns.Add("NetServiceRate", typeof(decimal));
             dt.Columns.Add("IsDelete", typeof(int));
             return dt;
+        }
+        private static T? ReadSingle<T>(List<object> result, int index) where T : class
+        {
+            if (result.Count <= index)
+                return null;
+
+            return (result[index] as List<object>)?
+                .Cast<T>()
+                .FirstOrDefault();
+        }
+        private static List<T> ReadList<T>(List<object> result, int index)
+        {
+            if (result.Count <= index)
+                return new List<T>();
+
+            return (result[index] as List<object>)?
+                .Cast<T>()
+                .ToList() ?? new List<T>();
         }
     }
 }

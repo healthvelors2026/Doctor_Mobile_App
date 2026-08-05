@@ -2,6 +2,7 @@
 using DoctorMobileApp.Models;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using static DoctorMobileApp.Models.KioskModel;
 
 namespace DoctorMobileApp.WebService
 {
@@ -20,7 +21,7 @@ namespace DoctorMobileApp.WebService
             var response = new AdmittedPatientListRequest
             {
                 WardList = new List<WardList>(),
-              
+
             };
             var wardParams = new[]
             {
@@ -44,7 +45,7 @@ namespace DoctorMobileApp.WebService
             {
                  new SqlParameter("@HospitalIDF", hospitalidf)
             };
-            var doctorTask = await _dbHelper.QueryAsync<DoctorList>("API_DoctorList",CommandType.StoredProcedure,doctorParams);
+            var doctorTask = await _dbHelper.QueryAsync<DoctorList>("API_DoctorList", CommandType.StoredProcedure, doctorParams);
             response.DoctorList = doctorTask;
             return response;
         }
@@ -125,9 +126,9 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@HospitalIDP", hospitalidf),
                 new SqlParameter("@PatientIDF", request.PatientID)
             };
-            var patient = (await _dbHelper.QueryAsync<BedTransferPatientDBModel>("DoctorApp_API_GetBedTransferPatientDetail",CommandType.StoredProcedure,
-             patientParams)).FirstOrDefault();
-            
+            var patient = (await _dbHelper.QueryAsync<BedTransferPatientDBModel>(
+                "DoctorApp_API_GetBedTransferPatientDetail", CommandType.StoredProcedure, patientParams)).FirstOrDefault();
+
             if (patient == null)
                 return response;
 
@@ -168,29 +169,585 @@ namespace DoctorMobileApp.WebService
 
             foreach (var item in history)
             {
-                item.TransferBy = item.UserName;
+                item.TransferBy = item.UserName ?? string.Empty;
 
-                switch (item.TransferType)
+                item.Mode = item.TransferType switch
                 {
-                    case 0:
-                        item.Mode = "-";
-                        break;
+                    0 => "-",
 
-                    case 1:
-                        item.Mode = $"Transferred From Bed {item.ReBedname}";
-                        break;
+                    1 => string.IsNullOrWhiteSpace(item.ReBedname)
+                        ? "Transferred"
+                        : $"Transferred From Bed {item.ReBedname}",
 
-                    case 2:
-                        item.Mode = $"Temporary Bed {item.ReBedname}";
-                        break;
+                    2 => string.IsNullOrWhiteSpace(item.ReBedname)
+                        ? "Moved"
+                        : $"Moved From Bed {item.ReBedname}",
 
-                    default:
-                        item.Mode = "";
-                        break;
-                }
+                    3 => string.IsNullOrWhiteSpace(item.ReBedname)
+                        ? "Swapped"
+                        : $"Swapped From Bed {item.ReBedname}",
+
+                    _ => string.Empty
+                };
             }
             response.BedTransferHistory = history;
             return response;
         }
+
+        public async Task<List<AddmisionCheckResponse>> GetAddmisionCheckListAsync(AddmisionCheckRequest request, int hospitalIDF, int hospitalGroupIDF)
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@Type", request.CheckListType),
+                new SqlParameter("@NonActive", request.NonActive),
+                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
+                new SqlParameter("@RegistrationIDF", request.RegistrationIDF),
+                new SqlParameter("@RegistrationType", request.RegistrationType),
+                new SqlParameter("@HospitalGroupIDF", hospitalGroupIDF),
+                new SqlParameter("@HospitalIDF", hospitalIDF)
+            };
+
+            var result = await _dbHelper.QueryAsync<AddmisionCheckResponse>("GET_IPDCheckListQuestionDetail",
+                CommandType.StoredProcedure,
+                parameters);
+
+            return result;
+        }
+
+        public async Task<BedTransferEditResponse?> GetBedTransferEditAsync(BedTransferEditRequest request, int hospitalIDF, int hospitalGroupIDF)
+        {
+            var patientParameters = new[]
+            {
+                new SqlParameter("@HospitalIDP", hospitalIDF),
+                new SqlParameter("@PatientIDF", request.PatientIDF)
+            };
+
+            var patient = (await _dbHelper.QueryAsync<BedTransferPatientDBModel>(
+                            "DoctorApp_API_GetBedTransferPatientDetail",
+                            CommandType.StoredProcedure, patientParameters)).FirstOrDefault();
+            if (patient == null)
+            {
+                return null;
+            }
+            var response = new BedTransferEditResponse
+            {
+                AdmissionID = patient.IPDAdmissionDischargeIDP,
+                CurrentTrackingID = patient.IPDBedAmenityTrackingIDP,
+                CurrentBedID = patient.BedIDP,
+                CurrentBed = patient.BedName ?? string.Empty,
+                CurrentWardID = patient.WardIDP,
+                CurrentWard = patient.WardName ?? string.Empty,
+                CurrentWardTypeID = patient.WardTypeIDF,
+                FromDate = patient.FromDate,
+                TransferDate = DateTime.Now,
+                IsDayCare = patient.IsDayCare
+            };
+
+            var bedParameters = new[]
+            {
+                new SqlParameter("@HospitalIDF", hospitalIDF),
+                new SqlParameter("@CurrentBedIDF", patient.BedIDP),
+                new SqlParameter("@CurrentWardIDF", patient.WardIDP),
+                new SqlParameter("@IsDayCare", patient.IsDayCare)
+            };
+
+            var availableBeds = await _dbHelper.QueryAsync<AvailableBedDBModel>("DoctorApp_API_GetAvailableBedsForTransfer",
+                    CommandType.StoredProcedure,
+                    bedParameters);
+
+            response.AvailableBeds = availableBeds
+                .Select(x => new BedDropdownModel
+                {
+                    BedID = x.BedIDP,
+                    BedName = x.BedName ?? string.Empty,
+                    WardID = x.WardIDP,
+                    WardName = x.WardName ?? string.Empty
+                })
+                .ToList();
+            var checklistParameters = new[]
+            {
+                new SqlParameter("@Type", (int)EnumIsCheckList.EnumAdmission),
+                new SqlParameter("@NonActive", true),
+                new SqlParameter("@AdmissionIDF",patient.IPDAdmissionDischargeIDP),
+                new SqlParameter("@RegistrationIDF", 0),
+                new SqlParameter("@RegistrationType",(int)EnumOPDIPDFlag.EnmIPD),
+                new SqlParameter("@HospitalIDF", hospitalIDF),
+                new SqlParameter("@HospitalGroupIDF", hospitalGroupIDF)
+            };
+            var admissionChecklist = await _dbHelper.QueryAsync<AddmisionCheckResponse>("GET_IPDCheckListQuestionDetail", CommandType.StoredProcedure, checklistParameters);
+            response.AdmissionChecklist = admissionChecklist.Select(x => new CheckListQuestionModel
+            {
+                CheckListQuestionIDP = x.CheckListQuestionIDP,
+                Question = x.Question ?? string.Empty,
+                Value = x.Value,
+                Remarks = x.Remarks ?? string.Empty,
+                CategoryName = x.CategoryName ?? string.Empty
+            })
+                .ToList();
+
+            var swapPatientParameters = new[]
+            {
+                new SqlParameter("@HospitalIDF", hospitalIDF),
+                new SqlParameter("@CurrentAdmissionIDF",patient.IPDAdmissionDischargeIDP),
+                new SqlParameter("@CurrentBedIDF", patient.BedIDP),
+                new SqlParameter("@IsDayCare", patient.IsDayCare)
+
+            };
+
+            var swapPatients =
+                await _dbHelper.QueryAsync<SwapPatientModel>(
+                    "DoctorApp_API_GetSwapPatients",
+                    CommandType.StoredProcedure,
+                    swapPatientParameters);
+
+            response.SwapPatients = swapPatients.ToList();
+            return response;
+        }
+
+        public async Task<SwapPatientResponse?> GetBedSwapAsync(SwapPatientRequest request, int hospitalIDF)
+        {
+            if (request.PatientID <= 0)
+            {
+                return null;
+            }
+
+            var patientParameters = new[]
+            {
+                new SqlParameter("@HospitalIDP", hospitalIDF),
+                new SqlParameter("@PatientIDF", request.PatientID)
+            };
+
+            var patient = (await _dbHelper.QueryAsync<BedTransferPatientDBModel>(
+                "DoctorApp_API_GetBedTransferPatientDetail",
+                CommandType.StoredProcedure,
+                patientParameters)).FirstOrDefault();
+
+            if (patient == null)
+            {
+                return null;
+            }
+
+            var swapPatientParameters = new[]
+            {
+                new SqlParameter("@HospitalIDF", hospitalIDF),
+                new SqlParameter("@CurrentAdmissionIDF", patient.IPDAdmissionDischargeIDP),
+                new SqlParameter("@CurrentBedIDF", patient.BedIDP),
+                new SqlParameter("@IsDayCare", patient.IsDayCare)
+            };
+
+            var swapPatients = await _dbHelper.QueryAsync<SwapPatientModel>(
+                "DoctorApp_API_GetSwapPatients",
+                CommandType.StoredProcedure,
+                swapPatientParameters);
+
+            return new SwapPatientResponse
+            {
+                PatientID = patient.PatientIDP,
+                AdmissionID = patient.IPDAdmissionDischargeIDP,
+                PatientName = $"{patient.FName} {patient.MName} {patient.LName}".Trim(),
+                IPDRegistrationCode = patient.IPDRegistrationCode ?? string.Empty,
+                CurrentTrackingID = patient.IPDBedAmenityTrackingIDP,
+                CurrentBedID = patient.BedIDP,
+                CurrentBed = patient.BedName ?? string.Empty,
+                CurrentWardID = patient.WardIDP,
+                CurrentWard = patient.WardName ?? string.Empty,
+                CurrentFromDate = patient.FromDate,
+                IsDayCare = patient.IsDayCare,
+                SwapPatients = swapPatients.ToList()
+            };
+        }
+
+        public async Task<SaveBedTransferResponse> SaveBedTransferAsync(SaveBedTransferRequest request,int hospitalIDF,int userIDF,int employeeIDF)
+        {
+            if (request.AdmissionID <= 0)
+            {
+                return new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -1,
+                    Message = "Valid admission ID is required."
+                };
+            }
+
+            if (request.CurrentBedID <= 0)
+            {
+                return new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -1,
+                    Message = "Valid current bed ID is required."
+                };
+            }
+
+            if (request.ToBedID <= 0)
+            {
+                return new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -1,
+                    Message = "Valid destination bed ID is required."
+                };
+            }
+
+            if (request.CurrentBedID == request.ToBedID)
+            {
+                return new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -1,
+                    Message = "Current bed and destination bed cannot be the same."
+                };
+            }
+
+            if (request.TransferDate == default)
+            {
+                return new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -1,
+                    Message = "Transfer date and time are required."
+                };
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Remarks) && request.Remarks.Length > 250)
+            {
+                return new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -1,
+                    Message = "Remarks cannot exceed 250 characters."
+                };
+            }
+
+            if (request.ICUChargeType is < 0 or > 2)
+            {
+                return new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = 11,
+                    Message = "Invalid ICU charge type."
+                };
+            }
+
+            if (hospitalIDF <= 0 || userIDF <= 0 || employeeIDF <= 0)
+            {
+                return new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -401,
+                    Message = "Authenticated hospital, user, and employee information is required."
+                };
+            }
+
+            var parameters = new[]
+            {
+        new SqlParameter("@HospitalIDF", hospitalIDF)
+        {
+            Value = hospitalIDF
+        },
+        new SqlParameter("@AdmissionIDF", SqlDbType.Int)
+        {
+            Value = request.AdmissionID
+        },
+        new SqlParameter("@CurrentBedIDF", SqlDbType.Int)
+        {
+            Value = request.CurrentBedID
+        },
+        new SqlParameter("@ToBedIDF", SqlDbType.Int)
+        {
+            Value = request.ToBedID
+        },
+        new SqlParameter("@TransferDateTime", SqlDbType.SmallDateTime)
+        {
+            Value = request.TransferDate
+        },
+        new SqlParameter("@Remarks", SqlDbType.NVarChar, 250)
+        {
+            Value = string.IsNullOrWhiteSpace(request.Remarks)
+                ? DBNull.Value
+                : request.Remarks.Trim()
+        },
+        new SqlParameter("@EmployeeIDF", employeeIDF)
+        {
+            Value = employeeIDF
+        },
+        new SqlParameter("@UserIDF", userIDF)
+        {
+            Value = userIDF
+        },
+        new SqlParameter("@IsIcuBed", SqlDbType.Bit)
+        {
+            Value = request.IsIcuBed
+        },
+        new SqlParameter("@ICUChargeType", SqlDbType.TinyInt)
+        {
+             Value = request.ICUChargeType ?? 0
+        }
+    };
+            try
+            {
+                var result = await _dbHelper.QueryAsync<SaveBedTransferDBModel>("DoctorApp_API_SaveBedTransfer",CommandType.StoredProcedure,parameters);
+
+                var dbResult = result.FirstOrDefault();
+
+                if (dbResult == null)
+                {
+                    return new SaveBedTransferResponse
+                    {
+                        Success = false,
+                        ResultCode = -500,
+                        Message = "Bed transfer could not be completed."
+                    };
+                }
+
+                return new SaveBedTransferResponse
+                {
+                    Success = dbResult.Success,
+                    ResultCode = dbResult.ResultCode < 0 ? -500 : dbResult.ResultCode,
+                    Message = dbResult.ResultCode < 0
+                        ? "An unexpected error occurred while completing the bed transfer."
+                        : dbResult.Message,
+                    TrackingID = dbResult.TrackingID
+                };
+            }
+            catch (Exception ex)
+            {
+                _dbHelper.LogError(ex, "DoctorApp_API_SaveBedTransfer");
+                return new SaveBedTransferResponse
+                {
+                    Success = false,
+                    ResultCode = -500,
+                    Message = "An unexpected error occurred while completing the bed transfer."
+                };
+            }
+        }
+
+        //public async Task<SaveBedSwapResponse> SaveBedSwapAsync(SaveBedSwapRequest request,int hospitalIDF,int hospitalGroupIDF,int userIDF,int employeeIDF)
+        //{
+        //    static SaveBedSwapResponse Invalid(string message, int resultCode = -1) => new()
+        //    {
+        //        Success = false,
+        //        ResultCode = resultCode,
+        //        Message = message
+        //    };
+
+        //    if (request.PatientID <= 0 || request.SwapPatientID <= 0)
+        //    {
+        //        return Invalid("Valid primary and swap patient IDs are required.");
+        //    }
+
+        //    if (request.PatientID == request.SwapPatientID)
+        //    {
+        //        return Invalid("Primary and swap patients must be different.", 13);
+        //    }
+
+        //    if (request.TransferDate == default)
+        //    {
+        //        return Invalid("Transfer date and time are required.");
+        //    }
+
+        //    if (!string.IsNullOrWhiteSpace(request.Remarks) && request.Remarks.Trim().Length > 250)
+        //    {
+        //        return Invalid("Remarks cannot exceed 250 characters.");
+        //    }
+
+        //    if (request.ICUChargeType is < 0 or > 2)
+        //    {
+        //        return Invalid("Invalid ICU charge type.", 8);
+        //    }
+
+        //    if (request.ChecklistCompletedByEmployeeID is <= 0)
+        //    {
+        //        return Invalid("Checklist employee must be a valid employee when supplied.", 14);
+        //    }
+
+        //    if (hospitalIDF <= 0 || hospitalGroupIDF <= 0 || userIDF <= 0)
+        //    {
+        //        return Invalid("Authenticated hospital, hospital group, and user information is required.", -401);
+        //    }
+
+        //    var answers = request.ChecklistAnswers ?? new List<BedSwapChecklistAnswer>();
+        //    if (answers.Any(x => x.QuestionID <= 0)
+        //        || answers.GroupBy(x => x.QuestionID).Any(group => group.Count() > 1)
+        //        || answers.Any(x => (x.Remarks?.Length ?? 0) > 2000))
+        //    {
+        //        return Invalid("Checklist answers contain an invalid, duplicate, or oversized value.", 10);
+        //    }
+
+        //    var checklistTable = new DataTable();
+        //    checklistTable.Columns.Add("QuestionID", typeof(int));
+        //    checklistTable.Columns.Add("Value", typeof(bool));
+        //    checklistTable.Columns.Add("Remarks", typeof(string));
+
+        //    foreach (var answer in answers)
+        //    {
+        //        checklistTable.Rows.Add(answer.QuestionID,answer.Value,string.IsNullOrWhiteSpace(answer.Remarks) ? DBNull.Value : answer.Remarks.Trim());
+        //    }
+
+        //    var parameters = new[]
+        //    {
+        //        new SqlParameter("@HospitalIDF", SqlDbType.Int) { Value = hospitalIDF },
+        //        new SqlParameter("@HospitalGroupIDF", SqlDbType.Int) { Value = hospitalGroupIDF },
+        //        new SqlParameter("@PrimaryPatientIDF", SqlDbType.Int) { Value = request.PatientID },
+        //        new SqlParameter("@SwapPatientIDF", SqlDbType.Int) { Value = request.SwapPatientID },
+        //        new SqlParameter("@TransferDateTime", SqlDbType.SmallDateTime) { Value = request.TransferDate },
+        //        new SqlParameter("@Remarks", SqlDbType.NVarChar, 250)
+        //        {
+        //            Value = string.IsNullOrWhiteSpace(request.Remarks) ? DBNull.Value : request.Remarks.Trim()
+        //        },
+        //        new SqlParameter("@ICUChargeType", SqlDbType.TinyInt)
+        //        {
+        //            Value = request.ICUChargeType.HasValue ? request.ICUChargeType.Value : DBNull.Value
+        //        },
+        //        new SqlParameter("@ChecklistEmployeeIDF", SqlDbType.Int)
+        //        {
+        //            Value = request.ChecklistCompletedByEmployeeID.HasValue ? request.ChecklistCompletedByEmployeeID.Value : DBNull.Value
+        //        },
+        //        new SqlParameter("@EmployeeIDF", SqlDbType.Int) { Value = employeeIDF },
+        //        new SqlParameter("@UserIDF", SqlDbType.Int) { Value = userIDF },
+        //        new SqlParameter("@ChecklistAnswers", SqlDbType.Structured)
+        //        {
+        //            TypeName = "dbo.DoctorApp_BedSwapChecklistAnswerType",
+        //            Value = checklistTable
+        //        }
+        //    };
+        //    try
+        //    {
+        //        var dbResult = (await _dbHelper.QueryAsync<SaveBedSwapDBModel>("DoctorApp_API_SaveBedSwap",CommandType.StoredProcedure,parameters)).FirstOrDefault();
+
+        //        if (dbResult == null)
+        //        {
+        //            return Invalid("Bed swap could not be completed.", -500);
+        //        }
+
+        //        if (dbResult.ResultCode < 0 && dbResult.ResultCode != -1)
+        //        {
+        //            dbResult.Success = false;
+        //            dbResult.ResultCode = -500;
+        //            dbResult.Message = "An unexpected error occurred while completing the bed swap.";
+        //        }
+        //        return dbResult;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _dbHelper.LogError(ex, "DoctorApp_API_SaveBedSwap", parameters);
+        //        return Invalid("An unexpected error occurred while completing the bed swap.", -500);
+        //    }
+        //}
     }
 }
+//public async Task<RequestBedTransferResponse> RequestBedTransferAsync(RequestBedTransferRequest request,
+//    int hospitalIDF,int hospitalGroupIDF,
+//    int userIDF,
+//    int employeeIDF)
+//{
+//    RequestBedTransferResponse Invalid(string message, int code = -1) => new()
+//    {
+//        Success = false,
+//        ResultCode = code,
+//        Message = message
+//    };
+
+//    if (request == null)
+//    {
+//        return Invalid("Request body is required.");
+//    }
+
+//    if (request.AdmissionID <= 0 || request.CurrentBedID <= 0 || request.ToBedID <= 0)
+//    {
+//        return Invalid("Valid admission, current bed, and destination bed IDs are required.");
+//    }
+
+//    if (request.CurrentBedID == request.ToBedID)
+//    {
+//        return Invalid("Current bed and destination bed cannot be the same.");
+//    }
+
+//    if (request.TransferDate == default)
+//    {
+//        return Invalid("Transfer date and time are required.");
+//    }
+
+//    if (!string.IsNullOrWhiteSpace(request.Remarks) && request.Remarks.Length > 250)
+//    {
+//        return Invalid("Remarks cannot exceed 250 characters.");
+//    }
+
+//    if (hospitalIDF <= 0 || hospitalGroupIDF <= 0 || userIDF <= 0 || employeeIDF <= 0)
+//    {
+//        return Invalid("Authenticated hospital, hospital group, user, and employee information is required.", -401);
+//    }
+
+//    if (request.AmenityIDs.Any(x => x <= 0))
+//    {
+//        return Invalid("Amenity IDs must be positive.");
+//    }
+
+//    if (request.AmenityIDs.Count != request.AmenityIDs.Distinct().Count())
+//    {
+//        return Invalid("Duplicate amenity IDs are not allowed.");
+//    }
+
+//    var amenityIDs = request.AmenityIDs.Count > 0
+//        ? string.Join(",", request.AmenityIDs)
+//        : null;
+
+//    var parameters = new[]
+//    {
+//        new SqlParameter("@HospitalIDF", SqlDbType.Int) { Value = hospitalIDF },
+//        new SqlParameter("@HospitalGroupIDF", SqlDbType.Int) { Value = hospitalGroupIDF },
+//        new SqlParameter("@AdmissionIDF", SqlDbType.Int) { Value = request.AdmissionID },
+//        new SqlParameter("@CurrentBedIDF", SqlDbType.Int) { Value = request.CurrentBedID },
+//        new SqlParameter("@ToBedIDF", SqlDbType.Int) { Value = request.ToBedID },
+//        new SqlParameter("@RequestDateTime", SqlDbType.SmallDateTime) { Value = request.TransferDate },
+//        new SqlParameter("@Remarks", SqlDbType.NVarChar, 250)
+//        {
+//            Value = string.IsNullOrWhiteSpace(request.Remarks)
+//                ? DBNull.Value
+//                : request.Remarks.Trim()
+//        },
+//        new SqlParameter("@EmployeeIDF", SqlDbType.Int) { Value = employeeIDF },
+//        new SqlParameter("@UserIDF", SqlDbType.Int) { Value = userIDF },
+//        new SqlParameter("@AmenityIDs", SqlDbType.NVarChar, -1)
+//        {
+//            Value = string.IsNullOrWhiteSpace(amenityIDs)
+//                ? DBNull.Value
+//                : amenityIDs
+//        }
+//    };
+
+//    try
+//    {
+//        var result = await _dbHelper.QueryAsync<RequestBedTransferDBModel>(
+//            "DoctorApp_API_RequestBedTransfer",
+//            CommandType.StoredProcedure,
+//            parameters);
+
+//        var dbResult = result.FirstOrDefault();
+//        if (dbResult == null)
+//        {
+//            return Invalid("The bed transfer request could not be completed.", -500);
+//        }
+
+//        if (dbResult.ResultCode < 0 && dbResult.ResultCode != -401 && dbResult.ResultCode != -500)
+//        {
+//            return Invalid("The bed transfer request could not be completed.", -500);
+//        }
+
+//        return new RequestBedTransferResponse
+//        {
+//            Success = dbResult.Success,
+//            ResultCode = dbResult.ResultCode,
+//            Message = dbResult.Message,
+//            BedStatusTrackingID = dbResult.BedStatusTrackingID,
+//            AdmissionID = dbResult.AdmissionID,
+//            FromBedID = dbResult.FromBedID,
+//            ToBedID = dbResult.ToBedID
+//        };
+//    }
+//    catch (Exception ex)
+//    {
+//        _dbHelper.LogError(ex, "DoctorApp_API_RequestBedTransfer");
+//        return Invalid("An unexpected error occurred while creating the bed transfer request.", -500);
+//    }
+//}

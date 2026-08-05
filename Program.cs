@@ -1,11 +1,11 @@
 ﻿using DoctorMobileApp.CommonClass;
 using DoctorMobileApp.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-
+using System.Text.RegularExpressions;
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -258,6 +258,38 @@ if (app.Environment.IsDevelopment())
 // Always Enabled
 app.UseSwagger();
 app.UseSwaggerUI();
+//}
+app.UseStaticFiles();
+app.UseHttpsRedirection();
+
+var skillIconPathPattern = new Regex(
+    @"^/(?<hospitalCode>[A-Za-z0-9]+)/MobileApp/DoctorSkillset/(?<fileName>[A-Za-z0-9_-]+\.(jpg|jpeg|png|gif))$",
+    RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+app.Use(async (context, next) =>
+{
+    // Only touch requests whose path matches the strict allow-list above.
+    var match = skillIconPathPattern.Match(context.Request.Path.Value ?? string.Empty);
+    if (HttpMethods.IsGet(context.Request.Method) && match.Success)
+    {
+        // Rebuild the physical path from the validated groups only - never from raw input.
+        var physicalPath = Path.Combine(
+            @"D:\", match.Groups["hospitalCode"].Value, "MobileApp", "DoctorSkillset", match.Groups["fileName"].Value);
+        if (!File.Exists(physicalPath))
+        {
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            return;
+        }
+
+        // Detect content-type from the extension (image/jpeg, image/png, etc.) and stream the file.
+        new FileExtensionContentTypeProvider().TryGetContentType(physicalPath, out var contentType);
+        context.Response.ContentType = contentType ?? "application/octet-stream";
+        await context.Response.SendFileAsync(physicalPath);
+        return;
+    }
+    // Not an icon request - hand off to the rest of the pipeline (Swagger, auth, controllers).
+    await next();
+});
 
 // ==========================================
 // Middleware

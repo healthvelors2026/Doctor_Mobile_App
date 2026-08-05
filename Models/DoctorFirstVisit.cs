@@ -83,6 +83,9 @@
         public string PathoRemarks { get; set; } = string.Empty;
         public string RadioRemarks { get; set; } = string.Empty;
         public string ProcRemarks { get; set; } = string.Empty;
+        public string PathoItems { get; set; } = string.Empty;
+        public string RadioItems { get; set; } = string.Empty;
+        public string ProcedureItems { get; set; } = string.Empty;
     }
     public class TabDetail
     {
@@ -178,7 +181,79 @@
         public int IsSampleCollection { get; set; }
         public bool IsReject { get; set; }
     }
-   
+    public class ServicePriceModel
+    {
+        public int SerRegIDP { get; set; }
+        public int ServiceIDF { get; set; }
+        public string ServiceName { get; set; } = string.Empty;
+        public bool? ServiceTaxApplicable { get; set; }
+        public int? ServiceTaxPlanIDF { get; set; }
+        public int NotApplicable { get; set; }
+        public bool CashFlag { get; set; }
+        public decimal Qty { get; set; }
+        public decimal SerivceRate { get; set; }
+        public decimal CostAdditionRate { get; set; }
+        public decimal DiscPercent { get; set; }
+        public decimal DiscountAmt { get; set; }
+        public decimal RoundingAmt { get; set; }
+        public decimal NetServiceRate { get; set; }
+        public string Remarks { get; set; } = string.Empty;
+        public bool IsSelected { get; set; }
+        public int Paid { get; set; }
+    }
+    public class TodayInvestigations
+    {
+        public string PathoItems { get; set; } = string.Empty;
+        public string RadioItems { get; set; } = string.Empty;
+        public string ProcedureItem { get; set; } = string.Empty;
+    }
+    public class DoctorVisitSummary
+    {
+        public int VisitIDF { get; set; }
+        public int AdmissionIDF { get; set; }
+        public int PatientIDF { get; set; }
+        public string? VisitCode { get; set; }
+        public DateTime VisitDateTime { get; set; }
+        public string? VisitTypeName { get; set; }
+        public int IsFirstVisit { get; set; }
+        public string? DoctorName { get; set; }
+        public string? Complaints { get; set; }
+        public string? FindingAndSuggestions { get; set; }
+        public string? DietOrOtherInstruction { get; set; }
+        public string? DietCategoryName { get; set; }
+        public string? DietFood { get; set; }
+    }
+    public class DoctorVisitSummaryDetails
+    {
+        public List<VitalDetail> VitalSummary { get; set; } = new();
+        public List<VisitInvestigationSummary> InvestigationsSummary { get; set; } = new();
+        public List<VisitMedicationSummary> MedicationsSummary { get; set; } = new();
+        public List<VisitServiceSummary> ServicesSummary { get; set; } = new();
+    }
+    public class VisitInvestigationSummary
+    {
+        public string TestName { get; set; } = string.Empty;
+        public int Type { get; set; }
+    }
+    public class VisitMedicationSummary
+    {
+        public string MedicationName { get; set; } = string.Empty;
+        public decimal RequestedQty { get; set; } 
+        public string IPDInstruction { get; set; } = string.Empty;
+        public string Instruction { get; set; } = string.Empty;
+        public string ItemContentName { get; set; } = string.Empty;
+    }
+    public class VisitServiceSummary
+    {
+        public string ServiceName { get; set; } = string.Empty;
+        public DateTime SerDate { get; set; }
+        public decimal Qty { get; set; }
+        public decimal Rate { get; set; }
+        public decimal TotalRate { get; set; }
+        public decimal DiscountAmt { get; set; }
+        public decimal Amount { get; set; }
+    }
+
     //Use Only Request Parameter
     public class VisitDetailsRequest
     {
@@ -208,4 +283,27 @@
         public int NonCashLess { get; set; }
         public int IPDForNew { get; set; }
     }
+    public class VisitTestRequest
+    {
+        public int AdmissionIDF { get; set; }
+        public int VisitIDF { get; set; }
+        public int VisitFlag { get; set; }
+    }
+    public class TodayInvestigationsRequest
+    {
+        public int AdmissionIDF { get; set; }
+        public int VisitFlag { get; set; }
+        public int OPDIPDFlag { get; set; }
+    }
+    public class DoctorVisitSummaryRequest
+    {
+        public int AdmissionIDF { get; set; }
+    }
+    public class DoctorVisitSummaryDetailsRequest
+    {
+        public int IsFirstVisit { get; set; }
+        public int VisitIDF { get; set; }
+        public int RegistrationIDF { get; set; }
+    }
+
 }

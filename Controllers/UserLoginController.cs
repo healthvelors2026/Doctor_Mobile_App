@@ -39,12 +39,12 @@ namespace DoctorMobileApp.Controllers
         }
         [Authorize]
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout(string RefreshToken)
+        public async Task<IActionResult> Logout(TokenRequest request)
         {
-            if (string.IsNullOrWhiteSpace(RefreshToken))
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
                 return BadRequest("Refresh token is required");
 
-            var result = await _loginService.LogoutAsync(RefreshToken);
+            var result = await _loginService.LogoutAsync(request);
 
             if (!result)
                 return BadRequest("Logout failed");
@@ -57,11 +57,11 @@ namespace DoctorMobileApp.Controllers
 
         [AllowAnonymous]
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken(string RefreshToken)
+        public async Task<IActionResult> RefreshToken(TokenRequest request)
         {
-            if (string.IsNullOrWhiteSpace(RefreshToken))
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
                 return BadRequest("Refresh token is required");
-            var tokenData = await _loginService.GetRefreshTokenAsync(RefreshToken);
+            var tokenData = await _loginService.GetRefreshTokenAsync(request);
             if (tokenData == null)
                 return Unauthorized("Invalid or expired refresh token");
             return Ok(new

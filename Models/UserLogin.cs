@@ -15,6 +15,8 @@ namespace DoctorMobileApp.Models
         public string EmployeeName { get; set; } = string.Empty;
         public string Token { get; set; } = string.Empty;
         public DateTime ExpireDate { get; set; }
+        public int FASModeOFPaymentIDF {  get; set; }
+
     }
     public class LoginResponse
     {
@@ -26,5 +28,10 @@ namespace DoctorMobileApp.Models
     {
         public string username { get; set; } = string.Empty;
         public string password { get; set; } = string.Empty;
+        public int IsKioskUser { get; set; }
+    }
+    public class TokenRequest
+    {
+        public string RefreshToken { get; set; } = string.Empty;
     }
 }

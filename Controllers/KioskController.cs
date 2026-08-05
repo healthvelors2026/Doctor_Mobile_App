@@ -24,10 +24,12 @@ namespace DoctorMobileApp.Controllers
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-
         private int hospitalidf => int.TryParse(User.FindFirst("HospitalIDF")?.Value, out var id) ? id : 0;
         private int hospitalgroupidf => int.TryParse(User.FindFirst("HospitalGroupIDF")?.Value, out var id) ? id : 0;
-        private int UserIdf => int.TryParse(User.FindFirst("UserIdf")?.Value, out var id) ? id : 0;
+        private string hospitalCode => User.FindFirst("HospitalCode")?.Value ?? string.Empty;
+        private int userIdf => int.TryParse(User.FindFirst("UserIdf")?.Value, out var id) ? id : 0;
+        private int fasModeOFPaymentIDF => int.TryParse(User.FindFirst("FASModeOFPaymentIDF")?.Value, out var id) ? id : 0;
+
         public KioskController( IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
            // _kioskService = kioskService;
@@ -60,9 +62,14 @@ namespace DoctorMobileApp.Controllers
 
         [HttpPost]
         [Route("get-skill-set")]
-        public async Task<IActionResult> GetSkillSet()
+        public async Task<IActionResult> GetSkillSet(CancellationToken cancellationToken)
         {
-            var skillSetList = await _kioskService.GetSkillSetListAsync(hospitalgroupidf);
+            string baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var skillSetList = await _kioskService.GetSkillSetListAsync(
+                hospitalgroupidf,
+                hospitalCode,
+                baseUrl,
+                cancellationToken);
             if (skillSetList == null || skillSetList.Count == 0)
             {
                 return NotFound(new
@@ -173,8 +180,9 @@ namespace DoctorMobileApp.Controllers
                     Message = "Invalid Request"
                 });
             }
-            var receiptId = await _kioskService.SaveOPDTestReceiptAsync(receiptModel);
-            if (receiptId <= 0)
+            var receipt = await _kioskService.SaveOPDTestReceiptAsync(receiptModel, userIdf, hospitalidf);
+
+            if (receipt.VoucherIDP <= 0)
             {
                 return BadRequest(new
                 {
@@ -182,11 +190,58 @@ namespace DoctorMobileApp.Controllers
                     Message = "Failed"
                 });
             }
+
             return Ok(new
             {
                 Status = true,
                 Message = "OPD Test Receipt Saved Successfully",
-                ReceiptID = receiptId
+                Receipt = receipt
+            });
+        }
+      
+        [HttpPost]
+        [Route("get-last-visit-doctor")]
+        public async Task<IActionResult> GetLastvisitDoctor([FromBody] LastVisitDrRequestmodel requestmodel)
+        {
+            var data = await _kioskService.GetLastVisitDoctorAsync(requestmodel, hospitalidf);
+
+            if (data == null)
+            {
+                return NotFound(new
+                {
+                    Status = false,
+                    Message = "Record Not Found"
+                });
+            }
+
+            return Ok(new
+            {
+                Status = true,
+                Message = "Success",
+                Data = data
+            });
+        }
+
+        [HttpPost]
+        [Route("get-patient-appointment-detail")]
+        public async Task<IActionResult> GetPatientAppointmentDetail([FromBody] PatientLatestAppointmentRequestModel requestmodel)
+        {
+            var data = await _kioskService.GetLatestPatientAppointmentDetailAsync(requestmodel, hospitalidf);
+
+            if (data == null)
+            {
+                return NotFound(new
+                {
+                    Status = false,
+                    Message = "Record Not Found"
+                });
+            }
+
+            return Ok(new
+            {
+                Status = true,
+                Message = "Success",
+                Data = data
             });
         }
 
@@ -194,7 +249,7 @@ namespace DoctorMobileApp.Controllers
         [Route("get-doctor-list")]
         public async Task<IActionResult> GetDoctorList([FromBody] DoctorRequestModel requestModel)
         {
-            var doctorList = await _kioskService.GetDoctorListAsync(requestModel,hospitalidf);
+            var doctorList = await _kioskService.GetDoctorListAsync(requestModel, hospitalidf);
             if (doctorList == null || doctorList.Count == 0)
             {
                 return NotFound(new
@@ -223,7 +278,7 @@ namespace DoctorMobileApp.Controllers
                     Message = "Invalid Request"
                 });
             }
-            var voucherId = await _kioskService.SaveAdvanceDepositAsync(depositmodel);
+            var voucherId = await _kioskService.SaveAdvanceDepositAsync(depositmodel, hospitalidf, fasModeOFPaymentIDF, userIdf);
             if (voucherId <= 0)
             {
                 return BadRequest(new
@@ -237,6 +292,38 @@ namespace DoctorMobileApp.Controllers
                 Status = true,
                 Message = "Advance Deposit Saved Successfully",
                 VoucherID = voucherId
+            });
+        }
+
+        [HttpPost]
+        [Route("save-opd-registration")]
+        public async Task<IActionResult> SaveOPDRegistration([FromBody] SaveOPDRegistrationModel receiptModel)
+        {
+            if (receiptModel == null)
+            {
+                return BadRequest(new
+                {
+                    Status = false,
+                    Message = "Invalid Request"
+                });
+            }
+
+            var receiptId = await _kioskService.SaveOPDRegistrationAsync(receiptModel, userIdf, hospitalidf);
+
+            if (receiptId <= 0)
+            {
+                return BadRequest(new
+                {
+                    Status = false,
+                    Message = "Failed to Save OPD Registration"
+                });
+            }
+
+            return Ok(new
+            {
+                Status = true,
+                Message = "OPD Registration Saved Successfully",
+                ReceiptID = receiptId
             });
         }
     }
