@@ -896,3 +896,32 @@ StackTrace:
    at DoctorMobileApp.CommonClass.SqlHelper.QueryAsync[T](String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Projects\Doctor_Kiosk_API\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 194
 ====================================
 
+========== ERROR ==========
+Date: 05-08-2026 12:01:42 PM
+Procedure: Kiosk_API_OPDTestReceipt_Save
+Message: Trying to pass a table-valued parameter with 4 column(s) where the corresponding user-defined table type requires 3 column(s).
+Parameters:
+   @HospitalIDF = 1
+   @PatientIDF = 581715
+   @OPDRegistrationIDF = 1735547
+   @KioskOPDTestReceiptTableType = 
+   @UserIDF = 1603
+   @UPITransactionNo = UPI123456789
+   @VoucherIDP_Return = NULL
+   @VoucherIDP_NA_Return = NULL
+StackTrace:
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+   at Microsoft.Data.SqlClient.SqlCommand.InternalEndExecuteNonQuery(IAsyncResult asyncResult, Boolean isInternal, String endMethod)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryInternal(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryAsync(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<InternalExecuteNonQueryAsync>b__251_1(IAsyncResult asyncResult)
+   at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+--- End of stack trace from previous location ---
+   at DoctorMobileApp.CommonClass.SqlHelper.ExecuteNonQueryAsync(String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Projects\Doctor_Kiosk_API\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 90
+====================================
+

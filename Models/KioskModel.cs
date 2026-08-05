@@ -97,6 +97,7 @@ namespace DoctorMobileApp.Models
             */
             public int InvestigationType { get; set; }
             public string? Doctor { get; set; }
+            public int NotApplicable { get; set; }
         }
         public class SaveOPDTestReceiptRequestModel
         {
@@ -114,6 +115,7 @@ namespace DoctorMobileApp.Models
         public class SaveOPDTestReceiptResponseModel
         {
             public int VoucherIDP { get; set; }
+            public int VoucherIDP_NA { get; set; }
         }
         // for Last visit Doctor For Kiosk
         public class LastVisitDrRequestmodel
