@@ -32,12 +32,8 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<PatientDetail>("Kiosk_API_PatientSearch", CommandType.StoredProcedure, patientParams);
             return list;
         }
-        public async Task<List<SkillSetResponseModel>> GetSkillSetListAsync(
-            int hospitalgroupidf,
-            string hospitalCode,
-            string baseUrl,
-            CancellationToken cancellationToken = default)
-        {
+        public async Task<List<SkillSetResponseModel>> GetSkillSetListAsync(int hospitalgroupidf,string hospitalCode,string baseUrl,CancellationToken cancellationToken = default)
+            {
             var skillSetParams = new[]
             {
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
@@ -45,18 +41,13 @@ namespace DoctorMobileApp.WebServices
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var list = await _dbHelper.QueryAsync<SkillSetResponseModel>(
-                "API_SP_GetStandardSkillSetList",
-                CommandType.StoredProcedure,
-                skillSetParams);
+            var list = await _dbHelper.QueryAsync<SkillSetResponseModel>("API_SP_GetStandardSkillSetList",CommandType.StoredProcedure,skillSetParams);
 
             cancellationToken.ThrowIfCancellationRequested();
 
             foreach (var item in list)
             {
-                if (string.IsNullOrWhiteSpace(item.IconPath) ||
-                    string.IsNullOrWhiteSpace(hospitalCode) ||
-                    string.IsNullOrWhiteSpace(baseUrl))
+                if (string.IsNullOrWhiteSpace(item.IconPath) || string.IsNullOrWhiteSpace(hospitalCode) || string.IsNullOrWhiteSpace(baseUrl))
                 {
                     item.IconPath = null;
                     continue;
@@ -140,7 +131,7 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<OPDTestReceiptResponseModel>("Kiosk_API_OPDTestReceipt_GetList", CommandType.StoredProcedure, OPDParams);
             return list;
         }
-        public async Task<int> SaveOPDTestReceiptAsync(SaveOPDTestReceiptRequestModel model, int userIdf, int hospitalidf)
+        public async Task<SaveOPDTestReceiptResponseModel> SaveOPDTestReceiptAsync(SaveOPDTestReceiptRequestModel model, int userIdf, int hospitalidf)
         {
             try
             {
@@ -151,7 +142,7 @@ namespace DoctorMobileApp.WebServices
 
                 if (model.OPDTestReceiptList == null || !model.OPDTestReceiptList.Any())
                 {
-                    return 0;
+                    return new SaveOPDTestReceiptResponseModel();
                 }
                 foreach (var item in model.OPDTestReceiptList)
                 {
@@ -172,6 +163,10 @@ namespace DoctorMobileApp.WebServices
                 {
                     Direction = ParameterDirection.Output
                 };
+                var voucherNAParam = new SqlParameter("@VoucherIDP_NA_Return", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
                 var parameters = new SqlParameter[]
                 {
                    new SqlParameter("@HospitalIDF",hospitalidf),
@@ -181,10 +176,14 @@ namespace DoctorMobileApp.WebServices
                    new SqlParameter("@UserIDF",userIdf),
                    new SqlParameter("@UPITransactionNo",
                    string.IsNullOrWhiteSpace(model.UPITransactionNo)? DBNull.Value: (object)model.UPITransactionNo),
-                   voucherParam
+                   voucherParam, voucherNAParam
                 };
                 await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_OPDTestReceipt_Save", CommandType.StoredProcedure, parameters);
-                return Convert.ToInt32(voucherParam.Value);
+                return new SaveOPDTestReceiptResponseModel
+                {
+                    VoucherIDP = Convert.ToInt32(voucherParam.Value == DBNull.Value ? 0 : voucherParam.Value),
+                    VoucherIDP_NA = Convert.ToInt32(voucherNAParam.Value == DBNull.Value ? 0 : voucherNAParam.Value)
+                };
             }
             catch (Exception ex)
             {

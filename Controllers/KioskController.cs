@@ -180,8 +180,9 @@ namespace DoctorMobileApp.Controllers
                     Message = "Invalid Request"
                 });
             }
-            var receiptId = await _kioskService.SaveOPDTestReceiptAsync(receiptModel,userIdf,hospitalidf);
-            if (receiptId <= 0)
+            var receipt = await _kioskService.SaveOPDTestReceiptAsync(receiptModel, userIdf, hospitalidf);
+
+            if (receipt.VoucherIDP <= 0)
             {
                 return BadRequest(new
                 {
@@ -189,11 +190,12 @@ namespace DoctorMobileApp.Controllers
                     Message = "Failed"
                 });
             }
+
             return Ok(new
             {
                 Status = true,
                 Message = "OPD Test Receipt Saved Successfully",
-                ReceiptID = receiptId
+                Receipt = receipt
             });
         }
       
