@@ -925,3 +925,16 @@ StackTrace:
    at DoctorMobileApp.CommonClass.SqlHelper.ExecuteNonQueryAsync(String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Projects\Doctor_Kiosk_API\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 90
 ====================================
 
+
+
+
+
+
+
+
+
+
+
+
+
+========== ERROR ==========
