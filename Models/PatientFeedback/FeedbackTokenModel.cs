@@ -14,6 +14,7 @@ namespace DoctorMobileApp.Models.PatientFeedback
         public int RegistrationIDF { get; set; }
         public byte RegistrationType { get; set; }
         public int HospitalIDF { get; set; }
+        public int GeneratedByUserIDF { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ExpiryDate { get; set; }
         public bool IsUsed { get; set; }

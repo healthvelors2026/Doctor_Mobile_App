@@ -8,7 +8,8 @@ namespace DoctorMobileApp.WebService.PatientFeedback.Interface
             int patientId,
             int registrationId,
             byte registrationType,
-            int hospitalId);
+            int hospitalId,
+            int userIdF);
 
         Task<FeedbackTokenDto?> ResolveTokenAsync(string token);
         Task<bool> MarkTokenUsedAsync(string token);

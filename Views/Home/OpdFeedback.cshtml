@@ -130,7 +130,7 @@
                     isIpd ? "Admitted" : "Active";
 
                 const res = await fetch(
-                    `/api/PatientFeedback/feedback?patientId=${patientId}&registrationId=${registrationId}&opdIpdFlag=${flag}`
+                    `/api/PatientFeedback/feedback?token=${encodeURIComponent(token)}`
                 );
 
                 if (!res.ok) {
@@ -245,32 +245,64 @@
 
         const optionCount = (q.options || []).length;
 
-        (q.options || []).forEach(opt => {
-            const qid = String(q.feedbackQuestionId);
-            const optId = String(opt.feedbackOptionTypeId);
-            const selected =
-                selectedMap.has(qid) &&
-                selectedMap.get(qid).includes(optId);
+        const isYesNo = optionCount === 0 && (q.type === 0 || q.type === 4);
+
+        if (isYesNo) {
+            const yesSelected = q.isSelected === true;
+            const noSelected = q.isSelected === false;
 
             html += `
                 <button
                     type="button"
-                    class="${selected ? "selected" : ""}"
+                    class="${yesSelected ? "selected" : ""}"
                     data-qid="${q.feedbackQuestionId}"
                     data-cat="${cat.feedbackCategoryId}"
                     data-type="${q.type}"
-                    data-opt="${opt.feedbackOptionTypeId}"
+                    data-answer="true"
                     onclick="selectOption(this)">
-                    ${resolveOptionText(opt)}
+                    Yes
+                </button>
+                <button
+                    type="button"
+                    class="${noSelected ? "selected" : ""}"
+                    data-qid="${q.feedbackQuestionId}"
+                    data-cat="${cat.feedbackCategoryId}"
+                    data-type="${q.type}"
+                    data-answer="false"
+                    onclick="selectOption(this)">
+                    No
                 </button>
             `;
-        });
+        } else {
+            (q.options || []).forEach(opt => {
+                const qid = String(q.feedbackQuestionId);
+                const optId = String(opt.feedbackOptionTypeId);
+                const selected =
+                    selectedMap.has(qid) &&
+                    selectedMap.get(qid).includes(optId);
+
+                html += `
+                    <button
+                        type="button"
+                        class="${selected ? "selected" : ""}"
+                        data-qid="${q.feedbackQuestionId}"
+                        data-cat="${cat.feedbackCategoryId}"
+                        data-type="${q.type}"
+                        data-opt="${opt.feedbackOptionTypeId}"
+                        onclick="selectOption(this)">
+                        ${resolveOptionText(opt)}
+                    </button>
+                `;
+            });
+        }
 
         // Dynamic layout
         const layoutClass =
-            optionCount <= 4
-                ? `rating-${optionCount}`
-                : "rating-auto";
+            isYesNo
+                ? "rating-2"
+                : (optionCount <= 4
+                    ? `rating-${optionCount}`
+                    : "rating-auto");
 
         card.innerHTML = `
             <div class="question-text">
@@ -371,7 +403,9 @@
                             selectedOptionIDF: null,
                             textAnswer: null,
                             type: q.type,
-                            isSelected: selectedBtn ? true : false
+                            isSelected: selectedBtn
+                                ? selectedBtn.dataset.answer === "true"
+                                : false
                         });
 
                         return;

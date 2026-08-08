@@ -8,7 +8,8 @@ namespace DoctorMobileApp.WebService.patientFeedback.Interface
         Task<PatientFeedbackDto?> GetFeedbackAsync(
             int patientId,
             int registrationId,
-            byte opdIpdFlag);
+            byte opdIpdFlag,
+            int userIdF);
 
         Task<int> SaveFeedbackAsync(
             SaveFeedbackRequestDto request);

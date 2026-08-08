@@ -26,7 +26,8 @@ namespace DoctorMobileApp.WebService.PatientFeedback.Implementation
             int patientId,
             int registrationId,
             byte registrationType,
-            int hospitalId)
+            int hospitalId,
+            int userIdF)
         {
             // Check if active token already exists
             var existing =
@@ -57,6 +58,7 @@ namespace DoctorMobileApp.WebService.PatientFeedback.Implementation
                 RegistrationIDF = registrationId,
                 RegistrationType = registrationType,
                 HospitalIDF = hospitalId,
+                GeneratedByUserIDF = userIdF,
                 CreatedDate = DateTime.Now,
                 ExpiryDate = DateTime.Now.AddHours(_settings.TokenExpiryHours),
                 IsUsed = false,
@@ -89,6 +91,7 @@ namespace DoctorMobileApp.WebService.PatientFeedback.Implementation
                 RegistrationIDF = entity.RegistrationIDF,
                 RegistrationType = entity.RegistrationType,
                 HospitalIDF = entity.HospitalIDF,
+                UserIdF = entity.GeneratedByUserIDF,
                 CreatedDate = entity.CreatedDate,
                 ExpiryDate = entity.ExpiryDate,
                 IsUsed = entity.IsUsed,

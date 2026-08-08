@@ -23,30 +23,31 @@ namespace DoctorMobileApp.Controllers
 
         [HttpGet("feedback")]
         public async Task<IActionResult> GetFeedback(
-            [FromQuery] int patientId,
-            [FromQuery] int registrationId,
-            [FromQuery] byte opdIpdFlag)
+            [FromQuery] string token)
         {
             try
             {
-                if (patientId <= 0 || registrationId <= 0)
-                    return BadRequest("Invalid patientId or registrationId");
+                if (string.IsNullOrWhiteSpace(token))
+                    return BadRequest("Token is required.");
 
-
-                if (opdIpdFlag!= 0 && opdIpdFlag!= 1)
-                    return BadRequest("opdIpdFlagmust be 0(OPD) or 1(IPD)");
-
-
+                // Never trust client-supplied IDs - resolve everything from the token,
+                // same pattern as SaveFeedback.
+                var tokenInfo = await _feedbackTokenService.ResolveTokenAsync(token);
+                if (tokenInfo == null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Invalid or expired feedback link."
+                    });
+                }
                 var result = await _patientFeedbackService.GetFeedbackAsync(
-                    patientId,
-                    registrationId,
-                    opdIpdFlag);
-
-
+                    tokenInfo.PatientIDF,
+                    tokenInfo.RegistrationIDF,
+                    tokenInfo.RegistrationType,
+                    tokenInfo.UserIdF);
                 if (result == null)
                     return NotFound();
-
-
                 return Ok(result);
             }
             catch (Exception ex)
@@ -108,6 +109,7 @@ namespace DoctorMobileApp.Controllers
                 request.Master.PatientIDF = tokenInfo.PatientIDF;
                 request.Master.RegistrationIDF = tokenInfo.RegistrationIDF;
                 request.Master.RegistrationType = tokenInfo.RegistrationType;
+                request.Master.UserIDF = tokenInfo.UserIdF;
 
                 var feedbackPatientId =
                     await _patientFeedbackService.SaveFeedbackAsync(request);

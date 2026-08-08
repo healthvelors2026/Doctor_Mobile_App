@@ -18,12 +18,14 @@ namespace MobieAppPatientFeedback.Services
         public async Task<PatientFeedbackDto?> GetFeedbackAsync(
             int patientId,
             int registrationId,
-            byte opdIpdFlag)
+            byte opdIpdFlag,
+            int userIdF)
         {
             return await _repository.GetPatientFeedbackAsync(
                 patientId,
                 registrationId,
-                opdIpdFlag);
+                opdIpdFlag,
+                userIdF);
         }
 
         public async Task<int> SaveFeedbackAsync(

@@ -26,6 +26,8 @@
         public string? Remarks { get; set; }
 
         public string? RegistrationCode { get; set; }
+
+        public int UserIDF { get; set; }
     }
 
     public class FeedBackPatientDetailDto

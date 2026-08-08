@@ -55,6 +55,10 @@ namespace DoctorMobileApp.DTOs.PatientFeedback
         public byte RegistrationType { get; set; }
 
 
+        [JsonPropertyName("userIdF")]
+        public int UserIdF { get; set; }
+
+
         [JsonPropertyName("feedbackForm")]
         public FeedbackFormDto FeedbackForm { get; set; } = new();
 

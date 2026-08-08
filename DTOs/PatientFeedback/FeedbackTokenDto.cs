@@ -12,6 +12,8 @@ namespace DoctorMobileApp.DTOs.PatientFeedbackDto
         // 0 = OPD
         // 1 = IPD
         public byte opdIpdFlag{ get; set; }
+
+        public int UserIdF { get; set; }
     }
 
     // Response after token generation
@@ -43,6 +45,8 @@ namespace DoctorMobileApp.DTOs.PatientFeedbackDto
 
         public int HospitalIDF { get; set; }
 
+        public int UserIdF { get; set; }
+
         public DateTime CreatedDate { get; set; }
 
         public DateTime ExpiryDate { get; set; }
@@ -64,5 +68,7 @@ namespace DoctorMobileApp.DTOs.PatientFeedbackDto
         public int RegistrationId { get; set; }
 
         public byte opdIpdFlag{ get; set; }
+
+        public int UserIdF { get; set; }
     }
 }

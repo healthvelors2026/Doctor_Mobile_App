@@ -37,13 +37,23 @@ namespace DoctorMobileApp.commonclass.CommonController
                     });
                 }
 
+                if (request.UserIdF <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "UserIdF is required."
+                    });
+                }
+
                 int hospitalId = _currentUser.HospitalId;
 
                 var token = await _feedbackTokenService.GenerateTokenAsync(
                     request.PatientId,
                     request.RegistrationId,
                     request.opdIpdFlag,
-                    hospitalId);
+                    hospitalId,
+                    request.UserIdF);
 
                 // Generate feedback URL dynamically
                 var feedbackUrl = Url.Action(
@@ -106,7 +116,8 @@ namespace DoctorMobileApp.commonclass.CommonController
                     Success = true,
                     PatientId = result.PatientIDF,
                     RegistrationId = result.RegistrationIDF,
-                    OpdIpdFlag = result.RegistrationType
+                    OpdIpdFlag = result.RegistrationType,
+                    UserIdF = result.UserIdF
                 });
             }
             catch (Exception ex)

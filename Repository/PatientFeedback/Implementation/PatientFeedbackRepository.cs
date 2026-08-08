@@ -26,7 +26,8 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Implementation
         public async Task<PatientFeedbackDto?> GetPatientFeedbackAsync(
      int patientId,
      int registrationId,
-     byte registrationType)
+     byte registrationType,
+     int userIdF)
         {
             PatientFeedbackDto? result;
             // registrationType = 0 -> OPD
@@ -42,6 +43,9 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Implementation
 
             if (result == null)
                 return null;
+
+            result.UserIdF = userIdF;
+
             // Fetch the latest saved feedback for this patient and registration
             var master = await _context.FeedBackPatientMasters
                 .AsNoTracking()
@@ -431,8 +435,6 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Implementation
 
                 int hospitalId =
                     _currentUser.HospitalId;
-                int userId =
-                    _currentUser.UserId;
 
                 // =========================
                 // MASTER
@@ -473,7 +475,7 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Implementation
                         HospitalIDF =
                             hospitalId,
                         UserIDF =
-                            userId,
+                            request.Master.UserIDF,
                         EntryDate =
                             DateTime.Now,
                         IPAddress =
@@ -493,7 +495,7 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Implementation
                     master.DoctorIDF = request.Master.DoctorIDF;
                     master.ReferenceDocIDF = request.Master.ReferenceDocIDF;
                     master.Remarks = request.Master.Remarks ?? master.Remarks;
-                    master.EditUserIDF = userId;
+                    master.EditUserIDF = request.Master.UserIDF;
                     master.EditEntryDateTime = DateTime.Now;
                     master.EditIPAddress = _currentUser.IpAddress;
                     master.EditBrowserName = _currentUser.Browser;
@@ -599,7 +601,7 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Implementation
                                     FeedbackQuestionIDF = item.FeedbackQuestionIDF,
                                     FeedbackOptionsTypeIDF = item.SelectedOptionIDF,
                                     Type = item.Type,
-                                    Answer = item.SelectedOptionIDF.HasValue,
+                                    Answer = item.IsSelected,
                                     Text = ""
                                 });
                         }

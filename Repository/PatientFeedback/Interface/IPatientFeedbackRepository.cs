@@ -8,7 +8,8 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Interface
         Task<PatientFeedbackDto?> GetPatientFeedbackAsync(
             int patientId,
             int registrationId,
-            byte registrationType);
+            byte registrationType,
+            int userIdF);
 
         Task<int> SaveFeedbackAsync(
             SaveFeedbackRequestDto request);
