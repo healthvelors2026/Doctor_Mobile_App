@@ -146,15 +146,14 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@HospitalIDF", hospitalidf),
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
-            int IsGenralClass = (request.NonCashLess == 2 && request.RateBasedOn == 2) ? 0 : 1;
-            if (IsGenralClass == 1)//Only for Normal Class, Cashless Patho Test Price List is not applicable
+            if (request.NonCashLess == 0 || request.NonCashLess == 1)
             {
                 list = await _dbHelper.QueryAsync<InvestigationTestReport>(
                   "API_SP_GetNormalPathoTestPriceList",
                   CommandType.StoredProcedure,
                   patientParams);
             }
-            else
+            else if (request.NonCashLess == 2)
             {
                 list = await _dbHelper.QueryAsync<InvestigationTestReport>(
                 "API_SP_GetCashlessPathoTestPriceList",
@@ -214,15 +213,14 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@HospitalIDF", hospitalidf),
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
-            int IsGenralClass = (request.NonCashLess == 2 && request.RateBasedOn == 2) ? 0 : 1;
-            if (IsGenralClass == 1)//Only for Normal Class, Cashless Radio Test Price List is not applicable
+            if (request.NonCashLess == 0 || request.NonCashLess == 1)
             {
                 list = await _dbHelper.QueryAsync<InvestigationTestReport>(
                   "API_SP_GetNormalRadioTestPriceList",
                   CommandType.StoredProcedure,
                   patientParams);
             }
-            else
+            else if (request.NonCashLess == 2)
             {
                 list = await _dbHelper.QueryAsync<InvestigationTestReport>(
                 "API_SP_GetCashlessRadioTestPriceList",
@@ -282,15 +280,14 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@HospitalIDF", hospitalidf),
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
-            int IsGenralClass = (request.NonCashLess == 2 && request.RateBasedOn == 2) ? 0 : 1;
-            if (IsGenralClass == 1)//Only for Normal Class, Cashless Procedure Test Price List is not applicable
+            if (request.NonCashLess == 0 || request.NonCashLess == 1)
             {
                 list = await _dbHelper.QueryAsync<InvestigationTestReport>(
                   "API_SP_GetNormalProcedureTestPriceList",
                   CommandType.StoredProcedure,
                   patientParams);
             }
-            else
+            else if (request.NonCashLess == 2)
             {
                 list = await _dbHelper.QueryAsync<InvestigationTestReport>(
                    "API_SP_GetCashlessProcedureTestPriceList",
@@ -315,39 +312,6 @@ namespace DoctorMobileApp.WebService
               "API_SP_GetVisitProcedureTestList",
               CommandType.StoredProcedure,
               patientParams);
-            return list;
-        }
-        public async Task<List<ServicePrice>> GetServicePriceListAsync(
-         ServicePriceRequest request, int hospitalidf, int hospitalgroupidf)
-        {
-            var list = new List<ServicePrice>();
-            DateTime visitDateValue = string.IsNullOrEmpty(request.Visitdate)
-               ? DateTime.Now
-               : Convert.ToDateTime(request.Visitdate);
-            SqlParameter[] patientParams =
-             {
-                new SqlParameter("@AdmissionIDF", request.AdmissionIDF),
-                new SqlParameter("@ChargeType", request.ChargeType),
-                new SqlParameter("@Visitdate", visitDateValue),
-                new SqlParameter("@ClassIDF", request.ClassIDF),
-                new SqlParameter("@WardTypeIDF", request.WardTypeIDF),
-                new SqlParameter("@BedTrackingIDF", request.BedTrackingIDF),
-                new SqlParameter("@Searchtext", request.SearchText ?? ""),
-                new SqlParameter("@HospitalIDF", hospitalidf),
-                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
-            };
-            int IsGenralClass = (request.NonCashLess == 2 && request.RateBasedOn == 2) ? 0 : 1;
-            if (IsGenralClass == 1)//Only for Normal Class, Cashless Service Test Price List is not applicable
-            {
-                list = await _dbHelper.QueryAsync<ServicePrice>(
-                  "API_SP_GetNormalServicePriceList",
-                  CommandType.StoredProcedure,
-                  patientParams);
-            }
-            else
-            {
-               
-            }
             return list;
         }
         public async Task<TodayInvestigations?> GetVisitTodayInvestigationsAsync(TodayInvestigationsRequest request)

@@ -122,14 +122,6 @@ namespace DoctorMobileApp.Controllers
             return Ok(result);
         }
         [Authorize]
-        // 🔹 POST: api/doctor-visit/get-service-pricelist
-        [HttpPost("get-service-pricelist")]
-        public async Task<IActionResult> GetServicePriceList(ServicePriceRequest request)
-        {
-            var result = await _DoctorFirstservice.GetServicePriceListAsync(request, hospitalidf, hospitalgroupidf);
-            return Ok(result);
-        }
-        [Authorize]
         // 🔹 POST: api/doctor-visit/get-visit-todayInvestigations
         [HttpPost("get-visit-todayInvestigations")]
         public async Task<IActionResult> GetVisitTodayInvestigations(TodayInvestigationsRequest request)
