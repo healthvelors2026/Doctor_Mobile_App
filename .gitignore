@@ -47,3 +47,6 @@ Desktop.ini
 *.pubxml.user
 SQL/
 docs/
+/Logs/error_log.txt
+/Logs/error_log.txt
+/appsettings.json
