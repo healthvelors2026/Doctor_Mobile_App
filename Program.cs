@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IDbConnectionFactory, SqlHelper>();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
 builder.Services.AddEndpointsApiExplorer();
 // ✅ Swagger + JWT
 builder.Services.AddSwaggerGen(options =>
