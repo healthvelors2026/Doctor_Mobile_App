@@ -72,7 +72,8 @@
         public int ClassIDF { get; set; }
         public int NonCashLess { get; set; }
         public bool ClassForReimbursement { get; set; }
-        
+        public int RateBasedOn { get; set; }
+
         public int IPDForNew { get; set; }
         public string BedName { get; set; } = string.Empty;
         public string WardName { get; set; } = string.Empty;
@@ -181,7 +182,7 @@
         public int IsSampleCollection { get; set; }
         public bool IsReject { get; set; }
     }
-    public class ServicePriceModel
+    public class ServicePrice
     {
         public int SerRegIDP { get; set; }
         public int ServiceIDF { get; set; }
@@ -191,6 +192,7 @@
         public int NotApplicable { get; set; }
         public bool CashFlag { get; set; }
         public decimal Qty { get; set; }
+        public DateTime ServiceDate { get; set; }
         public decimal SerivceRate { get; set; }
         public decimal CostAdditionRate { get; set; }
         public decimal DiscPercent { get; set; }
@@ -200,6 +202,7 @@
         public string Remarks { get; set; } = string.Empty;
         public bool IsSelected { get; set; }
         public int Paid { get; set; }
+        public int AllowEditRate { get; set; }
     }
     public class TodayInvestigations
     {
@@ -279,9 +282,20 @@
         public int WardTypeIDF { get; set; }
         public int BedTrackingIDF { get; set; }
         public string SearchTest { get; set; } = string.Empty;
-        public int VistType { get; set; }
         public int NonCashLess { get; set; }
-        public int IPDForNew { get; set; }
+        public int RateBasedOn { get; set; }
+    }
+    public class ServicePriceRequest
+    {
+        public int AdmissionIDF { get; set; }
+        public int ChargeType { get; set; }
+        public string Visitdate { get; set; } = string.Empty;
+        public int ClassIDF { get; set; }
+        public int WardTypeIDF { get; set; }
+        public int BedTrackingIDF { get; set; }
+        public string SearchText { get; set; } = string.Empty;
+        public int NonCashLess { get; set; }
+        public int RateBasedOn { get; set; }
     }
     public class VisitTestRequest
     {
