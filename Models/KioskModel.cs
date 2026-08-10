@@ -183,5 +183,17 @@ namespace DoctorMobileApp.Models
             public string? BrowserName { get; set; }
             public string? IPAdress { get; set; }
         }
+        public class SaveOPDRegistrationReceiptResponseModel
+        {
+            public int VoucherIDP { get; set; }
+            public string TransactionType { get; set; } = string.Empty;
+            public string AdvanceDepositSaveDateTime { get; set; } = string.Empty;
+            public string OPDRegistrationSaveDateTime { get; set; } = string.Empty;
+            public string OPDTestReceiptSaveDateTime { get; set; } = string.Empty;
+            public int OPDRegistrationIDP { get; set; }
+            public string RegistrationCode { get; set; } = string.Empty;
+            public int TokenNumber { get; set; }
+            public int RoomNumber { get; set; }
+        }
     }
 }
