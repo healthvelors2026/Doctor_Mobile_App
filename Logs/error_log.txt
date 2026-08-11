@@ -1015,3 +1015,85 @@ StackTrace:
    at DoctorMobileApp.CommonClass.SqlHelper.ExecuteNonQueryAsync(String commandText, CommandType commandType, SqlParameter[] parameters)
 ====================================
 
+========== ERROR ==========
+Date: 10-08-2026 11:56:05 AM
+Procedure: API_SP_GetOPDRegistrationDetails
+Message: Could not find stored procedure 'API_SP_GetOPDRegistrationDetails'.
+Parameters:
+   @RegistrationCode = 202608080003
+   @HospitalIDF = 1
+StackTrace:
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at Microsoft.Data.SqlClient.SqlDataReader.get_MetaData()
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+   at Microsoft.Data.SqlClient.SqlCommand.InternalEndExecuteReader(IAsyncResult asyncResult, Boolean isInternal, String endMethod)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderInternal(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderAsync(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<InternalExecuteReaderAsync>b__283_1(IAsyncResult asyncResult)
+   at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+--- End of stack trace from previous location ---
+   at DoctorMobileApp.CommonClass.SqlHelper.QueryAsync[T](String commandText, CommandType commandType, SqlParameter[] parameters) in D:\DoctorMobileApp\CommonClass\SqlHelper.cs:line 194
+====================================
+
+========== ERROR ==========
+Date: 10-08-2026 11:57:56 AM
+Procedure: Api_UserLogin
+Message: Cannot open database "dbHIMSGRP_MMPJ_MobileApp_Shyam_Demo" requested by the login. The login failed.
+Login failed for user 'sa'.
+Parameters:
+   @userName = 01p
+   @password = abc
+   @IsKioskUser = 0
+StackTrace:
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.TdsParser.Run(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.CompleteLogin(Boolean enlistOK)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, TimeoutTimer timeout, Boolean withFailover)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, DbConnectionPoolGroupProviderInfo providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, Boolean applyTransientFaultHandling, String accessToken, IDbConnectionPool pool, Func`3 accessTokenCallback, SspiContextProvider sspiContextProvider)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionPoolGroupProviderInfo poolGroupProviderInfo, IDbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreatePooledConnection(DbConnection owningConnection, IDbConnectionPool pool, DbConnectionPoolKey poolKey, DbConnectionOptions options, DbConnectionOptions userOptions)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at Microsoft.Data.SqlClient.ConnectionPool.WaitHandleDbConnectionPool.WaitForPendingOpen()
+--- End of stack trace from previous location ---
+   at DoctorMobileApp.CommonClass.SqlHelper.ExecuteDataTableAsync(String commandText, CommandType commandType, SqlParameter[] parameters) in D:\DoctorMobileApp\CommonClass\SqlHelper.cs:line 136
+====================================
+
+========== ERROR ==========
+Date: 11-08-2026 11:53:02 AM
+Procedure: SP_GetOPDInvestigationsForCurrentDay
+Message: The SqlParameter is already contained by another SqlParameterCollection.
+Parameters:
+   @RegistrationCode = 202608110002
+   @HospitalIDF = 1
+StackTrace:
+   at Microsoft.Data.SqlClient.SqlParameterCollection.Validate(Int32 index, Object value)
+   at Microsoft.Data.SqlClient.SqlParameterCollection.AddRange(Array values)
+   at Microsoft.Data.SqlClient.SqlParameterCollection.AddRange(SqlParameter[] values)
+   at DoctorMobileApp.CommonClass.SqlHelper.ExecuteDataTableAsync(String commandText, CommandType commandType, SqlParameter[] parameters) in D:\DoctorMobileApp\CommonClass\SqlHelper.cs:line 134
+====================================
+
+========== ERROR ==========
+Date: 11-08-2026 11:53:38 AM
+Procedure: SP_GetOPDInvestigationsForCurrentDay
+Message: The SqlParameter is already contained by another SqlParameterCollection.
+Parameters:
+   @RegistrationCode = 202608110002
+   @HospitalIDF = 1
+StackTrace:
+   at Microsoft.Data.SqlClient.SqlParameterCollection.Validate(Int32 index, Object value)
+   at Microsoft.Data.SqlClient.SqlParameterCollection.AddRange(Array values)
+   at Microsoft.Data.SqlClient.SqlParameterCollection.AddRange(SqlParameter[] values)
+   at DoctorMobileApp.CommonClass.SqlHelper.ExecuteDataTableAsync(String commandText, CommandType commandType, SqlParameter[] parameters) in D:\DoctorMobileApp\CommonClass\SqlHelper.cs:line 134
+====================================
+
