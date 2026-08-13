@@ -8,8 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Patient Feedback</title>
-
-    <link rel="stylesheet" href="~/css/opd-feedback.css" />
+    <link rel="stylesheet" href="~/css/opd-feedback.css" asp-append-version="true" />
 </head>
 
 <body>
@@ -29,34 +28,41 @@
 
             <div id="formBody">
 
+                <div class="info-section-label">Patient &amp; Visit Details</div>
                 <div class="info-grid">
 
-                    <div class="info-item">
-                        <label>CR Number</label>
-                        <strong id="crNumber">-</strong>
+                    <div class="info-col">
+                        <div class="info-item">
+                            <label>CR Number</label>
+                            <strong id="crNumber">-</strong>
+                        </div>
+
+                        <div class="info-item">
+                            <label>Doctor</label>
+                            <strong id="doctorName">-</strong>
+                        </div>
+
+                        <div class="info-item ipd-only" style="display:none;">
+                            <label>Class</label>
+                            <strong id="className">-</strong>
+                        </div>
                     </div>
 
-                    <div class="info-item">
-                        <label id="regLabel">Registration No.</label>
-                        <strong id="registrationCode">-</strong>
-                    </div>
+                    <div class="info-col">
+                        <div class="info-item">
+                            <label id="regLabel">Registration No.</label>
+                            <strong id="registrationCode">-</strong>
+                        </div>
 
-                    <div class="info-item">
-                        <label>Doctor</label>
-                        <strong id="doctorName">-</strong>
-                    </div>
+                        <div class="info-item">
+                            <label id="dateLabel">Date</label>
+                            <strong id="registrationDate">-</strong>
+                        </div>
 
-                    <div class="info-item">
-                        <label id="dateLabel">Date</label>
-                        <strong id="registrationDate">-</strong>
-                    </div>
-                    <div class="info-item ipd-only" style="display:none;">
-                        <label>Class</label>
-                        <strong id="className">-</strong>
-                    </div>
-                    <div class="info-item ipd-only" style="display:none;">
-                        <label>Discharge Date</label>
-                        <strong id="dischargeDate">-</strong>
+                        <div class="info-item ipd-only" style="display:none;">
+                            <label>Discharge Date</label>
+                            <strong id="dischargeDate">-</strong>
+                        </div>
                     </div>
                 </div>
                 <!-- QUESTIONS -->
@@ -154,7 +160,17 @@
                         .querySelectorAll("button,textarea")
                         .forEach(x => x.disabled = true);
 
-                    throw new Error("Unable to load feedback.");
+                    let serverMessage = "";
+                    try {
+                        const errBody = await res.json();
+                        serverMessage = errBody.message || errBody.Message || "";
+                    } catch { /* response wasn't JSON */ }
+
+                    throw new Error(
+                        serverMessage
+                            ? `Unable to load feedback: ${serverMessage}`
+                            : `Unable to load feedback (HTTP ${res.status}).`
+                    );
                 }
 
                 const data = await res.json();
@@ -180,7 +196,7 @@
                 if (isIpd) {
 
                     document.querySelectorAll(".ipd-only")
-                        .forEach(x => x.style.display = "block");
+                        .forEach(x => x.style.display = "flex");
 
                     document.getElementById("regLabel").innerText = "IPD Number";
 
@@ -228,13 +244,19 @@
 
                 let suggestionCat = null;
                 let appreciationCat = null;
+                let cardStagger = 0;
+
+                const isQuestionCat = cat =>
+                    cat.questions &&
+                    cat.questions.length > 0 &&
+                    !cat.questions.every(q => q.type === 2);
+
+                const questionCatCount =
+                    categories.filter(isQuestionCat).length;
 
                 categories.forEach(cat => {
 
-                    const isText =
-                        !cat.questions ||
-                        cat.questions.length === 0 ||
-                        cat.questions.every(q => q.type === 2);
+                    const isText = !isQuestionCat(cat);
 
                     if (isText) {
 
@@ -251,11 +273,14 @@
                     section.className = "section";
 
                     section.innerHTML =
-                        `<div class="section-title">${cat.categoryName}</div>`;
+                        questionCatCount > 1
+                            ? `<div class="section-title">${cat.categoryName}</div>`
+                            : "";
 
                     cat.questions.forEach((q, index) => {
                                        const card = document.createElement("div");
         card.className = "question-card";
+        card.style.animationDelay = `${Math.min(cardStagger++, 8) * 0.06}s`;
 
         let html = "";
 
@@ -322,7 +347,8 @@
 
         card.innerHTML = `
             <div class="question-text">
-                ${q.question}
+                <span class="question-number">${index + 1}</span>
+                <span class="question-label">${q.question}</span>
             </div>
 
             <div class="rating-row ${layoutClass}">
