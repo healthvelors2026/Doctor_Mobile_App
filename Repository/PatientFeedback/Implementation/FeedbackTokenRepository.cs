@@ -62,9 +62,10 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Implementation
                     x.Token == token &&
                     // Token should be active
                     x.IsActive &&
-                    // Feedback should not already be submitted
-                    !x.IsUsed &&
-                    // Token should not be expired
+                    // Token should not be expired.
+                    // Note: IsUsed is intentionally NOT checked here - the same
+                    // link must keep working (view/edit feedback) until it
+                    // actually expires, not just until the first submission.
                     x.ExpiryDate >= DateTime.Now
                 );
         }
@@ -109,10 +110,9 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Implementation
                         // Token must be active
                         x.IsActive &&
 
-                        // Feedback not submitted yet
-                        !x.IsUsed &&
-
-                        // Token still valid
+                        // Token still valid (reused even if feedback was
+                        // already submitted once, so re-generating a link
+                        // for the same visit doesn't spawn duplicate tokens)
                         x.ExpiryDate >= DateTime.Now
                     );
             }
@@ -142,10 +142,10 @@ namespace DoctorMobileApp.Repository.PatientFeedback.Implementation
                 .FirstOrDefaultAsync(x => x.Token == token);
             if (entity == null)
                 return false;
-            // Feedback submitted
+            // Feedback submitted at least once.
+            // Do NOT set IsActive = false here - the link must stay usable
+            // (to view/edit the feedback) until ExpiryDate is reached.
             entity.IsUsed = true;
-            // Disable feedback link
-            entity.IsActive = false;
             await _context.SaveChangesAsync();
             return true;
         }
