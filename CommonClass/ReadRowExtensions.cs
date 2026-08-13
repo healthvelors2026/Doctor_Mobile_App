@@ -68,5 +68,24 @@ namespace DoctorMobileApp.CommonClass
 
             return obj;
         }
+        public static T? ReadSingle<T>(List<object> result, int index) where T : class
+        {
+            if (result.Count <= index)
+                return null;
+
+            return (result[index] as List<object>)?
+                .Cast<T>()
+                .FirstOrDefault();
+        }
+        public static List<T> ReadList<T>(List<object> result, int index)
+        {
+            if (result.Count <= index)
+                return new List<T>();
+
+            return (result[index] as List<object>)?
+                .Cast<T>()
+                .ToList() ?? new List<T>();
+        }
     }
+
 }
