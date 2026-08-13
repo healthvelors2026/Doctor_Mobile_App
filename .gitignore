@@ -50,3 +50,4 @@ docs/
 
 Logs/
 appsettings.json
+/Logs/error_log.txt
