@@ -41,6 +41,7 @@ builder.Services.AddControllersWithViews();
 // HttpContext
 // ==========================================
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
 
 
 // ==========================================

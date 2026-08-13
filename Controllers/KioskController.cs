@@ -13,7 +13,7 @@ using static DoctorMobileApp.Models.KioskModel;
 namespace DoctorMobileApp.Controllers
 {
     //testss chetanss
-    //testss Deep sai 123
+    //testss 
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
@@ -30,13 +30,13 @@ namespace DoctorMobileApp.Controllers
         private int userIdf => int.TryParse(User.FindFirst("UserIdf")?.Value, out var id) ? id : 0;
         private int fasModeOFPaymentIDF => int.TryParse(User.FindFirst("FASModeOFPaymentIDF")?.Value, out var id) ? id : 0;
 
-        public KioskController( IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public KioskController( IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
         {
            // _kioskService = kioskService;
             _db = db;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
-            _kioskService = new KioskService(_db, _configuration, _httpContextAccessor);
+            _kioskService = new KioskService(_db, _configuration, _httpContextAccessor, httpClient);
         }
 
         [HttpPost]
@@ -278,8 +278,8 @@ namespace DoctorMobileApp.Controllers
                     Message = "Invalid Request"
                 });
             }
-            var voucherId = await _kioskService.SaveAdvanceDepositAsync(depositmodel, hospitalidf, fasModeOFPaymentIDF, userIdf);
-            if (voucherId <= 0)
+            var result = await _kioskService.SaveAdvanceDepositAsync(depositmodel, hospitalidf, fasModeOFPaymentIDF, userIdf);
+            if (result == null || result.VoucherIDP <= 0)
             {
                 return BadRequest(new
                 {
@@ -291,7 +291,14 @@ namespace DoctorMobileApp.Controllers
             {
                 Status = true,
                 Message = "Advance Deposit Saved Successfully",
-                VoucherID = voucherId
+                VoucherID = result.VoucherIDP,
+
+                Data = new
+                {
+                    result.VoucherIDP,
+                    result.TransactionType,
+                    result.AdvanceDepositSaveDateTime
+                }
             });
         }
 
@@ -308,9 +315,9 @@ namespace DoctorMobileApp.Controllers
                 });
             }
 
-            var receiptId = await _kioskService.SaveOPDRegistrationAsync(receiptModel, userIdf, hospitalidf);
+            var result = await _kioskService.SaveOPDRegistrationAsync(receiptModel, userIdf, hospitalidf);
 
-            if (receiptId <= 0)
+            if (result == null || result.VoucherIDP <= 0)
             {
                 return BadRequest(new
                 {
@@ -323,7 +330,16 @@ namespace DoctorMobileApp.Controllers
             {
                 Status = true,
                 Message = "OPD Registration Saved Successfully",
-                ReceiptID = receiptId
+                ReceiptID = result.VoucherIDP,
+                data = new { 
+                    result.VoucherIDP,
+                    result.OPDRegistrationIDP,
+                    result.TransactionType,
+                    result.OPDRegistrationSaveDateTime,
+                    result.RegistrationCode,
+                    result.TokenNumber,
+                    result.RoomNumber
+                }
             });
         }
     }
