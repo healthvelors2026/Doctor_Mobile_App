@@ -21,6 +21,7 @@
         public int RateBasedOn { get; set; }
         public int ChargeType { get; set; }
         public string? CRNumber { get; set; }
+        //CRNumber
         public string? PatientName { get; set; }
         public string? DoctorName { get; set; }
         public string? Gender { get; set; }
