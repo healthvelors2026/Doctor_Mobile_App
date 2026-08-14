@@ -8,7 +8,6 @@
         public List<InvestigationTestReport> RadioTestList { get; set; } = new List<InvestigationTestReport>();
         public List<InvestigationTestReport> ProcedureTestList { get; set; } = new List<InvestigationTestReport>();
     }
-
     public class OPDRegistrationDetails
     {
         public int OPDRegistrationIDP { get; set; }
@@ -17,7 +16,7 @@
         public int DoctorIDF { get; set; }
         public int ClassIDF { get; set; }
         public string? ClassName { get; set; }
-        public bool? NonCashLess { get; set; }
+        public int NonCashLess { get; set; }
         public bool ClassForReimbursement { get; set; }
         public int RateBasedOn { get; set; }
         public int ChargeType { get; set; }
@@ -34,9 +33,19 @@
         public string PathoItems { get; set; } = string.Empty;
         public string RadioItems { get; set; } = string.Empty;
         public string ProcedureItems { get; set; } = string.Empty;
+        public string IPAddress { get; set; } = string.Empty;
+        public string BrowserName { get; set; } = string.Empty;
     }
     public class OPDRegistrationDetailsRequest
     {
         public string RegistrationCode { get; set; } = string.Empty;
+    }
+    public class SaveOPDEntryWithTestResponse
+    {
+        public bool Success { get; set; }
+        public int OPDRegistrationIDF { get; set; }
+        public int VisitIDF { get; set; }
+        public string RegistrationCode { get; set; }= string.Empty;
+        public string Message { get; set; } = string.Empty;
     }
 }
