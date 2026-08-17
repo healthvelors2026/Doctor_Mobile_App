@@ -28,6 +28,9 @@
         public DateTime? DateOfBirth { get; set; }
         public string? RefDocName { get; set; }
         public string? ServiceName { get; set; }
+        public bool IsHealthCardReg { get; set; }
+        public int HCPatientIssueDetailIDF { get; set; }
+        public string? HealthCardNumber { get; set; }
         public int OPDEntryIDP { get; set; }
         public string PathoRemarks { get; set; } = string.Empty;
         public string RadioRemarks { get; set; } = string.Empty;
