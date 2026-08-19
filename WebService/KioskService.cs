@@ -22,7 +22,6 @@ namespace DoctorMobileApp.WebServices
             _httpContextAccessor = httpContextAccessor;
             _httpClient = httpClient;
         }
-     
         public async Task<List<PatientDetail>> GetPatientSearchListAsync(PatientSearchModel searchModel, int hospitalidf)
         {
             var list = new List<PatientDetail>();
@@ -89,7 +88,6 @@ namespace DoctorMobileApp.WebServices
 
             return list;
         }
-
         public async Task<GeneratePatientOTPResponseModel?> GenerateOTPAsync(GeneratePatientOTPRequestModel requestModel,int hospitalidf)
         {
             var otpParams = new[]
