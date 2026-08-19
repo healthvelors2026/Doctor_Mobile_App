@@ -81,7 +81,7 @@
     }
     public class FeedPathoTestReportList
     {
-        public string? PathoTestReportName  { get; set; }
+        public string? PathoTestReportName { get; set; }
         public string? PathoTestCategoryName { get; set; }
         public int? PathoTestMasterIDP { get; set; }
         public string? PathoTestName { get; set; }
@@ -91,13 +91,38 @@
         public string? AlphaNumericTestValue { get; set; }
         public bool? IsMultiColumn { get; set; }
         public string? MultiColumnTestValue { get; set; }
-        public int? FieldType {get; set; }
+        public int? FieldType { get; set; }
         public int? SrNo { get; set; }
         public int? PathoTestReportIDP { get; set; }
         public int? CategoryDetailSrNo { get; set; }
         public int? PathoTestCategoryIDP { get; set; }
         public int? PathoFacultyIDF { get; set; }
-        public string? NormalRange  { get; set; }
+        public string? NormalRange { get; set; }
         public bool IsAbnormalResult { get; set; }
+        public string? Notes { get; set; }
+        public string? Interpretation { get; set; }
+        public string? Impressions { get; set; }
+        public string? Remarks { get; set; }
+    }
+    public class LatestPainAssessment
+    {
+        public List<LatestPainAssessmentList> lstLatestPainAssessment { get; set; }
+    }
+    public class LatestPainAssessmentList
+    {
+        public int PainLevel { get; set; }
+        public string? ScaleLevel { get; set; }
+        public DateTime VisitDateTime { get; set; }
+    }
+    public class PatientLatest10PathologyRecord
+    {
+        public List<PatientLatest10PathologyList> lstPatientLatest10Pathology { get; set; }
+    }
+    public class PatientLatest10PathologyList
+    {
+        public string? PathoTestName { get; set; }
+        public DateTime PathoTestDate { get; set; }
+        public string? NumericTestValue { get; set; }
+
     }
 }

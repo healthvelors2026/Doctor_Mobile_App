@@ -131,5 +131,19 @@ namespace DoctorMobileApp.Controllers
             var Data = await _AdmittedPatientEMRRecordsService.getGetValueFeedPathoTestReportList(PathoRegistrationIDP);
             return Ok(new { Data });
         }
+        [Authorize]
+        [HttpPost("getLatestPainAssessment")]
+        public async Task<IActionResult> getLatestPainAssessment(int AdmissionIDF) { 
+            var Data = await _AdmittedPatientEMRRecordsService.getLatestPainAssessmentList(AdmissionIDF);
+            return Ok(new { Data });
+        }
+
+        [Authorize]
+        [HttpPost("GetPatientLatest10PathologyResults")]
+        public async Task<IActionResult> getPatientLatest10PathologyResult (int PatientIDF)
+        {
+            var Data = await _AdmittedPatientEMRRecordsService.getPatientLatest10PathologyList(PatientIDF);
+            return Ok(new { Data });
+        }
     }
 }
