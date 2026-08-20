@@ -1,7 +1,9 @@
 ﻿using DoctorMobileApp.CommonClass;
+using DoctorMobileApp.Models;
 using DoctorMobileApp.WebService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static DoctorMobileApp.Models.KioskModel;
 namespace DoctorMobileApp.Controllers
 {
     [Route("api/admittedPatientsEmrRecords")]
@@ -20,22 +22,22 @@ namespace DoctorMobileApp.Controllers
         }
         [Authorize]
         [HttpPost("getEmrVitals")]
-        public async Task<IActionResult> getEmrVitals(int AdmissionIDF)
+        public async Task<IActionResult> getEmrVitals([FromBody] GetEmrVitalsRequest emrVitalsRequestModel)
         {
-            var Data = await _AdmittedPatientEMRRecordsService.getEmrVital(hospitalidf, AdmissionIDF);
+            var Data =await _AdmittedPatientEMRRecordsService.getEmrVital(hospitalidf,emrVitalsRequestModel.AdmissionIDF);
             return Ok(new { Data.lstVital });
         }
         [Authorize]
         [HttpPost("getLastVisitPathoRadioProcedureRecords")]
-        public async Task<IActionResult> getLastVisitPathoRadioProcedureRecords(int AdmissionIDF, int Type)
+        public async Task<IActionResult> getLastVisitPathoRadioProcedureRecords([FromBody] GetLastVisitPathoRadioProcedureRecordsRequest requestModel)
         {
-            var Data = await _AdmittedPatientEMRRecordsService.getLastVisitPathoRadioProcedureRecords(hospitalidf, AdmissionIDF, Type);
+            var Data = await _AdmittedPatientEMRRecordsService.getLastVisitPathoRadioProcedureRecords(hospitalidf,requestModel.AdmissionIDF,requestModel.Type);
 
             List<dynamic> obj = new List<dynamic>();
 
             foreach (var itm in Data.lstPathoRadioProcedure)
             {
-                if (Type == 0) // Pathology
+                if (requestModel.Type == 0) // Pathology
                 {
                     obj.Add(new
                     {
@@ -62,7 +64,7 @@ namespace DoctorMobileApp.Controllers
                         itm.EmployeeIDP
                     });
                 }
-                else if (Type == 1) // Radiology
+                else if (requestModel.Type == 1) // Radiology
                 {
                     obj.Add(new
                     {
@@ -87,7 +89,7 @@ namespace DoctorMobileApp.Controllers
                         itm.RefundRemarks
                     });
                 }
-                else if (Type == 2) // Procedure
+                else if (requestModel.Type == 2) // Procedure
                 {
                     obj.Add(new
                     {
@@ -126,9 +128,24 @@ namespace DoctorMobileApp.Controllers
 
         [Authorize]
         [HttpPost("getGetValueFeedPathoTestReportList")]
-        public async Task<IActionResult>getGetValueFeedPathoTestReport(int PathoRegistrationIDP)
+        public async Task<IActionResult> getGetValueFeedPathoTestReport([FromBody] GetValueFeedPathoTestReportRequest requestModel)
         {
-            var Data = await _AdmittedPatientEMRRecordsService.getGetValueFeedPathoTestReportList(PathoRegistrationIDP);
+            var Data = await _AdmittedPatientEMRRecordsService.getGetValueFeedPathoTestReportList(requestModel.PathoRegistrationIDP);
+            return Ok(new { Data });
+        }
+        [Authorize]
+        [HttpPost("getLatestPainAssessment")]
+        public async Task<IActionResult> getLatestPainAssessment([FromBody] GetLatestPainAssessmentRequest requestModel)
+        {
+            var Data = await _AdmittedPatientEMRRecordsService.getLatestPainAssessmentList(requestModel.AdmissionIDF);
+            return Ok(new { Data });
+        }
+
+        [Authorize]
+        [HttpPost("GetPatientLatest10PathologyResults")]
+        public async Task<IActionResult> getPatientLatest10PathologyResult([FromBody] GetPatientLatest10PathologyRequest requestModel)
+        {
+            var Data = await _AdmittedPatientEMRRecordsService.getPatientLatest10PathologyList(requestModel.PatientIDF);
             return Ok(new { Data });
         }
     }
