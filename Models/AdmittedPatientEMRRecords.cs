@@ -1,5 +1,30 @@
 ﻿namespace DoctorMobileApp.Models
 {
+    public class GetEmrVitalsRequest
+    {
+        public int AdmissionIDF { get; set; }
+    }
+
+    public class GetLastVisitPathoRadioProcedureRecordsRequest
+    {
+        public int AdmissionIDF { get; set; }
+        public int Type { get; set; }
+    }
+
+    public class GetValueFeedPathoTestReportRequest
+    {
+        public int PathoRegistrationIDP { get; set; }
+    }
+
+    public class GetLatestPainAssessmentRequest
+    {
+        public int AdmissionIDF { get; set; }
+    }
+
+    public class GetPatientLatest10PathologyRequest
+    {
+        public int PatientIDF { get; set; }
+    }
     public class AdmittedPatientEMRRecords
     {
         public List<VitalList> lstVital { get; set; } = new List<VitalList>();
