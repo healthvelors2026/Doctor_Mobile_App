@@ -98,6 +98,11 @@ namespace DoctorMobileApp.Models
             public int InvestigationType { get; set; }
             public string? Doctor { get; set; }
             public int NotApplicable { get; set; }
+            // New stored-procedure result fields
+            public string? Instruction { get; set; }
+            public int TATTime { get; set; }
+            public string? TATType { get; set; }
+            public string? RegistrationCode { get; set; }
         }
         public class SaveOPDTestReceiptRequestModel
         {
@@ -116,6 +121,10 @@ namespace DoctorMobileApp.Models
         {
             public int VoucherIDP { get; set; }
             public int VoucherIDP_NA { get; set; }
+            public string? VoucherNumber { get; set; }
+            public string? VoucherNumber_NA { get; set; }
+            public SaveOPDRegistrationReceiptResponseModel? ReceiptDetail { get; set; }
+            public SaveOPDRegistrationReceiptResponseModel? NotApplicableReceiptDetail { get; set; }
         }
         // for Last visit Doctor For Kiosk
         public class LastVisitDrRequestmodel
@@ -186,14 +195,15 @@ namespace DoctorMobileApp.Models
         public class SaveOPDRegistrationReceiptResponseModel
         {
             public int VoucherIDP { get; set; }
-            public string TransactionType { get; set; } = string.Empty;
-            public string AdvanceDepositSaveDateTime { get; set; } = string.Empty;
-            public string OPDRegistrationSaveDateTime { get; set; } = string.Empty;
-            public string OPDTestReceiptSaveDateTime { get; set; } = string.Empty;
+            public string? VoucherNumber { get; set; }
+            public string? TransactionType { get; set; } 
+            public string? AdvanceDepositSaveDateTime { get; set; }
+            public string? OPDRegistrationSaveDateTime { get; set; }
+            public string? OPDTestReceiptSaveDateTime { get; set; }
             public int OPDRegistrationIDP { get; set; }
-            public string RegistrationCode { get; set; } = string.Empty;
+            public string? RegistrationCode { get; set; }   
             public int TokenNumber { get; set; }
-            public int RoomNumber { get; set; }
+            public string? RoomNumber { get; set; }
         }
     }
 }
