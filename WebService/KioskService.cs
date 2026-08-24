@@ -151,6 +151,7 @@ namespace DoctorMobileApp.WebServices
                 new SqlParameter("@PatientIDF" , requestModel.PatientIDF),
                 new SqlParameter("@HospitalIDF", hospitalidf)
             };
+
             list = await _dbHelper.QueryAsync<OPDTestReceiptResponseModel>("Kiosk_API_OPDTestReceipt_GetList", CommandType.StoredProcedure, OPDParams);
             return list;
         }
@@ -191,22 +192,36 @@ namespace DoctorMobileApp.WebServices
                 {
                     Direction = ParameterDirection.Output
                 };
+                var voucherNumberParam = new SqlParameter("@VoucherNumber_Return", SqlDbType.VarChar, 50) { Direction = ParameterDirection.Output };
+                var voucherNumberNAParam = new SqlParameter("@VoucherNumber_NA_Return", SqlDbType.VarChar, 50) { Direction = ParameterDirection.Output };
                 var parameters = new SqlParameter[]
                 {
                    new SqlParameter("@HospitalIDF",hospitalidf),
                    new SqlParameter("@PatientIDF", model.PatientIDF),
-                   new SqlParameter("@OPDRegistrationIDF", model.OPDRegistrationIDF),
-                   tvpParam,
+                   new SqlParameter("@OPDRegistrationIDF", model.OPDRegistrationIDF),tvpParam,
                    new SqlParameter("@UserIDF",userIdf),
                    new SqlParameter("@UPITransactionNo",
                    string.IsNullOrWhiteSpace(model.UPITransactionNo)? DBNull.Value: (object)model.UPITransactionNo),
-                   voucherParam, voucherNAParam
+                   voucherParam,
+                   voucherNAParam,
+                   voucherNumberParam,
+                   voucherNumberNAParam
                 };
                 await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_OPDTestReceipt_Save", CommandType.StoredProcedure, parameters);
+                int voucherId = voucherParam.Value == null || voucherParam.Value == DBNull.Value ? 0 : Convert.ToInt32(voucherParam.Value);
+                int voucherIdNA = voucherNAParam.Value == null || voucherNAParam.Value == DBNull.Value ? 0 : Convert.ToInt32(voucherNAParam.Value);
+                string voucherNumber = voucherNumberParam.Value == null || voucherNumberParam.Value == DBNull.Value ? string.Empty : Convert.ToString(voucherNumberParam.Value) ?? string.Empty;
+                string voucherNumberNA = voucherNumberNAParam.Value == null || voucherNumberNAParam.Value == DBNull.Value ? string.Empty : Convert.ToString(voucherNumberNAParam.Value) ?? string.Empty;
+                var receiptDetail = voucherId > 0 ? await GetVoucherResultAsync(voucherId) : null;
+                var notApplicableReceiptDetail = voucherIdNA > 0 ? await GetVoucherResultAsync(voucherIdNA) : null;
                 return new SaveOPDTestReceiptResponseModel
                 {
-                    VoucherIDP = Convert.ToInt32(voucherParam.Value == DBNull.Value ? 0 : voucherParam.Value),
-                    VoucherIDP_NA = Convert.ToInt32(voucherNAParam.Value == DBNull.Value ? 0 : voucherNAParam.Value)
+                    VoucherIDP = voucherId,
+                    VoucherIDP_NA = voucherIdNA,
+                    VoucherNumber = voucherNumber,
+                    VoucherNumber_NA = voucherNumberNA,
+                    ReceiptDetail = receiptDetail,
+                    NotApplicableReceiptDetail = notApplicableReceiptDetail
                 };
             }
             catch (Exception ex)
@@ -267,7 +282,7 @@ namespace DoctorMobileApp.WebServices
                      new SqlParameter("@ModeOfPaymentIDF", fasModeOFPaymentIDF),
                      new SqlParameter("@Kiosk_UserIDF", userIdf),
                      new SqlParameter("@BrowserName",string.IsNullOrWhiteSpace(model.BrowserName)? DBNull.Value: (object)model.BrowserName),
-                    new SqlParameter("@IPAdress",string.IsNullOrWhiteSpace(model.IPAdress)? DBNull.Value: (object)model.IPAdress),
+                     new SqlParameter("@IPAdress",string.IsNullOrWhiteSpace(model.IPAdress)? DBNull.Value: (object)model.IPAdress),
                      voucherParam
                 };
                 await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_InsertPatientAdvance", CommandType.StoredProcedure, parameters);
@@ -292,7 +307,6 @@ namespace DoctorMobileApp.WebServices
                 {
                     Direction = ParameterDirection.Output
                 };
-
                 var parameters = new SqlParameter[]
                 {
                     new("@PatientIDF", model.PatientIDF),
@@ -305,7 +319,6 @@ namespace DoctorMobileApp.WebServices
                 };
 
                 await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_Insert_OPD_Registration",CommandType.StoredProcedure,parameters);
-
                 int voucherId = Convert.ToInt32(voucherParam.Value);
 
                 if (voucherId <= 0)
@@ -346,12 +359,9 @@ namespace DoctorMobileApp.WebServices
             };
 
                 var configurations = await _dbHelper.QueryAsync<SmsConfigurationModel>(
-                        @"SELECT URL, SMSText
-                  FROM tbSMSConfiguration
-                  INNER JOIN tbSMSConfigurationDetail
-                      ON SMSConfigurationIDP = SMSConfigurationIDF
-                  WHERE ConfigureType = 86
-                    AND HospitalIDF = @HospitalIDF",CommandType.Text,configurationParameters);
+                        @"SELECT URL, SMSText FROM tbSMSConfiguration INNER JOIN tbSMSConfigurationDetail
+                        ON SMSConfigurationIDP = SMSConfigurationIDF WHERE ConfigureType = 86
+                        AND HospitalIDF = @HospitalIDF",CommandType.Text,configurationParameters);
 
                 var databaseConfiguration = configurations.FirstOrDefault();
 
@@ -376,12 +386,11 @@ namespace DoctorMobileApp.WebServices
                 string correctedMobileNumber = mobileNo.Replace("+91", string.Empty, StringComparison.Ordinal).Trim();
                 string smsMessage = smsTemplate.Replace("{#var#}", otp, StringComparison.Ordinal).Replace("'OTP '", otp, StringComparison.Ordinal);
                 string encodedMessage = Uri.EscapeDataString(smsMessage);
-                string requestUrl = smsUrl
-                    .Replace("&amp;", "&", StringComparison.OrdinalIgnoreCase)
-                    .Replace("'@YourMobNo'",correctedMobileNumber,StringComparison.Ordinal)
-                    .Replace("'@YourMessage'",encodedMessage,StringComparison.Ordinal)
-                    .Replace("@YourMobNo",correctedMobileNumber,StringComparison.Ordinal)
-                    .Replace("@YourMessage",encodedMessage,StringComparison.Ordinal);
+                string requestUrl = smsUrl.Replace("&amp;", "&", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("'@YourMobNo'",correctedMobileNumber,StringComparison.Ordinal)
+                                          .Replace("'@YourMessage'",encodedMessage,StringComparison.Ordinal)
+                                          .Replace("@YourMobNo",correctedMobileNumber,StringComparison.Ordinal)
+                                          .Replace("@YourMessage",encodedMessage,StringComparison.Ordinal);
 
                 using HttpResponseMessage response = await _httpClient.GetAsync(requestUrl);
 
