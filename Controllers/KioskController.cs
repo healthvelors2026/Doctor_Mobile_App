@@ -334,6 +334,7 @@ namespace DoctorMobileApp.Controllers
                 data = new { 
                     result.VoucherIDP,
                     result.OPDRegistrationIDP,
+                    result.VoucherNumber,
                     result.TransactionType,
                     result.OPDRegistrationSaveDateTime,
                     result.RegistrationCode,
