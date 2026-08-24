@@ -182,7 +182,7 @@ namespace DoctorMobileApp.Controllers
             }
             var receipt = await _kioskService.SaveOPDTestReceiptAsync(receiptModel, userIdf, hospitalidf);
 
-            if (receipt.VoucherIDP <= 0)
+            if (receipt == null || (receipt.VoucherIDP <= 0 && receipt.VoucherIDP_NA <= 0))
             {
                 return BadRequest(new
                 {
