@@ -10,10 +10,12 @@ namespace DoctorMobileApp.WebService
     {
         private readonly IDbConnectionFactory _dbHelper;
         private readonly IConfiguration _configuration;
-        public OPDRegistrationService(IDbConnectionFactory db, IConfiguration configuration)
+        private readonly ITokenDisplayBroadcastService _tokenDisplayBroadcast;
+        public OPDRegistrationService(IDbConnectionFactory db, IConfiguration configuration, ITokenDisplayBroadcastService tokenDisplayBroadcast)
         {
             _dbHelper = db;
             _configuration = configuration;
+            _tokenDisplayBroadcast = tokenDisplayBroadcast;
         }
         public async Task<OPDRegistration?> GetOPDRegistrationDetailsAsync(OPDRegistrationDetailsRequest request, int hospitalidf, int hospitalgroupidf)
         {
@@ -44,6 +46,45 @@ namespace DoctorMobileApp.WebService
                 ProcedureTestList = ReadRowExtensions.ReadList<InvestigationTestReport>(result, 4)
             };
             return response;
+        }
+
+        public async Task<List<DoctorOPDEntryTokenList>> GetDoctorOPDEntryTokenListAsync(int doctorIdf)
+        {
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("@DoctorIDF", doctorIdf)
+            };
+            return await _dbHelper.QueryAsync<DoctorOPDEntryTokenList>(
+                "API_Sp_GetDoctorOPDEntryTokenList_WithStatus", CommandType.StoredProcedure, parameters);
+        }
+
+        public async Task<List<ConsultingRoom>> GetConsultingRoomListAsync(int hospitalidf)
+        {
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("@HospitalIDF", hospitalidf)
+            };
+            return await _dbHelper.QueryAsync<ConsultingRoom>(
+                "API_Sp_GetConsultingRoomList", CommandType.StoredProcedure, parameters);
+        }
+
+        public async Task<InsertTokenDisplayResult> InsertTokenDisplayAsync(InsertTokenDisplayRequest request, CancellationToken cancellationToken = default)
+        {
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("@RoomIDF", request.RoomIDF),
+                new SqlParameter("@TokenIDF", request.TokenIDF),
+                new SqlParameter("@DoctorIDF", request.DoctorIDF)
+            };
+            var rows = await _dbHelper.QueryAsync<InsertTokenDisplayResult>(
+                "API_Sp_InsertTokenDisplay", CommandType.StoredProcedure, parameters);
+            var result = rows.FirstOrDefault() ?? new InsertTokenDisplayResult { IsInserted = 0, Message = "No result returned" };
+
+            if (result.IsInserted == 1)
+            {
+                await _tokenDisplayBroadcast.BroadcastOPDEntryTokenAsync(request.RoomIDF, request.TokenIDF, request.DoctorIDF, cancellationToken);
+            }
+            return result;
         }
     }
 }
