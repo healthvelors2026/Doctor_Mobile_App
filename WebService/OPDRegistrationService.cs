@@ -79,7 +79,6 @@ namespace DoctorMobileApp.WebService
             var rows = await _dbHelper.QueryAsync<InsertTokenDisplayResult>(
                 "API_Sp_InsertTokenDisplay", CommandType.StoredProcedure, parameters);
             var result = rows.FirstOrDefault() ?? new InsertTokenDisplayResult { IsInserted = 0, Message = "No result returned" };
-
             if (result.IsInserted == 1)
             {
                 await _tokenDisplayBroadcast.BroadcastOPDEntryTokenAsync(request.RoomIDF, request.TokenIDF, request.DoctorIDF, cancellationToken);

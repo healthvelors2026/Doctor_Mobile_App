@@ -23,7 +23,8 @@
     "WarningMinutes": 50
   },
   "TokenDisplayBridge": {
-    "Url": "http://localhost:3765/TokenDisplayBroadcast/Broadcast"
+    "Url": "",
+    "ApiKey": ""
   }
 }
 

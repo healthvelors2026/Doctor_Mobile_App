@@ -1,78 +1,90 @@
-// Triggers the existing TokenDisplayed SignalR broadcast (old StellaWeb project) after a successful token-display insert.
-using System.Net.Http.Json; // For JsonContent.Create when building the bridge request body
+// Posts to a bridge endpoint in the OLD StellaWeb project so its existing TokenDisplayHub can broadcast - no compatible SignalR client exists for calling it directly from this .NET 8 project.
+using System.Net.Http.Json;
 
 namespace DoctorMobileApp.WebService
 {
-    // Contract for broadcasting a newly inserted OPD-entry token to the old TokenDisplay SignalR clients
     public interface ITokenDisplayBroadcastService
     {
-        // Sends the token details to the bridge so the old Hub can broadcast them
+        // Broadcasts a successfully inserted OPD-entry token to the old TokenDisplay screen
         Task BroadcastOPDEntryTokenAsync(int roomIdf, int tokenIdf, int doctorIdf, CancellationToken cancellationToken = default);
     }
 
-    // Shared broadcast trigger - posts to a bridge endpoint in the OLD StellaWeb project since its SignalR 1.2.2 Hub (.NET Framework 4.0) can't be referenced directly from this .NET 8 project.
     public class TokenDisplayBroadcastService : ITokenDisplayBroadcastService
     {
-        private readonly HttpClient _httpClient; // Used to call the OLD project's bridge endpoint
-        private readonly IConfiguration _configuration; // Reads the bridge URL and API key from appsettings
-        private readonly ILogger<TokenDisplayBroadcastService> _logger; // Logs skips/failures without throwing
+        private const string BridgeApiKey = "tdbridge-9f3a7c1e-mobileapp";
 
-        // Injected via DI (AddHttpClient<ITokenDisplayBroadcastService, TokenDisplayBroadcastService>() in Program.cs)
-        public TokenDisplayBroadcastService(HttpClient httpClient, IConfiguration configuration, ILogger<TokenDisplayBroadcastService> logger)
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<TokenDisplayBroadcastService> _logger;
+
+        // Injected via DI - HttpClient calls the bridge, IHttpContextAccessor derives its host
+        public TokenDisplayBroadcastService(HttpClient httpClient, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, ILogger<TokenDisplayBroadcastService> logger)
         {
-            _httpClient = httpClient; // Store the typed HttpClient
-            _configuration = configuration; // Store configuration for later lookups
-            _logger = logger; // Store logger for warnings/errors
+            _httpClient = httpClient;
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
 
         // Called by OPDRegistrationService only when API_Sp_InsertTokenDisplay reports IsInserted = 1
         public async Task BroadcastOPDEntryTokenAsync(int roomIdf, int tokenIdf, int doctorIdf, CancellationToken cancellationToken = default)
         {
-            var bridgeUrl = _configuration["TokenDisplayBridge:Url"]; // Base URL of the OLD project's bridge endpoint
-            var apiKey = _configuration["TokenDisplayBridge:ApiKey"]; // Shared secret for the bridge endpoint
-
-            // No bridge configured yet - skip quietly instead of failing the caller
-            if (string.IsNullOrWhiteSpace(bridgeUrl))
+            var bridgeUrl = ResolveBridgeUrl();
+            if (bridgeUrl == null)
             {
-                _logger.LogWarning("TokenDisplayBridge:Url not configured - broadcast skipped for TokenIDF={TokenIDF}", tokenIdf); // Record that nothing was sent
-                return; // Nothing more to do without a URL
+                _logger.LogWarning("Could not resolve the TokenDisplay bridge URL - broadcast skipped for TokenIDF={TokenIDF}", tokenIdf);
+                return;
             }
 
-            // Shape matches what the OLD Hub's BroadcastData(TokenDisplay) reads for the EnumOPDEntry branch
             var payload = new
             {
-                TokenDisplayType = 1, // EnumOPDEntry - matches API_Sp_InsertTokenDisplay's hardcoded value
-                ConsultingRoomID = roomIdf, // Maps to RoomIDF
-                TokenIssueIDP = tokenIdf, // Maps to TokenIDF
-                DocIDFOPDEntry = doctorIdf, // Maps to DoctorIDF
-                IsInsideOPDEntry = true // Tells the old Hub to resolve ConsultingRoomNo from ConsultingRoomID
+                TokenDisplayType = 1,
+                ConsultingRoomID = roomIdf,
+                TokenIssueIDP = tokenIdf,
+                DocIDFOPDEntry = doctorIdf,
+                IsInsideOPDEntry = true
             };
 
-            // Build the outgoing POST request to the bridge endpoint
             using var request = new HttpRequestMessage(HttpMethod.Post, bridgeUrl)
             {
-                Content = JsonContent.Create(payload) // Serialize the payload as JSON
+                Content = JsonContent.Create(payload)
             };
-            // Attach the shared-secret header only when one is configured
-            if (!string.IsNullOrWhiteSpace(apiKey))
-            {
-                request.Headers.Add("X-Bridge-ApiKey", apiKey); // Bridge endpoint validates this header
-            }
+            request.Headers.Add("X-Bridge-ApiKey", BridgeApiKey);
 
             try
             {
-                var response = await _httpClient.SendAsync(request, cancellationToken); // Send the request
-                // Log a warning if the bridge rejected or failed the call
+                var response = await _httpClient.SendAsync(request, cancellationToken);
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("TokenDisplay broadcast bridge returned {StatusCode} for TokenIDF={TokenIDF}", response.StatusCode, tokenIdf); // Non-2xx response
+                    _logger.LogWarning("TokenDisplay broadcast bridge returned {StatusCode} for TokenIDF={TokenIDF}", response.StatusCode, tokenIdf);
                 }
             }
             catch (Exception ex)
             {
-                // The DB insert already succeeded - a broadcast failure must not fail the API response.
-                _logger.LogError(ex, "Failed to reach TokenDisplay broadcast bridge for TokenIDF={TokenIDF}", tokenIdf); // Network/timeout/etc.
+                _logger.LogError(ex, "Failed to reach TokenDisplay broadcast bridge for TokenIDF={TokenIDF}", tokenIdf);
             }
+        }
+
+        // Local-dev override wins if set, otherwise derives host+port-80 from the current request
+        private string? ResolveBridgeUrl()
+        {
+            var configuredUrl = _configuration["TokenDisplayBridge:Url"];
+            if (!string.IsNullOrWhiteSpace(configuredUrl))
+            {
+                return configuredUrl;
+            }
+
+            var currentRequest = _httpContextAccessor.HttpContext?.Request;
+            if (currentRequest == null)
+            {
+                return null;
+            }
+
+            // Host.Value includes the port the caller actually connected on (e.g. "server:3765"),
+            // not just the hostname - correct as long as this API is deployed as an IIS Application
+            // under the same site/port as StellaWeb, whatever that port is.
+            return $"{currentRequest.Scheme}://{currentRequest.Host.Value}/TokenDisplayBroadcast/Broadcast";
         }
     }
 }
