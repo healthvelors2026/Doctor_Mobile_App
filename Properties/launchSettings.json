@@ -17,7 +17,7 @@
       "applicationUrl": "http://localhost:5012",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "TokenDisplayBridge__Url": "http://localhost:3765/TokenDisplayBroadcast/Broadcast"
+        "TokenDisplayBridge__Url": "http://localhost:34253/TokenDisplayBroadcast/Broadcast"
       }
     },
     "https": {
@@ -28,7 +28,7 @@
       "applicationUrl": "https://localhost:7268;http://localhost:5012",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "TokenDisplayBridge__Url": "http://localhost:3765/TokenDisplayBroadcast/Broadcast"
+        "TokenDisplayBridge__Url": "http://localhost:34253/TokenDisplayBroadcast/Broadcast"
       }
     },
     "IIS Express": {
@@ -37,7 +37,7 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "TokenDisplayBridge__Url": "http://localhost:3765/TokenDisplayBroadcast/Broadcast"
+        "TokenDisplayBridge__Url": "http://localhost:34253/TokenDisplayBroadcast/Broadcast"
       }
     }
   }

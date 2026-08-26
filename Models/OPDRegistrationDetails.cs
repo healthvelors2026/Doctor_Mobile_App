@@ -74,11 +74,16 @@
         public int RoomIDF { get; set; }
         public int TokenIDF { get; set; }
         public int DoctorIDF { get; set; }
+        public bool IsUpcomingToken { get; set; }
     }
 
     public class InsertTokenDisplayResult
     {
         public int IsInserted { get; set; }
+        public int EntryStatus { get; set; }
         public string? Message { get; set; }
+        public string? EntryType { get; set; }
+        public int DoctorIDF { get; set; }
+        public bool IsUpcomingToken { get; set; }
     }
 }
