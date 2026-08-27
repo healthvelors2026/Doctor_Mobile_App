@@ -15,7 +15,7 @@ namespace DoctorMobileApp.WebServices
         private readonly HttpClient _httpClient;
 
 
-        public KioskService(IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor,HttpClient httpClient)
+        public KioskService(IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
         {
             _dbHelper = db;
             _configuration = configuration;
@@ -35,8 +35,8 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<PatientDetail>("Kiosk_API_PatientSearch", CommandType.StoredProcedure, patientParams);
             return list;
         }
-        public async Task<List<SkillSetResponseModel>> GetSkillSetListAsync(int hospitalgroupidf,string hospitalCode,string baseUrl,CancellationToken cancellationToken = default)
-            {
+        public async Task<List<SkillSetResponseModel>> GetSkillSetListAsync(int hospitalgroupidf, string hospitalCode, string baseUrl, CancellationToken cancellationToken = default)
+        {
             var skillSetParams = new[]
             {
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
@@ -44,7 +44,7 @@ namespace DoctorMobileApp.WebServices
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var list = await _dbHelper.QueryAsync<SkillSetResponseModel>("API_SP_GetStandardSkillSetList",CommandType.StoredProcedure,skillSetParams);
+            var list = await _dbHelper.QueryAsync<SkillSetResponseModel>("API_SP_GetStandardSkillSetList", CommandType.StoredProcedure, skillSetParams);
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -88,7 +88,7 @@ namespace DoctorMobileApp.WebServices
 
             return list;
         }
-        public async Task<GeneratePatientOTPResponseModel?> GenerateOTPAsync(GeneratePatientOTPRequestModel requestModel,int hospitalidf)
+        public async Task<GeneratePatientOTPResponseModel?> GenerateOTPAsync(GeneratePatientOTPRequestModel requestModel, int hospitalidf)
         {
             var otpParams = new[]
             {
@@ -98,7 +98,7 @@ namespace DoctorMobileApp.WebServices
               new SqlParameter("@HospitalIDF", hospitalidf)
             };
 
-            var results = await _dbHelper.QueryAsync<GeneratePatientOTPResponseModel>("Kiosk_API_GeneratePatientOTP",CommandType.StoredProcedure,otpParams);
+            var results = await _dbHelper.QueryAsync<GeneratePatientOTPResponseModel>("Kiosk_API_GeneratePatientOTP", CommandType.StoredProcedure, otpParams);
             var result = results.FirstOrDefault();
             if (result == null)
             {
@@ -114,7 +114,7 @@ namespace DoctorMobileApp.WebServices
             }
             bool smsSent = false;
             if (System.Diagnostics.Debugger.IsAttached == false)
-                 smsSent = await SendOtpAsync(result.MobileNo,generatedOtp,hospitalidf);
+                smsSent = await SendOtpAsync(result.MobileNo, generatedOtp, hospitalidf);
 
             result.Message = smsSent ? $"OTP sent successfully on {MaskMobileNumber(result.MobileNo)}" : "OTP generated but SMS could not be sent.";
 
@@ -155,7 +155,6 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<OPDTestReceiptResponseModel>("Kiosk_API_OPDTestReceipt_GetList", CommandType.StoredProcedure, OPDParams);
             return list;
         }
-        //Pending GetVoucherResultAsync  OPD test have an 2 Output so Modify that 
         public async Task<SaveOPDTestReceiptResponseModel> SaveOPDTestReceiptAsync(SaveOPDTestReceiptRequestModel model, int userIdf, int hospitalidf)
         {
             try
@@ -299,7 +298,7 @@ namespace DoctorMobileApp.WebServices
                 return null;
             }
         }
-        public async Task<SaveOPDRegistrationReceiptResponseModel?>SaveOPDRegistrationAsync(SaveOPDRegistrationModel model,int userIdf,int hospitalidf)
+        public async Task<SaveOPDRegistrationReceiptResponseModel?> SaveOPDRegistrationAsync(SaveOPDRegistrationModel model, int userIdf, int hospitalidf)
         {
             try
             {
@@ -318,7 +317,7 @@ namespace DoctorMobileApp.WebServices
                     new("@IPAdress",string.IsNullOrWhiteSpace(model.IPAdress)? DBNull.Value: model.IPAdress),voucherParam
                 };
 
-                await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_Insert_OPD_Registration",CommandType.StoredProcedure,parameters);
+                await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_Insert_OPD_Registration", CommandType.StoredProcedure, parameters);
                 int voucherId = Convert.ToInt32(voucherParam.Value);
 
                 if (voucherId <= 0)
@@ -331,18 +330,43 @@ namespace DoctorMobileApp.WebServices
                 return null;
             }
         }
-        private async Task<SaveOPDRegistrationReceiptResponseModel?>GetVoucherResultAsync(int voucherId)
+        public async Task<List<KioskBannerResponseModel>> GetActiveKioskBannersAsync(int hospitalidf, string hospitalCode, string baseUrl)
+        {
+            var parameters = new[] { new SqlParameter("@HospitalIDP", hospitalidf) };
+            var list = await _dbHelper.QueryAsync<KioskBannerResponseModel>("Kiosk_API_GetActiveKioskBanners_GetList", CommandType.StoredProcedure, parameters);
+
+            foreach (var item in list)
+            {
+                if (string.IsNullOrWhiteSpace(item.KioskBannerPath) || string.IsNullOrWhiteSpace(hospitalCode) || string.IsNullOrWhiteSpace(baseUrl))
+                {
+                    item.BannerImageUrl = null;
+                    continue;
+                }
+                string fileName = Path.GetFileName(item.KioskBannerPath);
+                string extension = Path.GetExtension(fileName);
+
+                bool validExtension =
+                    extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                    extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                    extension.Equals(".png", StringComparison.OrdinalIgnoreCase) ||
+                    extension.Equals(".gif", StringComparison.OrdinalIgnoreCase);
+
+                item.BannerImageUrl = validExtension ? $"{baseUrl.TrimEnd('/')}/{hospitalCode}/Kiosk/KioskBanners/{fileName}" : null;
+            }
+            return list;
+        }
+        public async Task<SaveOPDRegistrationReceiptResponseModel?> GetVoucherResultAsync(int voucherId)
         {
             var parameters = new SqlParameter[]
             {
                 new SqlParameter("@VoucherIDP", voucherId)
             };
 
-            var results = await _dbHelper.QueryAsync<SaveOPDRegistrationReceiptResponseModel>("Kiosk_API_Get_OPD_Registration_Receipt_Result", CommandType.StoredProcedure,parameters);
+            var results = await _dbHelper.QueryAsync<SaveOPDRegistrationReceiptResponseModel>("Kiosk_API_Get_OPD_Registration_Receipt_Result", CommandType.StoredProcedure, parameters);
 
             return results.FirstOrDefault();
         }
-        private async Task<bool> SendOtpAsync(string mobileNo,string otp,int hospitalidf)
+        public async Task<bool> SendOtpAsync(string mobileNo, string otp, int hospitalidf)
         {
 
             string? smsUrl = _configuration["AppSettings:SMSUrl"];
@@ -357,11 +381,10 @@ namespace DoctorMobileApp.WebServices
                 {
                     new SqlParameter("@HospitalIDF", hospitalidf)
             };
-
                 var configurations = await _dbHelper.QueryAsync<SmsConfigurationModel>(
                         @"SELECT URL, SMSText FROM tbSMSConfiguration INNER JOIN tbSMSConfigurationDetail
                         ON SMSConfigurationIDP = SMSConfigurationIDF WHERE ConfigureType = 86
-                        AND HospitalIDF = @HospitalIDF",CommandType.Text,configurationParameters);
+                        AND HospitalIDF = @HospitalIDF", CommandType.Text, configurationParameters);
 
                 var databaseConfiguration = configurations.FirstOrDefault();
 
@@ -373,7 +396,7 @@ namespace DoctorMobileApp.WebServices
             }
             catch (Exception ex)
             {
-                _dbHelper.LogError(ex,"GetSmsConfiguration",new[]{new SqlParameter("@HospitalIDF", hospitalidf)});
+                _dbHelper.LogError(ex, "GetSmsConfiguration", new[] { new SqlParameter("@HospitalIDF", hospitalidf) });
             }
 
             if (string.IsNullOrWhiteSpace(smsUrl) || string.IsNullOrWhiteSpace(smsTemplate))
@@ -387,35 +410,35 @@ namespace DoctorMobileApp.WebServices
                 string smsMessage = smsTemplate.Replace("{#var#}", otp, StringComparison.Ordinal).Replace("'OTP '", otp, StringComparison.Ordinal);
                 string encodedMessage = Uri.EscapeDataString(smsMessage);
                 string requestUrl = smsUrl.Replace("&amp;", "&", StringComparison.OrdinalIgnoreCase)
-                                          .Replace("'@YourMobNo'",correctedMobileNumber,StringComparison.Ordinal)
-                                          .Replace("'@YourMessage'",encodedMessage,StringComparison.Ordinal)
-                                          .Replace("@YourMobNo",correctedMobileNumber,StringComparison.Ordinal)
-                                          .Replace("@YourMessage",encodedMessage,StringComparison.Ordinal);
+                                          .Replace("'@YourMobNo'", correctedMobileNumber, StringComparison.Ordinal)
+                                          .Replace("'@YourMessage'", encodedMessage, StringComparison.Ordinal)
+                                          .Replace("@YourMobNo", correctedMobileNumber, StringComparison.Ordinal)
+                                          .Replace("@YourMessage", encodedMessage, StringComparison.Ordinal);
 
                 using HttpResponseMessage response = await _httpClient.GetAsync(requestUrl);
 
-                return  response.IsSuccessStatusCode;
+                return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
             {
-                _dbHelper.LogError(ex,nameof(SendOtpAsync),new[]
+                _dbHelper.LogError(ex, nameof(SendOtpAsync), new[]
                 {
                     new SqlParameter("@HospitalIDF", hospitalidf)
                 });
                 return false;
             }
         }
-        private static string MaskMobileNumber(string mobileNo)
+        public static string MaskMobileNumber(string mobileNo)
         {
             string correctedMobileNumber = mobileNo.Replace("+91", string.Empty, StringComparison.Ordinal).Trim();
-            string lastFourDigits = correctedMobileNumber.Length > 4 ? correctedMobileNumber[^4..]: correctedMobileNumber;
+            string lastFourDigits = correctedMobileNumber.Length > 4 ? correctedMobileNumber[^4..] : correctedMobileNumber;
 
             return $"XXXXXX{lastFourDigits}";
         }
-        private sealed class SmsConfigurationModel
-        {
-            public string? URL { get; set; }
-            public string? SMSText { get; set; }
-        }
+        //private sealed class SmsConfigurationModel
+        //{
+        //    public string? URL { get; set; }
+        //    public string? SMSText { get; set; }
+        //}
     }
 }

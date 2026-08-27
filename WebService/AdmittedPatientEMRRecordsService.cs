@@ -44,6 +44,33 @@ namespace DoctorMobileApp.WebService
             response.lstPathoRadioProcedure = await _dbHelper.QueryAsync<PathoRadioProcedureList>("API_Sp_GetLastVisitPathoRadioProcRecords", CommandType.StoredProcedure, pathoRadioParams);
             return response;
         }
+        public async Task<string?> GetPatientRadioReportHtmlAsync(string hospitalCode, string reportPath)
+        {
+            if (string.IsNullOrWhiteSpace(hospitalCode) || string.IsNullOrWhiteSpace(reportPath))
+                return null;
+
+            try
+            {
+                string rootPath = _configuration["AppSettings:IPPatientRadioReports"] ?? string.Empty;
+                string subFolder = (_configuration["AppSettings:PatientRadioReports"] ?? string.Empty).TrimStart('\\', '/');
+
+                string hospitalRoot = Path.GetFullPath(Path.Combine(rootPath, hospitalCode, subFolder));
+                string fullPath = Path.GetFullPath(Path.Combine(hospitalRoot, reportPath));
+
+                if (!fullPath.StartsWith(hospitalRoot, StringComparison.OrdinalIgnoreCase))
+                    return null;
+
+                if (!File.Exists(fullPath))
+                    return null;
+
+                return await File.ReadAllTextAsync(fullPath);
+            }
+            catch (Exception ex)
+            {
+                _dbHelper.LogError(ex, nameof(GetPatientRadioReportHtmlAsync));
+                return null;
+            }
+        }
         public async Task<ValueFeedPathoTestReportRecords> getGetValueFeedPathoTestReportList(int PathoRegistrationIDP)
         {
             var response = new ValueFeedPathoTestReportRecords

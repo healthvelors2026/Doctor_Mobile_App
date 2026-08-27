@@ -75,10 +75,7 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@HospitalIDF", hospitalidf),
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
-            var result = await _dbHelper.QueryAsync<SaveOPDEntryWithTestResponse>(
-                   "API_SP_InsertUpdateOPDEntryWithTest",
-                   CommandType.StoredProcedure,
-                   parameters);
+            var result = await _dbHelper.QueryAsync<SaveOPDEntryWithTestResponse>("API_SP_InsertUpdateOPDEntryWithTest",CommandType.StoredProcedure,parameters);
             return result.FirstOrDefault();
         }
         private static DataTable CreateTestServiceDataTable(IEnumerable<InvestigationTestReport> list, int nonCashLess, bool classForReimbursement)
@@ -126,9 +123,7 @@ namespace DoctorMobileApp.WebService
         }
         private static bool CheckCashFlag(int nonCashLess, int na, bool classForReimbursement)
         {
-            return nonCashLess != 2
-                   || classForReimbursement
-                   || na == 1;
+            return nonCashLess != 2 || classForReimbursement || na == 1;
         }
     }
 }

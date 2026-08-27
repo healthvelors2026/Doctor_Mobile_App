@@ -14,6 +14,7 @@ namespace DoctorMobileApp.Controllers
         private readonly IDbConnectionFactory _db;
         private readonly IConfiguration _configuration;
         private int hospitalidf => int.TryParse(User.FindFirst("HospitalIDF")?.Value, out var id) ? id : 0;
+        private string hospitalCode => User.FindFirst("HospitalCode")?.Value ?? string.Empty;
         public AdmittedPatientEMRRecordsController(IDbConnectionFactory db, IConfiguration configuration)
         {
             _db = db;
@@ -24,14 +25,14 @@ namespace DoctorMobileApp.Controllers
         [HttpPost("getEmrVitals")]
         public async Task<IActionResult> getEmrVitals([FromBody] GetEmrVitalsRequest emrVitalsRequestModel)
         {
-            var Data =await _AdmittedPatientEMRRecordsService.getEmrVital(hospitalidf,emrVitalsRequestModel.AdmissionIDF);
+            var Data = await _AdmittedPatientEMRRecordsService.getEmrVital(hospitalidf, emrVitalsRequestModel.AdmissionIDF);
             return Ok(new { Data.lstVital });
         }
         [Authorize]
         [HttpPost("getLastVisitPathoRadioProcedureRecords")]
         public async Task<IActionResult> getLastVisitPathoRadioProcedureRecords([FromBody] GetLastVisitPathoRadioProcedureRecordsRequest requestModel)
         {
-            var Data = await _AdmittedPatientEMRRecordsService.getLastVisitPathoRadioProcedureRecords(hospitalidf,requestModel.AdmissionIDF,requestModel.Type);
+            var Data = await _AdmittedPatientEMRRecordsService.getLastVisitPathoRadioProcedureRecords(hospitalidf, requestModel.AdmissionIDF, requestModel.Type);
 
             List<dynamic> obj = new List<dynamic>();
 
@@ -126,6 +127,27 @@ namespace DoctorMobileApp.Controllers
             return Ok(new { Data = obj });
         }
 
+        [Authorize]
+        [HttpPost("getRadioReportHtml")]
+        public async Task<IActionResult> getRadioReportHtml([FromQuery] string reportPath)
+        {
+            var htmlReport = await _AdmittedPatientEMRRecordsService.GetPatientRadioReportHtmlAsync(hospitalCode, reportPath);
+            if (string.IsNullOrEmpty(htmlReport))
+            {
+                return NotFound(
+                    new
+                    {
+                        Status = false,
+                        Message = "Report Not Exist"
+                    });
+            }
+            return Ok(
+                new
+                {
+                    Status = true,
+                    Data = htmlReport
+                });
+        }
         [Authorize]
         [HttpPost("getGetValueFeedPathoTestReportList")]
         public async Task<IActionResult> getGetValueFeedPathoTestReport([FromBody] GetValueFeedPathoTestReportRequest requestModel)

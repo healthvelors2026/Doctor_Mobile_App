@@ -1431,3 +1431,182 @@ StackTrace:
    at DoctorMobileApp.CommonClass.SqlHelper.ExecuteNonQueryAsync(String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Projects\Doctor_Kiosk_API\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 90
 ====================================
 
+========== ERROR ==========
+Date: 24-08-2026 06:09:08 PM
+Procedure: uspGetActiveKioskBanners
+Message: Could not find stored procedure 'uspGetActiveKioskBanners'.
+Parameters:
+   @HospitalIDP = 1
+StackTrace:
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at Microsoft.Data.SqlClient.SqlDataReader.get_MetaData()
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+   at Microsoft.Data.SqlClient.SqlCommand.InternalEndExecuteReader(IAsyncResult asyncResult, Boolean isInternal, String endMethod)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderInternal(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderAsync(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<InternalExecuteReaderAsync>b__283_1(IAsyncResult asyncResult)
+   at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+--- End of stack trace from previous location ---
+   at DoctorMobileApp.CommonClass.SqlHelper.QueryAsync[T](String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Projects\Doctor_Kiosk_API\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 194
+====================================
+
+========== ERROR ==========
+Date: 26-08-2026 03:43:53 PM
+Procedure: Kiosk_API_OPDTestReceipt_Save
+Message: Cannot insert the value NULL into column 'GrossAmount', table 'dbHIMSGRP_MMPJ_MobileApp_Shyam_Demo.dbo.tbFASVoucherMaster'; column does not allow nulls. INSERT fails.
+Parameters:
+   @HospitalIDF = 1
+   @PatientIDF = 594183
+   @OPDRegistrationIDF = 1735854
+   @KioskOPDTestReceiptTableType = 
+   @UserIDF = 1603
+   @UPITransactionNo = string
+   @VoucherIDP_Return = NULL
+   @VoucherIDP_NA_Return = NULL
+   @VoucherNumber_Return = NULL
+   @VoucherNumber_NA_Return = NULL
+StackTrace:
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+   at Microsoft.Data.SqlClient.SqlCommand.InternalEndExecuteNonQuery(IAsyncResult asyncResult, Boolean isInternal, String endMethod)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryInternal(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryAsync(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<InternalExecuteNonQueryAsync>b__251_1(IAsyncResult asyncResult)
+   at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+--- End of stack trace from previous location ---
+   at DoctorMobileApp.CommonClass.SqlHelper.ExecuteNonQueryAsync(String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Projects\Doctor_Kiosk_API\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 90
+====================================
+
+========== ERROR ==========
+Date: 26-08-2026 04:02:08 PM
+Procedure: Kiosk_API_OPDTestReceipt_Save
+Message: Error converting data type nvarchar to numeric.
+Parameters:
+   @HospitalIDF = 1
+   @PatientIDF = 594183
+   @OPDRegistrationIDF = 1735854
+   @KioskOPDTestReceiptTableType = 
+   @UserIDF = 1603
+   @UPITransactionNo = string
+   @VoucherIDP_Return = NULL
+   @VoucherIDP_NA_Return = NULL
+   @VoucherNumber_Return = NULL
+   @VoucherNumber_NA_Return = NULL
+StackTrace:
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+   at Microsoft.Data.SqlClient.SqlCommand.InternalEndExecuteNonQuery(IAsyncResult asyncResult, Boolean isInternal, String endMethod)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryInternal(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryAsync(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<InternalExecuteNonQueryAsync>b__251_1(IAsyncResult asyncResult)
+   at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+--- End of stack trace from previous location ---
+   at DoctorMobileApp.CommonClass.SqlHelper.ExecuteNonQueryAsync(String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Projects\Doctor_Kiosk_API\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 90
+====================================
+
+========== ERROR ==========
+Date: 26-08-2026 04:04:23 PM
+Procedure: Kiosk_API_OPDTestReceipt_Save
+Message: Error converting data type nvarchar to numeric.
+Parameters:
+   @HospitalIDF = 1
+   @PatientIDF = 594183
+   @OPDRegistrationIDF = 1735854
+   @KioskOPDTestReceiptTableType = 
+   @UserIDF = 1603
+   @UPITransactionNo = 123
+   @VoucherIDP_Return = NULL
+   @VoucherIDP_NA_Return = NULL
+   @VoucherNumber_Return = NULL
+   @VoucherNumber_NA_Return = NULL
+StackTrace:
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+   at Microsoft.Data.SqlClient.SqlCommand.InternalEndExecuteNonQuery(IAsyncResult asyncResult, Boolean isInternal, String endMethod)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryInternal(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryAsync(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<InternalExecuteNonQueryAsync>b__251_1(IAsyncResult asyncResult)
+   at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+--- End of stack trace from previous location ---
+   at DoctorMobileApp.CommonClass.SqlHelper.ExecuteNonQueryAsync(String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Projects\Doctor_Kiosk_API\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 90
+====================================
+
+========== ERROR ==========
+Date: 26-08-2026 04:06:37 PM
+Procedure: Kiosk_API_OPDTestReceipt_Save
+Message: Error converting data type nvarchar to numeric.
+Parameters:
+   @HospitalIDF = 1
+   @PatientIDF = 594183
+   @OPDRegistrationIDF = 1735854
+   @KioskOPDTestReceiptTableType = 
+   @UserIDF = 1603
+   @UPITransactionNo = 123
+   @VoucherIDP_Return = NULL
+   @VoucherIDP_NA_Return = NULL
+   @VoucherNumber_Return = NULL
+   @VoucherNumber_NA_Return = NULL
+StackTrace:
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+   at Microsoft.Data.SqlClient.SqlCommand.InternalEndExecuteNonQuery(IAsyncResult asyncResult, Boolean isInternal, String endMethod)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryInternal(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryAsync(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<InternalExecuteNonQueryAsync>b__251_1(IAsyncResult asyncResult)
+   at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+--- End of stack trace from previous location ---
+   at DoctorMobileApp.CommonClass.SqlHelper.ExecuteNonQueryAsync(String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Projects\Doctor_Kiosk_API\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 90
+====================================
+
+========== ERROR ==========
+Date: 26-08-2026 04:15:35 PM
+Procedure: Kiosk_API_OPDTestReceipt_Save
+Message: Cannot insert the value NULL into column 'GrossAmount', table 'dbHIMSGRP_MMPJ_MobileApp_Shyam_Demo.dbo.tbFASVoucherMaster'; column does not allow nulls. INSERT fails.
+Parameters:
+   @HospitalIDF = 1
+   @PatientIDF = 594183
+   @OPDRegistrationIDF = 1735854
+   @KioskOPDTestReceiptTableType = 
+   @UserIDF = 1603
+   @UPITransactionNo = 123
+   @VoucherIDP_Return = NULL
+   @VoucherIDP_NA_Return = NULL
+   @VoucherNumber_Return = NULL
+   @VoucherNumber_NA_Return = NULL
+StackTrace:
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+   at Microsoft.Data.SqlClient.SqlCommand.InternalEndExecuteNonQuery(IAsyncResult asyncResult, Boolean isInternal, String endMethod)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryInternal(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryAsync(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<InternalExecuteNonQueryAsync>b__251_1(IAsyncResult asyncResult)
+   at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+--- End of stack trace from previous location ---
+   at DoctorMobileApp.CommonClass.SqlHelper.ExecuteNonQueryAsync(String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Projects\Doctor_Kiosk_API\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 90
+====================================
+

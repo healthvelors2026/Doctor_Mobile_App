@@ -150,4 +150,8 @@
         public string? NumericTestValue { get; set; }
 
     }
+    public class GetRadioReportHtmlRequest
+    {
+        public string ReportPath { get; set; } = string.Empty;
+    }
 }
