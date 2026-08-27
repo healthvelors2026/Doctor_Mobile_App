@@ -31,7 +31,6 @@ namespace DoctorMobileApp.Models
             public string? IconPath { get; set; }
             public int? HospitalGroupIDF { get; set; }
         }
-
         public class GeneratePatientOTPRequestModel
         {
             public int PatientIDF { get; set; }
@@ -57,7 +56,6 @@ namespace DoctorMobileApp.Models
             public bool Status { get; set; }
             public string? Message { get; set; }
         }
-
         public class PathoReportRequestModel
         {
             public int PatientIDF { get; set; }
@@ -72,13 +70,10 @@ namespace DoctorMobileApp.Models
             public bool ReportStatus { get; set; }
             public string? Doctor { get; set; }
         }
-
-
         public class OPDTestReceiptRequestModel
         {
             public int PatientIDF { get; set; }
         }
-
         public class OPDTestReceiptResponseModel
         {
             public int OPDRegistrationIDP { get; set; }
@@ -98,7 +93,6 @@ namespace DoctorMobileApp.Models
             public int InvestigationType { get; set; }
             public string? Doctor { get; set; }
             public int NotApplicable { get; set; }
-            // New stored-procedure result fields
             public string? Instruction { get; set; }
             public int TATTime { get; set; }
             public string? TATType { get; set; }
@@ -126,7 +120,6 @@ namespace DoctorMobileApp.Models
             public SaveOPDRegistrationReceiptResponseModel? ReceiptDetail { get; set; }
             public SaveOPDRegistrationReceiptResponseModel? NotApplicableReceiptDetail { get; set; }
         }
-        // for Last visit Doctor For Kiosk
         public class LastVisitDrRequestmodel
         {
             public int PatientIDF { get; set; }
@@ -142,12 +135,10 @@ namespace DoctorMobileApp.Models
             public double TotalAmount { get; set; }
             public string? LastConsultation {  get; set; }
         }
-        //end
         public class PatientLatestAppointmentRequestModel
         {
             public int PatientID { get; set; }
         }
-
         public class PatientLatestAppointmentResponseModel
         {
             public int EmployeeIDP { get; set; }
@@ -158,8 +149,6 @@ namespace DoctorMobileApp.Models
             public string? Slot { get; set; }
             public string? Status { get; set; }
         }
-
-        // Get Doctor List Skill Set wise 
         public class DoctorRequestModel
         {
             public int? SkillSetID { get; set; }
@@ -204,6 +193,34 @@ namespace DoctorMobileApp.Models
             public string? RegistrationCode { get; set; }   
             public int TokenNumber { get; set; }
             public string? RoomNumber { get; set; }
+        }
+        // Add For Kiosk Banner 
+        public class KioskBannerResponseModel
+        {
+            public int KioskBannerIDP { get; set; }
+            public string? KioskBannerPath { get; set; }
+            public string? BannerImageUrl { get; set; }
+            public string? OriginalFileName { get; set; }
+            public DateTime? FromDate { get; set; }
+            public DateTime? ToDate { get; set; }
+            public int DisplayOrder { get; set; }
+            public int DisplaySeconds { get; set; }
+            public string? Status { get; set; }
+        }
+        // Get from HIMS 
+        public class KioskBannerImageUploadModel
+        {
+            public string? FileName { get; set; }
+            public string? FileBase64 { get; set; }
+            public string? ContentType { get; set; }
+            public string? FolderName { get; set; }
+            public string? ImageIDP { get; set; }
+            public string? HospitalCode { get; set; }
+        }
+        public class SmsConfigurationModel
+        {
+            public string? URL { get; set; }
+            public string? SMSText { get; set; }
         }
     }
 }
