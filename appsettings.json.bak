@@ -21,6 +21,10 @@
     "Audience": "MyApiUsers",
     "DurationInMinutes": 60,
     "WarningMinutes": 50
+  },
+  "TokenDisplayBridge": {
+    "Url": "",
+    "ApiKey": ""
   }
 }
 
