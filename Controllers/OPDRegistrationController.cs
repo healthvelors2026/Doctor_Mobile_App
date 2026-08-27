@@ -30,6 +30,29 @@ namespace DoctorMobileApp.Controllers
             var result = await _OPDRegistrationservice.GetOPDRegistrationDetailsAsync(request, hospitalidf, hospitalgroupidf);
             return Ok(result);
         }
+        [Authorize]
+        [HttpPost("save-opdentry-with-test")]
+        public async Task<IActionResult> SaveOPDEntryWithTest([FromBody] OPDRegistration request)
+        {
+            if (request == null)
+                return BadRequest("Request is required.");
+
+            if (request.OPDRegistrationDetails.OPDRegistrationIDP <= 0)
+                return BadRequest("Invalid OPDRegistrationIDF.");
+
+            if (!(request.PathoTestList?.Any() == true ||
+                  request.RadioTestList?.Any() == true ||
+                  request.ProcedureTestList?.Any() == true))
+            {
+                return BadRequest("At least one investigation test list is required.");
+            }
+            var result = await _OPDRegistrationservice.SaveOPDEntryWithTestAsync(
+                request,
+                UserIdf,
+                hospitalidf,
+                hospitalgroupidf);
+            return Ok(result);
+        }
 
         [Authorize]
         [HttpPost("get-doctor-opd-entry-token-list")]

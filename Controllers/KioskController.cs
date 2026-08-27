@@ -8,12 +8,12 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using static DoctorMobileApp.Models.KioskModel;
+using System.Text.RegularExpressions;
 
 namespace DoctorMobileApp.Controllers
 {
-    //testss chetanss
-    //testss 
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
@@ -23,16 +23,14 @@ namespace DoctorMobileApp.Controllers
         private readonly IDbConnectionFactory _db;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
         private int hospitalidf => int.TryParse(User.FindFirst("HospitalIDF")?.Value, out var id) ? id : 0;
         private int hospitalgroupidf => int.TryParse(User.FindFirst("HospitalGroupIDF")?.Value, out var id) ? id : 0;
         private string hospitalCode => User.FindFirst("HospitalCode")?.Value ?? string.Empty;
         private int userIdf => int.TryParse(User.FindFirst("UserIdf")?.Value, out var id) ? id : 0;
         private int fasModeOFPaymentIDF => int.TryParse(User.FindFirst("FASModeOFPaymentIDF")?.Value, out var id) ? id : 0;
-
-        public KioskController( IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
+        public KioskController(IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
         {
-           // _kioskService = kioskService;
+            // _kioskService = kioskService;
             _db = db;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
@@ -90,7 +88,7 @@ namespace DoctorMobileApp.Controllers
         [Route("generate-otp")]
         public async Task<IActionResult> GenerateOTP([FromBody] GeneratePatientOTPRequestModel requestModel)
         {
-            var result = await _kioskService.GenerateOTPAsync(requestModel,hospitalidf);
+            var result = await _kioskService.GenerateOTPAsync(requestModel, hospitalidf);
 
             if (result == null)
             {
@@ -130,7 +128,7 @@ namespace DoctorMobileApp.Controllers
         [Route("get-patho-report-list-for-print")]
         public async Task<IActionResult> GetPathoReportListForPrint([FromBody] PathoReportRequestModel requestModel)
         {
-            var pathoReportDetail = await _kioskService.GetPathoReportListForPrintAsync(requestModel,hospitalidf);
+            var pathoReportDetail = await _kioskService.GetPathoReportListForPrintAsync(requestModel, hospitalidf);
             if (pathoReportDetail == null || pathoReportDetail.Count == 0)
             {
                 return NotFound(new
@@ -182,7 +180,7 @@ namespace DoctorMobileApp.Controllers
             }
             var receipt = await _kioskService.SaveOPDTestReceiptAsync(receiptModel, userIdf, hospitalidf);
 
-            if (receipt.VoucherIDP <= 0)
+            if (receipt == null || (receipt.VoucherIDP <= 0 && receipt.VoucherIDP_NA <= 0))
             {
                 return BadRequest(new
                 {
@@ -198,7 +196,7 @@ namespace DoctorMobileApp.Controllers
                 Receipt = receipt
             });
         }
-      
+
         [HttpPost]
         [Route("get-last-visit-doctor")]
         public async Task<IActionResult> GetLastvisitDoctor([FromBody] LastVisitDrRequestmodel requestmodel)
@@ -331,15 +329,94 @@ namespace DoctorMobileApp.Controllers
                 Status = true,
                 Message = "OPD Registration Saved Successfully",
                 ReceiptID = result.VoucherIDP,
-                data = new { 
+                data = new
+                {
                     result.VoucherIDP,
                     result.OPDRegistrationIDP,
+                    result.VoucherNumber,
                     result.TransactionType,
                     result.OPDRegistrationSaveDateTime,
                     result.RegistrationCode,
                     result.TokenNumber,
                     result.RoomNumber
                 }
+            });
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("~/api/KioskBannerApi/ImageUpload")]
+        public IActionResult KioskBannerImageUpload([FromBody] KioskBannerImageUploadModel model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.FileBase64) || string.IsNullOrWhiteSpace(model.FileName))
+            {
+                return BadRequest(new { Status = false, Message = "Invalid file data" });
+            }
+
+            if (string.IsNullOrWhiteSpace(model.HospitalCode) || !Regex.IsMatch(model.HospitalCode, "^[A-Za-z0-9]+$"))
+            {
+                return BadRequest(new { Status = false, Message = "Invalid HospitalCode" });
+            }
+
+            if (string.IsNullOrWhiteSpace(model.ImageIDP) || !int.TryParse(model.ImageIDP, out int bannerId) || bannerId <= 0)
+            {
+                return BadRequest(new { Status = false, Message = "Invalid ImageIDP" });
+            }
+
+            string extension = Path.GetExtension(model.FileName).ToLowerInvariant();
+            string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+            if (!allowedExtensions.Contains(extension))
+            {
+                return BadRequest(new { Status = false, Message = "Unsupported file extension" });
+            }
+
+            if (string.IsNullOrWhiteSpace(model.FolderName) || !Regex.IsMatch(model.FolderName, "^[A-Za-z0-9]+(/[A-Za-z0-9]+)*$"))
+            {
+                return BadRequest(new { Status = false, Message = "Invalid FolderName" });
+            }
+
+            try
+            {
+                byte[] fileBytes = Convert.FromBase64String(model.FileBase64);
+
+                string physicalPath = Path.Combine(@"D:\", model.HospitalCode, model.FolderName);
+                if (!Directory.Exists(physicalPath))
+                {
+                    Directory.CreateDirectory(physicalPath);
+                }
+
+                string fileName = bannerId + extension;
+                string fullFilePath = Path.Combine(physicalPath, fileName);
+
+                System.IO.File.WriteAllBytes(fullFilePath, fileBytes);
+
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                string fileUrl = $"{baseUrl.TrimEnd('/')}/{model.HospitalCode}/{model.FolderName}/{fileName}";
+
+                return Ok(new { Status = true, Message = "Kiosk banner image uploaded successfully", FileUrl = fileUrl });
+            }
+            catch (Exception ex)
+            {
+                _db.LogError(ex, nameof(KioskBannerImageUpload));
+                return StatusCode(500, new { Status = false, Message = "Unable to save Kiosk banner image" });
+            }
+        }
+        [HttpPost]
+        [Route("get-active-kiosk-banners")]
+        public async Task<IActionResult> GetActiveKioskBanners()
+        {
+            string baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var banners = await _kioskService.GetActiveKioskBannersAsync(hospitalidf, hospitalCode, baseUrl);
+
+            if (banners == null)
+            {
+                banners = new List<KioskBannerResponseModel>();
+            }
+            return Ok(new
+            {
+                Status = true,
+                Message = banners.Count == 0 ? "No active Kiosk banners found." : "Success",
+                Data = banners
             });
         }
     }

@@ -1,7 +1,9 @@
 ﻿using DoctorMobileApp.CommonClass;
+using DoctorMobileApp.Models;
 using DoctorMobileApp.WebService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static DoctorMobileApp.Models.KioskModel;
 namespace DoctorMobileApp.Controllers
 {
     [Route("api/admittedPatientsEmrRecords")]
@@ -12,6 +14,7 @@ namespace DoctorMobileApp.Controllers
         private readonly IDbConnectionFactory _db;
         private readonly IConfiguration _configuration;
         private int hospitalidf => int.TryParse(User.FindFirst("HospitalIDF")?.Value, out var id) ? id : 0;
+        private string hospitalCode => User.FindFirst("HospitalCode")?.Value ?? string.Empty;
         public AdmittedPatientEMRRecordsController(IDbConnectionFactory db, IConfiguration configuration)
         {
             _db = db;
@@ -20,22 +23,22 @@ namespace DoctorMobileApp.Controllers
         }
         [Authorize]
         [HttpPost("getEmrVitals")]
-        public async Task<IActionResult> getEmrVitals(int AdmissionIDF)
+        public async Task<IActionResult> getEmrVitals([FromBody] GetEmrVitalsRequest emrVitalsRequestModel)
         {
-            var Data = await _AdmittedPatientEMRRecordsService.getEmrVital(hospitalidf, AdmissionIDF);
+            var Data = await _AdmittedPatientEMRRecordsService.getEmrVital(hospitalidf, emrVitalsRequestModel.AdmissionIDF);
             return Ok(new { Data.lstVital });
         }
         [Authorize]
         [HttpPost("getLastVisitPathoRadioProcedureRecords")]
-        public async Task<IActionResult> getLastVisitPathoRadioProcedureRecords(int AdmissionIDF, int Type)
+        public async Task<IActionResult> getLastVisitPathoRadioProcedureRecords([FromBody] GetLastVisitPathoRadioProcedureRecordsRequest requestModel)
         {
-            var Data = await _AdmittedPatientEMRRecordsService.getLastVisitPathoRadioProcedureRecords(hospitalidf, AdmissionIDF, Type);
+            var Data = await _AdmittedPatientEMRRecordsService.getLastVisitPathoRadioProcedureRecords(hospitalidf, requestModel.AdmissionIDF, requestModel.Type);
 
             List<dynamic> obj = new List<dynamic>();
 
             foreach (var itm in Data.lstPathoRadioProcedure)
             {
-                if (Type == 0) // Pathology
+                if (requestModel.Type == 0) // Pathology
                 {
                     obj.Add(new
                     {
@@ -62,7 +65,7 @@ namespace DoctorMobileApp.Controllers
                         itm.EmployeeIDP
                     });
                 }
-                else if (Type == 1) // Radiology
+                else if (requestModel.Type == 1) // Radiology
                 {
                     obj.Add(new
                     {
@@ -87,7 +90,7 @@ namespace DoctorMobileApp.Controllers
                         itm.RefundRemarks
                     });
                 }
-                else if (Type == 2) // Procedure
+                else if (requestModel.Type == 2) // Procedure
                 {
                     obj.Add(new
                     {
@@ -125,10 +128,46 @@ namespace DoctorMobileApp.Controllers
         }
 
         [Authorize]
-        [HttpPost("getGetValueFeedPathoTestReportList")]
-        public async Task<IActionResult>getGetValueFeedPathoTestReport(int PathoRegistrationIDP)
+        [HttpPost("getRadioReportHtml")]
+        public async Task<IActionResult> getRadioReportHtml([FromQuery] string reportPath)
         {
-            var Data = await _AdmittedPatientEMRRecordsService.getGetValueFeedPathoTestReportList(PathoRegistrationIDP);
+            var htmlReport = await _AdmittedPatientEMRRecordsService.GetPatientRadioReportHtmlAsync(hospitalCode, reportPath);
+            if (string.IsNullOrEmpty(htmlReport))
+            {
+                return NotFound(
+                    new
+                    {
+                        Status = false,
+                        Message = "Report Not Exist"
+                    });
+            }
+            return Ok(
+                new
+                {
+                    Status = true,
+                    Data = htmlReport
+                });
+        }
+        [Authorize]
+        [HttpPost("getGetValueFeedPathoTestReportList")]
+        public async Task<IActionResult> getGetValueFeedPathoTestReport([FromBody] GetValueFeedPathoTestReportRequest requestModel)
+        {
+            var Data = await _AdmittedPatientEMRRecordsService.getGetValueFeedPathoTestReportList(requestModel.PathoRegistrationIDP);
+            return Ok(new { Data });
+        }
+        [Authorize]
+        [HttpPost("getLatestPainAssessment")]
+        public async Task<IActionResult> getLatestPainAssessment([FromBody] GetLatestPainAssessmentRequest requestModel)
+        {
+            var Data = await _AdmittedPatientEMRRecordsService.getLatestPainAssessmentList(requestModel.AdmissionIDF);
+            return Ok(new { Data });
+        }
+
+        [Authorize]
+        [HttpPost("GetPatientLatest10PathologyResults")]
+        public async Task<IActionResult> getPatientLatest10PathologyResult([FromBody] GetPatientLatest10PathologyRequest requestModel)
+        {
+            var Data = await _AdmittedPatientEMRRecordsService.getPatientLatest10PathologyList(requestModel.PatientIDF);
             return Ok(new { Data });
         }
     }

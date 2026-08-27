@@ -225,6 +225,8 @@
         public string? DietOrOtherInstruction { get; set; }
         public string? DietCategoryName { get; set; }
         public string? DietFood { get; set; }
+        public int IsFirstOrMaxVisit { get; set; }
+        
     }
     public class DoctorVisitSummaryDetails
     {

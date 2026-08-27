@@ -1,5 +1,30 @@
 ﻿namespace DoctorMobileApp.Models
 {
+    public class GetEmrVitalsRequest
+    {
+        public int AdmissionIDF { get; set; }
+    }
+
+    public class GetLastVisitPathoRadioProcedureRecordsRequest
+    {
+        public int AdmissionIDF { get; set; }
+        public int Type { get; set; }
+    }
+
+    public class GetValueFeedPathoTestReportRequest
+    {
+        public int PathoRegistrationIDP { get; set; }
+    }
+
+    public class GetLatestPainAssessmentRequest
+    {
+        public int AdmissionIDF { get; set; }
+    }
+
+    public class GetPatientLatest10PathologyRequest
+    {
+        public int PatientIDF { get; set; }
+    }
     public class AdmittedPatientEMRRecords
     {
         public List<VitalList> lstVital { get; set; } = new List<VitalList>();
@@ -81,7 +106,7 @@
     }
     public class FeedPathoTestReportList
     {
-        public string? PathoTestReportName  { get; set; }
+        public string? PathoTestReportName { get; set; }
         public string? PathoTestCategoryName { get; set; }
         public int? PathoTestMasterIDP { get; set; }
         public string? PathoTestName { get; set; }
@@ -91,13 +116,42 @@
         public string? AlphaNumericTestValue { get; set; }
         public bool? IsMultiColumn { get; set; }
         public string? MultiColumnTestValue { get; set; }
-        public int? FieldType {get; set; }
+        public int? FieldType { get; set; }
         public int? SrNo { get; set; }
         public int? PathoTestReportIDP { get; set; }
         public int? CategoryDetailSrNo { get; set; }
         public int? PathoTestCategoryIDP { get; set; }
         public int? PathoFacultyIDF { get; set; }
-        public string? NormalRange  { get; set; }
+        public string? NormalRange { get; set; }
         public bool IsAbnormalResult { get; set; }
+        public string? Notes { get; set; }
+        public string? Interpretation { get; set; }
+        public string? Impressions { get; set; }
+        public string? Remarks { get; set; }
+    }
+    public class LatestPainAssessment
+    {
+        public List<LatestPainAssessmentList> lstLatestPainAssessment { get; set; }
+    }
+    public class LatestPainAssessmentList
+    {
+        public int PainLevel { get; set; }
+        public string? ScaleLevel { get; set; }
+        public DateTime VisitDateTime { get; set; }
+    }
+    public class PatientLatest10PathologyRecord
+    {
+        public List<PatientLatest10PathologyList> lstPatientLatest10Pathology { get; set; }
+    }
+    public class PatientLatest10PathologyList
+    {
+        public string? PathoTestName { get; set; }
+        public DateTime PathoTestDate { get; set; }
+        public string? NumericTestValue { get; set; }
+
+    }
+    public class GetRadioReportHtmlRequest
+    {
+        public string ReportPath { get; set; } = string.Empty;
     }
 }
