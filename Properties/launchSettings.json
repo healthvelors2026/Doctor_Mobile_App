@@ -1,5 +1,7 @@
 ﻿{
   "$schema": "http://json.schemastore.org/launchsettings.json",
+  "_comment_HowToChangePort": "To change which StellaWeb instance Swagger talks to, edit TokenDisplayBridge__Url inside the profile you're running - local-only, never published.",
+  "_comment_ProductionAlternative": "Better long-term fix: host Doctor_Mobile_App as an IIS Application under StellaWeb's own site so the port auto-derives with zero override, same as a real client.",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -17,7 +19,7 @@
       "applicationUrl": "http://localhost:5012",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "TokenDisplayBridge__Url": "http://localhost:34253/TokenDisplayBroadcast/Broadcast"
+        "TokenDisplayBridge__Url": "http://localhost:3765/TokenDisplayBroadcast/Broadcast"
       }
     },
     "https": {
@@ -31,13 +33,24 @@
         "TokenDisplayBridge__Url": "http://localhost:34253/TokenDisplayBroadcast/Broadcast"
       }
     },
+    "https (test against Publish 3765)": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:7268;http://localhost:5012",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "TokenDisplayBridge__Url": "http://localhost:3765/TokenDisplayBroadcast/Broadcast"
+      }
+    },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "TokenDisplayBridge__Url": "http://localhost:34253/TokenDisplayBroadcast/Broadcast"
+        "TokenDisplayBridge__Url": "http://localhost:3765/TokenDisplayBroadcast/Broadcast"
       }
     }
   }

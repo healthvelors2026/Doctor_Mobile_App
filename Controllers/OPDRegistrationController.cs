@@ -51,7 +51,17 @@ namespace DoctorMobileApp.Controllers
         [HttpPost("insert-token-display")]
         public async Task<IActionResult> InsertTokenDisplay(InsertTokenDisplayRequest request, CancellationToken cancellationToken)
         {
-            var result = await _OPDRegistrationservice.InsertTokenDisplayAsync(request, cancellationToken);
+            // Normal tablet fire - never a promotion, decided here, not by the caller.
+            var result = await _OPDRegistrationservice.InsertTokenDisplayAsync(request, isDirectSelection: false, cancellationToken);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost("select-pending-token")]
+        public async Task<IActionResult> SelectPendingToken(InsertTokenDisplayRequest request, CancellationToken cancellationToken)
+        {
+            // Direct selection from the Pending list - always promotes the existing Upcoming to Running, decided here, not by the caller.
+            var result = await _OPDRegistrationservice.InsertTokenDisplayAsync(request, isDirectSelection: true, cancellationToken);
             return Ok(result);
         }
     }

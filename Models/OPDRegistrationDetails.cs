@@ -74,7 +74,6 @@
         public int RoomIDF { get; set; }
         public int TokenIDF { get; set; }
         public int DoctorIDF { get; set; }
-        public bool IsUpcomingToken { get; set; }
     }
 
     public class InsertTokenDisplayResult
@@ -85,5 +84,15 @@
         public string? EntryType { get; set; }
         public int DoctorIDF { get; set; }
         public bool IsUpcomingToken { get; set; }
+        // Only populated when IsPromotion is true - carries the old Upcoming's values, now the new Running, so a second broadcast can be fired for it.
+        public int PromotedRoomIDF { get; set; }
+        public int PromotedTokenIDF { get; set; }
+        public bool IsPromotion { get; set; }
+    }
+
+    // Added by Poonam Vasani on 27-Aug-2026 : Purpose: result shape for the patient CR-number lookup used to resolve a real patient name on the old TokenDisplay screen.
+    public class CRNumberLookup
+    {
+        public string? CRNumber { get; set; }
     }
 }

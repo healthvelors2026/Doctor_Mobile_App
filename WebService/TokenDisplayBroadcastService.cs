@@ -6,7 +6,7 @@ namespace DoctorMobileApp.WebService
     public interface ITokenDisplayBroadcastService
     {
         // Broadcasts a successfully inserted OPD-entry token to the old TokenDisplay screen
-        Task BroadcastOPDEntryTokenAsync(int roomIdf, int tokenIdf, int doctorIdf, bool isUpcomingToken, CancellationToken cancellationToken = default);
+        Task BroadcastOPDEntryTokenAsync(int roomIdf, int tokenIdf, int doctorIdf, bool isUpcomingToken, string? tcrNumber, CancellationToken cancellationToken = default);
     }
 
     public class TokenDisplayBroadcastService : ITokenDisplayBroadcastService
@@ -28,7 +28,7 @@ namespace DoctorMobileApp.WebService
         }
 
         // Called by OPDRegistrationService only when API_Sp_InsertTokenDisplay reports IsInserted = 1
-        public async Task BroadcastOPDEntryTokenAsync(int roomIdf, int tokenIdf, int doctorIdf, bool isUpcomingToken, CancellationToken cancellationToken = default)
+        public async Task BroadcastOPDEntryTokenAsync(int roomIdf, int tokenIdf, int doctorIdf, bool isUpcomingToken, string? tcrNumber, CancellationToken cancellationToken = default)
         {
             var bridgeUrl = ResolveBridgeUrl();
             if (bridgeUrl == null)
@@ -44,7 +44,8 @@ namespace DoctorMobileApp.WebService
                 TokenIssueIDP = tokenIdf,
                 DocIDFOPDEntry = doctorIdf,
                 IsInsideOPDEntry = true,
-                IsUpcomingToken = isUpcomingToken
+                IsUpcomingToken = isUpcomingToken,
+                TCRNumber = tcrNumber // lets the old Hub resolve a real patient name; null when no registration data links to this token
             };
 
             using var request = new HttpRequestMessage(HttpMethod.Post, bridgeUrl)
