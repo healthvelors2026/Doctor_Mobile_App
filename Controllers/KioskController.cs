@@ -342,6 +342,26 @@ namespace DoctorMobileApp.Controllers
                 }
             });
         }
+        [HttpPost]
+        [Route("get-Healthcard-Active_Patient-list")]
+        public async Task<IActionResult> GetHealthCardActivePatientList([FromBody] HealthCardActivePatientRequestModel requestModel)
+        {
+            var patientList = await _kioskService.GetHealthCardActivePatientListAsync(requestModel, hospitalidf);
+            if (patientList == null || patientList.Count == 0)
+            {
+                return NotFound(new
+                {
+                    Status = false,
+                    Message = "Active Patient Not Found"
+                });
+            }
+            return Ok(new
+            {
+                Status = true,
+                Message = "Success",
+                Data = patientList
+            });
+        }
 
         [HttpPost]
         [AllowAnonymous]
@@ -419,5 +439,7 @@ namespace DoctorMobileApp.Controllers
                 Data = banners
             });
         }
+
+
     }
 }

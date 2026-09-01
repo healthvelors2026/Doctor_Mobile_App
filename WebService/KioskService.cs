@@ -309,6 +309,7 @@ namespace DoctorMobileApp.WebServices
                 var parameters = new SqlParameter[]
                 {
                     new("@PatientIDF", model.PatientIDF),
+                    new("@HealthCardPatientIssueDetailIDP",model.HealthCardPatientIssueDetailIDP),
                     new("@DoctorIDF", model.DoctorIDF),
                     new("@HospitalIDF", hospitalidf),
                     new("@Kiosk_UserIDF", userIdf),
@@ -329,6 +330,18 @@ namespace DoctorMobileApp.WebServices
             {
                 return null;
             }
+        }
+        public async Task<List<HealthCardActivePatientResponseModel>> GetHealthCardActivePatientListAsync(HealthCardActivePatientRequestModel requestModel, int hospitalidf)
+        {
+            var HCAPatientlist = new List<HealthCardActivePatientResponseModel>();
+            var HCAPParam = new[]
+            {
+                new SqlParameter("@PatientID" , requestModel.PatientID),
+                new SqlParameter("@HospitalIDF", hospitalidf)
+            };
+
+            HCAPatientlist = await _dbHelper.QueryAsync<HealthCardActivePatientResponseModel>("Kiosk_API_GetActivePatientHealthCard_GetList", CommandType.StoredProcedure, HCAPParam);
+            return HCAPatientlist;
         }
         public async Task<List<KioskBannerResponseModel>> GetActiveKioskBannersAsync(int hospitalidf, string hospitalCode, string baseUrl)
         {
