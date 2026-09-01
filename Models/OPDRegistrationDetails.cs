@@ -45,6 +45,62 @@
     {
         public string RegistrationCode { get; set; } = string.Empty;
     }
+
+    public class DoctorOPDEntryTokenListRequest
+    {
+        public int DoctorIDF { get; set; }
+    }
+
+    // Property names must match the SP's output columns exactly (case-insensitive) for QueryAsync<T>'s mapping - Token_Status keeps the underscore for that reason.
+    public class DoctorOPDEntryTokenList
+    {
+        public int TokenIssueIDP { get; set; }
+        public DateTime? RegistrationDateTime { get; set; }
+        public string? RegistrationCode { get; set; }
+        public string? PatientName { get; set; }
+        public string? CRNumber { get; set; }
+        public int TokenNumber { get; set; }
+        public DateTime TokenIssueDateTime { get; set; }
+        public DateTime? AppointmentDate { get; set; }
+        public string? PatientType { get; set; }
+        public int Token_Status { get; set; }
+        public string? TokenStatus { get; set; }
+    }
+
+    public class ConsultingRoom
+    {
+        public int RoomID { get; set; }
+        public string? RoomName { get; set; }
+        public int RoomNo { get; set; }
+        public int? RoomtAllocatedDoctorID { get; set; }
+    }
+
+    public class InsertTokenDisplayRequest
+    {
+        public int RoomIDF { get; set; }
+        public int TokenIDF { get; set; }
+        public int DoctorIDF { get; set; }
+    }
+
+    public class InsertTokenDisplayResult
+    {
+        public int IsInserted { get; set; }
+        public int EntryStatus { get; set; }
+        public string? Message { get; set; }
+        public string? EntryType { get; set; }
+        public int DoctorIDF { get; set; }
+        public bool IsUpcomingToken { get; set; }
+        // Only populated when IsPromotion is true - carries the old Upcoming's values, now the new Running, so a second broadcast can be fired for it.
+        public int PromotedRoomIDF { get; set; }
+        public int PromotedTokenIDF { get; set; }
+        public bool IsPromotion { get; set; }
+    }
+
+    // Added by Poonam Vasani on 27-Aug-2026 : Purpose: result shape for the patient CR-number lookup used to resolve a real patient name on the old TokenDisplay screen.
+    public class CRNumberLookup
+    {
+        public string? CRNumber { get; set; }
+    }
     public class SaveOPDEntryWithTestResponse
     {
         public bool Success { get; set; }
