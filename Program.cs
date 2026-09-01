@@ -1,4 +1,5 @@
 ﻿using DoctorMobileApp.CommonClass;
+using DoctorMobileApp.WebService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IDbConnectionFactory, SqlHelper>();
+builder.Services.AddHttpClient<ITokenDisplayBroadcastService, TokenDisplayBroadcastService>();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
