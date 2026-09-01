@@ -38,7 +38,7 @@ namespace DoctorMobileApp.Controllers
 
             foreach (var itm in Data.lstPathoRadioProcedure)
             {
-                if (requestModel.Type == 0) // Pathology
+                if (requestModel.Type == 0) 
                 {
                     obj.Add(new
                     {
@@ -65,7 +65,7 @@ namespace DoctorMobileApp.Controllers
                         itm.EmployeeIDP
                     });
                 }
-                else if (requestModel.Type == 1) // Radiology
+                else if (requestModel.Type == 1) 
                 {
                     obj.Add(new
                     {
@@ -90,7 +90,7 @@ namespace DoctorMobileApp.Controllers
                         itm.RefundRemarks
                     });
                 }
-                else if (requestModel.Type == 2) // Procedure
+                else if (requestModel.Type == 2) 
                 {
                     obj.Add(new
                     {
@@ -123,7 +123,6 @@ namespace DoctorMobileApp.Controllers
                     });
                 }
             }
-
             return Ok(new { Data = obj });
         }
 
