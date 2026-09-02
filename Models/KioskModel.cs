@@ -21,6 +21,12 @@ namespace DoctorMobileApp.Models
             public int Age { get; set; }
             public string? Gender { get; set; }
             public int HospitalId { get; set; }
+            public bool IsAdmitted { get; set; }
+            public int AdmissionIDF { get; set; }
+            public string? IPDRegistrationCode { get; set; }
+            public string? Doctor {  get; set; }
+            public string? BedWard { get; set; }
+
         }
         public class SkillSetResponseModel
         {
