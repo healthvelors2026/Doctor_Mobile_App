@@ -21,6 +21,12 @@ namespace DoctorMobileApp.Models
             public int Age { get; set; }
             public string? Gender { get; set; }
             public int HospitalId { get; set; }
+            public bool IsAdmitted { get; set; }
+            public int AdmissionIDF { get; set; }
+            public string? IPDRegistrationCode { get; set; }
+            public string? Doctor {  get; set; }
+            public string? BedWard { get; set; }
+
         }
         public class SkillSetResponseModel
         {
@@ -55,6 +61,19 @@ namespace DoctorMobileApp.Models
         {
             public bool Status { get; set; }
             public string? Message { get; set; }
+        }
+        // get healthcard active patient list
+        public class HealthCardActivePatientRequestModel
+        {
+            public int PatientID { get; set; }
+        }
+        public class HealthCardActivePatientResponseModel
+        {
+            public int HealthCardPlanIDP { get; set; }
+            public string? HealthCardPlanName { get; set; }
+            public int HealthCardPatientIssueIDP { get; set; }
+            public string? HealthCardNumber { get; set; }
+            public int HealthCardPatientIssueDetailIDP { get; set; }
         }
         public class PathoReportRequestModel
         {
@@ -180,6 +199,7 @@ namespace DoctorMobileApp.Models
             public string? UPITransactionNo { get; set; }
             public string? BrowserName { get; set; }
             public string? IPAdress { get; set; }
+            public int HealthCardPatientIssueDetailIDP { get; set; }
         }
         public class SaveOPDRegistrationReceiptResponseModel
         {
