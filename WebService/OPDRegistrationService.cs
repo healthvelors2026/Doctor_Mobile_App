@@ -160,13 +160,19 @@ namespace DoctorMobileApp.WebService
             var rows = await _dbHelper.QueryAsync<InsertTokenDisplayResult>(
                 "API_Sp_InsertTokenDisplay", CommandType.StoredProcedure, parameters);
             var result = rows.FirstOrDefault() ?? new InsertTokenDisplayResult { IsInserted = 0, Message = "No result returned" };
+            if (isDirectSelection)
+            {
+                await _tokenDisplayBroadcast.BroadcastOPDEntryTokenAsync(request.RoomIDF, request.TokenIDF, request.DoctorIDF, isDirectSelection, null, cancellationToken); // clicked token -> update Upcoming cell
+                return result;
+            }
+
             if (result.IsInserted == 1)
             {
                 if (result.IsPromotion) // true only when a promote happened - one click changed two cells
                 {
                     var promotedCRNumber = await GetPatientCRNumberAsync(result.PromotedTokenIDF);
                     var clickedCRNumber = await GetPatientCRNumberAsync(request.TokenIDF);
-                    await _tokenDisplayBroadcast.BroadcastOPDEntryTokenAsync(result.PromotedRoomIDF, result.PromotedTokenIDF, request.DoctorIDF, false, promotedCRNumber, cancellationToken); // old Upcoming's value -> update Running cell
+                    //await _tokenDisplayBroadcast.BroadcastOPDEntryTokenAsync(result.PromotedRoomIDF, result.PromotedTokenIDF, request.DoctorIDF, false, promotedCRNumber, cancellationToken); // old Upcoming's value -> update Running cell
                     await _tokenDisplayBroadcast.BroadcastOPDEntryTokenAsync(request.RoomIDF, request.TokenIDF, request.DoctorIDF, true, clickedCRNumber, cancellationToken); // clicked token -> update Upcoming cell
                 }
                 else
@@ -188,7 +194,7 @@ namespace DoctorMobileApp.WebService
                 @"SELECT TOP 1 CRNumber FROM
                   (
                       SELECT PM.CRNumber FROM tbTokenIssueTransaction TIT
-                      INNER JOIN tbFASVoucherMaster FVM ON FVM.VoucherIDP = TIT.VoucherIDF AND FVM.RegistrationType = 0 AND FVM.VoucherTypeIDF = 11
+                      INNER JOIN tbFASVoucherMaster FVM ON FVM.VoucherIDP = TIT.VoucherIDF AND FVM.RegistrationType = 0 AND FVM.VoucherTypeIDF IN(11,12,13)
                       INNER JOIN tbOPDRegistration OPDReg ON OPDReg.OPDRegistrationIDP = FVM.RegistrationIDF
                       INNER JOIN tbPatientMaster PM ON PM.PatientIDP = OPDReg.PatientIDF
                       WHERE TIT.TokenIssueIDF = @TokenIDF
