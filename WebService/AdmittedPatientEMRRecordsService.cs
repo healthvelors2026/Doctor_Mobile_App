@@ -95,6 +95,7 @@ namespace DoctorMobileApp.WebService
                  new SqlParameter("@AdmissionIDF", AdmissionIDF)
              };
             result.lstLatestPainAssessment = await _dbHelper.QueryAsync<LatestPainAssessmentList>("API_Sp_GetLatestPainAssessment", CommandType.StoredProcedure, LatestPainAssessmentParams);
+            
             return result;
         }
         public async Task<PatientLatest10PathologyRecord> getPatientLatest10PathologyList(int PatientIDF)
