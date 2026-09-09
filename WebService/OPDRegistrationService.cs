@@ -160,6 +160,12 @@ namespace DoctorMobileApp.WebService
             var rows = await _dbHelper.QueryAsync<InsertTokenDisplayResult>(
                 "API_Sp_InsertTokenDisplay", CommandType.StoredProcedure, parameters);
             var result = rows.FirstOrDefault() ?? new InsertTokenDisplayResult { IsInserted = 0, Message = "No result returned" };
+            if (isDirectSelection)
+            {
+                await _tokenDisplayBroadcast.BroadcastOPDEntryTokenAsync(request.RoomIDF, request.TokenIDF, request.DoctorIDF, isDirectSelection, null, cancellationToken); // clicked token -> update Upcoming cell
+                return result;
+            }
+
             if (result.IsInserted == 1)
             {
                 if (result.IsPromotion) // true only when a promote happened - one click changed two cells
