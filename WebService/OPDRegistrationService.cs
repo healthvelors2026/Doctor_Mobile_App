@@ -77,7 +77,7 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@HospitalIDF", hospitalidf),
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
-            var result = await _dbHelper.QueryAsync<SaveOPDEntryWithTestResponse>("API_SP_InsertUpdateOPDEntryWithTest",CommandType.StoredProcedure,parameters);
+            var result = await _dbHelper.QueryAsync<SaveOPDEntryWithTestResponse>("API_SP_InsertUpdateOPDEntryWithTest", CommandType.StoredProcedure, parameters);
             return result.FirstOrDefault();
         }
         private static DataTable CreateTestServiceDataTable(IEnumerable<InvestigationTestReport> list, int nonCashLess, bool classForReimbursement)
@@ -206,6 +206,18 @@ namespace DoctorMobileApp.WebService
                   ) Combined",
                 CommandType.Text, parameters);
             return rows.FirstOrDefault()?.CRNumber;
+        }
+
+        public async Task<RunningAndUpcomingTokenResponse?> GetRunningAndUpcomingTokenAsync(RunningAndUpcomingTokenRequest request)
+        {
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("@RoomIDF", request.RoomIDF),
+                new SqlParameter("@DoctorIDF", request.DoctorIDF)
+            };
+            var rows = await _dbHelper.QueryAsync<RunningAndUpcomingTokenResponse>(
+                "API_Sp_OPDGetRunningAndUpcomingToken", CommandType.StoredProcedure, parameters);
+            return rows.FirstOrDefault();
         }
     }
 }

@@ -87,5 +87,13 @@ namespace DoctorMobileApp.Controllers
             var result = await _OPDRegistrationservice.InsertTokenDisplayAsync(request, isDirectSelection: true, cancellationToken);
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpPost("get-running-upcoming-token")]
+        public async Task<IActionResult> GetRunningAndUpcomingToken(RunningAndUpcomingTokenRequest request)
+        {
+            var result = await _OPDRegistrationservice.GetRunningAndUpcomingTokenAsync(request);
+            return Ok(result);
+        }
     }
 }

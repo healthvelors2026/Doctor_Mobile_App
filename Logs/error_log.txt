@@ -1636,3 +1636,17 @@ StackTrace:
    at DoctorMobileApp.CommonClass.SqlHelper.QueryAsync[T](String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Poonam_Feedback\Poonam_Doctor_Mobile_App\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 194
 ====================================
 
+========== ERROR ==========
+Date: 09-09-2026 05:54:40 PM
+Procedure: API_Sp_OPDGetRunningAndUpcomingToken
+Message: The input string '' was not in a correct format.
+Parameters:
+   @RoomIDF = 2
+   @DoctorIDF = 763
+StackTrace:
+   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
+   at System.String.System.IConvertible.ToInt32(IFormatProvider provider)
+   at System.Convert.ChangeType(Object value, Type conversionType, IFormatProvider provider)
+   at DoctorMobileApp.CommonClass.SqlHelper.QueryAsync[T](String commandText, CommandType commandType, SqlParameter[] parameters) in D:\Projects\Doctor_Kiosk_API\Doctor_Mobile_App\CommonClass\SqlHelper.cs:line 207
+====================================
+
