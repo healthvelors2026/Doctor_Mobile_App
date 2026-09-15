@@ -40,17 +40,12 @@ namespace DoctorMobileApp.Controllers
             if (request.OPDRegistrationDetails.OPDRegistrationIDP <= 0)
                 return BadRequest("Invalid OPDRegistrationIDF.");
 
-            if (!(request.PathoTestList?.Any() == true ||
-                  request.RadioTestList?.Any() == true ||
-                  request.ProcedureTestList?.Any() == true))
+            if (!(request.PathoTestList?.Any() == true || request.RadioTestList?.Any() == true || request.ProcedureTestList?.Any() == true))
             {
                 return BadRequest("At least one investigation test list is required.");
             }
-            var result = await _OPDRegistrationservice.SaveOPDEntryWithTestAsync(
-                request,
-                UserIdf,
-                hospitalidf,
-                hospitalgroupidf);
+            var result = await _OPDRegistrationservice.SaveOPDEntryWithTestAsync(request,UserIdf,hospitalidf,hospitalgroupidf);
+            
             return Ok(result);
         }
 
@@ -59,6 +54,7 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetDoctorOPDEntryTokenList(DoctorOPDEntryTokenListRequest request)
         {
             var result = await _OPDRegistrationservice.GetDoctorOPDEntryTokenListAsync(request.DoctorIDF);
+            
             return Ok(result);
         }
 
@@ -67,6 +63,7 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetConsultingRoomList()
         {
             var result = await _OPDRegistrationservice.GetConsultingRoomListAsync(hospitalidf);
+            
             return Ok(result);
         }
 
@@ -76,6 +73,7 @@ namespace DoctorMobileApp.Controllers
         {
             // Normal tablet fire - never a promotion, decided here, not by the caller.
             var result = await _OPDRegistrationservice.InsertTokenDisplayAsync(request, isDirectSelection: false, cancellationToken);
+            
             return Ok(result);
         }
 
@@ -85,6 +83,7 @@ namespace DoctorMobileApp.Controllers
         {
             // Direct selection from the Pending list - always promotes the existing Upcoming to Running, decided here, not by the caller.
             var result = await _OPDRegistrationservice.InsertTokenDisplayAsync(request, isDirectSelection: true, cancellationToken);
+            
             return Ok(result);
         }
 
@@ -93,6 +92,7 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetRunningAndUpcomingToken(RunningAndUpcomingTokenRequest request)
         {
             var result = await _OPDRegistrationservice.GetRunningAndUpcomingTokenAsync(request);
+            
             return Ok(result);
         }
     }
