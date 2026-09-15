@@ -43,6 +43,7 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetPatientSearchDeatil([FromBody] PatientSearchModel patientSearchRequest)
         {
             var patientDetail = await _kioskService.GetPatientSearchListAsync(patientSearchRequest, hospitalidf);
+            
             if (patientDetail == null || patientDetail.Count == 0)
             {
                 return NotFound(new
@@ -64,11 +65,9 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetSkillSet(CancellationToken cancellationToken)
         {
             string baseUrl = $"{Request.Scheme}://{Request.Host}";
-            var skillSetList = await _kioskService.GetSkillSetListAsync(
-                hospitalgroupidf,
-                hospitalCode,
-                baseUrl,
-                cancellationToken);
+            
+            var skillSetList = await _kioskService.GetSkillSetListAsync(hospitalgroupidf,hospitalCode,baseUrl,cancellationToken);
+            
             if (skillSetList == null || skillSetList.Count == 0)
             {
                 return NotFound(new
@@ -130,6 +129,7 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetPathoReportListForPrint([FromBody] PathoReportRequestModel requestModel)
         {
             var pathoReportDetail = await _kioskService.GetPathoReportListForPrintAsync(requestModel, hospitalidf);
+            
             if (pathoReportDetail == null || pathoReportDetail.Count == 0)
             {
                 return NotFound(new
@@ -151,6 +151,7 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetOPDTestReceipt([FromBody] OPDTestReceiptRequestModel requestModel)
         {
             var opdTestReceiptList = await _kioskService.GetOPDTestReceiptListAsync(requestModel, hospitalidf);
+            
             if (opdTestReceiptList == null || opdTestReceiptList.Count == 0)
             {
                 return NotFound(new
@@ -189,7 +190,6 @@ namespace DoctorMobileApp.Controllers
                     Message = "Failed"
                 });
             }
-
             return Ok(new
             {
                 Status = true,
@@ -249,6 +249,7 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetDoctorList([FromBody] DoctorRequestModel requestModel)
         {
             var doctorList = await _kioskService.GetDoctorListAsync(requestModel, hospitalidf);
+            
             if (doctorList == null || doctorList.Count == 0)
             {
                 return NotFound(new
@@ -278,6 +279,7 @@ namespace DoctorMobileApp.Controllers
                 });
             }
             var result = await _kioskService.SaveAdvanceDepositAsync(depositmodel, hospitalidf, fasModeOFPaymentIDF, userIdf);
+            
             if (result == null || result.VoucherIDP <= 0)
             {
                 return BadRequest(new
@@ -348,6 +350,7 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetHealthCardActivePatientList([FromBody] HealthCardActivePatientRequestModel requestModel)
         {
             var patientList = await _kioskService.GetHealthCardActivePatientListAsync(requestModel, hospitalidf);
+            
             if (patientList == null || patientList.Count == 0)
             {
                 return NotFound(new
@@ -427,6 +430,7 @@ namespace DoctorMobileApp.Controllers
         public async Task<IActionResult> GetActiveKioskBanners()
         {
             string baseUrl = $"{Request.Scheme}://{Request.Host}";
+            
             var banners = await _kioskService.GetActiveKioskBannersAsync(hospitalidf, hospitalCode, baseUrl);
 
             if (banners == null)
