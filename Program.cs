@@ -113,48 +113,102 @@ app.UseSwaggerUI();
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 
-var skillIconPathPattern = new Regex(@"^/(?<hospitalCode>[A-Za-z0-9]+)/MobileApp/DoctorSkillset/(?<fileName>[A-Za-z0-9_-]+\.(jpg|jpeg|png|gif))$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-var kioskBannerPathPattern = new Regex(@"^/(?<hospitalCode>[A-Za-z0-9]+)/Kiosk/KioskBanners/(?<fileName>[A-Za-z0-9_-]+\.(jpg|jpeg|png|gif))$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+var staticImagePathPattern = new Regex(
+    @"^/(?<hospitalCode>[A-Za-z0-9]+)/(?<subPath>MobileApp/DoctorSkillset|Kiosk/KioskBanners|Kiosk/EmployeePhoto)/(?<fileName>[A-Za-z0-9_-]+\.(jpg|jpeg|png|gif))$",
+    RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
 app.Use(async (context, next) =>
 {
-    // For Skill Set Image in Kiosk
-    var match = skillIconPathPattern.Match(context.Request.Path.Value ?? string.Empty);
+    var match = staticImagePathPattern.Match(context.Request.Path.Value ?? string.Empty);
     if (HttpMethods.IsGet(context.Request.Method) && match.Success)
     {
-        var physicalPath = Path.Combine(@"D:\", match.Groups["hospitalCode"].Value, "MobileApp", "DoctorSkillset", match.Groups["fileName"].Value);
+        var pathParts = new[] { @"D:\", match.Groups["hospitalCode"].Value }
+            .Concat(match.Groups["subPath"].Value.Split('/'))
+            .Append(match.Groups["fileName"].Value)
+            .ToArray();
+        var physicalPath = Path.Combine(pathParts);
 
         if (!File.Exists(physicalPath))
         {
             context.Response.StatusCode = StatusCodes.Status404NotFound;
             return;
         }
+
         new FileExtensionContentTypeProvider().TryGetContentType(physicalPath, out var contentType);
         context.Response.ContentType = contentType ?? "application/octet-stream";
         await context.Response.SendFileAsync(physicalPath);
         return;
     }
-    // For Kiosk Banner 
-    var bannerMatch = kioskBannerPathPattern.Match(context.Request.Path.Value ?? string.Empty);
-    if (HttpMethods.IsGet(context.Request.Method) && bannerMatch.Success)
-        {
-        var physicalPath = Path.Combine(@"D:\", bannerMatch.Groups["hospitalCode"].Value, "Kiosk", "KioskBanners", bannerMatch.Groups["fileName"].Value);
 
-        if (!File.Exists(physicalPath))
-        {
-            context.Response.StatusCode = StatusCodes.Status404NotFound;
-            return;
-        }
-        new FileExtensionContentTypeProvider().TryGetContentType(physicalPath,out var contentType);
-
-        context.Response.ContentType = contentType ?? "application/octet-stream";
-
-        await context.Response.SendFileAsync(physicalPath);
-        return;
-    }
     await next();
 });
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
+
+//  Extra 
+//var skillIconPathPattern = new Regex(@"^/(?<hospitalCode>[A-Za-z0-9]+)/MobileApp/DoctorSkillset/(?<fileName>[A-Za-z0-9_-]+\.(jpg|jpeg|png|gif))$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+//var kioskBannerPathPattern = new Regex(@"^/(?<hospitalCode>[A-Za-z0-9]+)/Kiosk/KioskBanners/(?<fileName>[A-Za-z0-9_-]+\.(jpg|jpeg|png|gif))$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+//var employeePhotoPathPattern = new Regex(@"^/(?<hospitalCode>[A-Za-z0-9]+)/Kiosk/EmployeePhoto/(?<fileName>[A-Za-z0-9_-]+\.(jpg|jpeg|png|gif))$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+//app.Use(async (context, next) =>
+//{
+//    // For Skill Set Image in Kiosk
+//    var match = skillIconPathPattern.Match(context.Request.Path.Value ?? string.Empty);
+//    if (HttpMethods.IsGet(context.Request.Method) && match.Success)
+//    {
+//        var physicalPath = Path.Combine(@"D:\", match.Groups["hospitalCode"].Value, "MobileApp", "DoctorSkillset", match.Groups["fileName"].Value);
+
+//        if (!File.Exists(physicalPath))
+//        {
+//            context.Response.StatusCode = StatusCodes.Status404NotFound;
+//            return;
+//        }
+//        new FileExtensionContentTypeProvider().TryGetContentType(physicalPath, out var contentType);
+//        context.Response.ContentType = contentType ?? "application/octet-stream";
+//        await context.Response.SendFileAsync(physicalPath);
+//        return;
+//    }
+//    // For Kiosk Banner 
+//    var bannerMatch = kioskBannerPathPattern.Match(context.Request.Path.Value ?? string.Empty);
+//    if (HttpMethods.IsGet(context.Request.Method) && bannerMatch.Success)
+//        {
+//        var physicalPath = Path.Combine(@"D:\", bannerMatch.Groups["hospitalCode"].Value, "Kiosk", "KioskBanners", bannerMatch.Groups["fileName"].Value);
+
+//        if (!File.Exists(physicalPath))
+//        {
+//            context.Response.StatusCode = StatusCodes.Status404NotFound;
+//            return;
+//        }
+//        new FileExtensionContentTypeProvider().TryGetContentType(physicalPath,out var contentType);
+
+//        context.Response.ContentType = contentType ?? "application/octet-stream";
+
+//        await context.Response.SendFileAsync(physicalPath);
+//        return;
+//    }
+//    var employeePhotoMatch = employeePhotoPathPattern.Match(context.Request.Path.Value ?? string.Empty);
+
+//    if (HttpMethods.IsGet(context.Request.Method) && employeePhotoMatch.Success)
+//    {
+//        var physicalPath = Path.Combine(@"D:\",employeePhotoMatch.Groups["hospitalCode"].Value,"Kiosk","EmployeePhoto",employeePhotoMatch.Groups["fileName"].Value);
+
+//        if (!File.Exists(physicalPath))
+//        {
+//            context.Response.StatusCode = StatusCodes.Status404NotFound;
+//            return;
+//        }
+
+//        new FileExtensionContentTypeProvider()
+//            .TryGetContentType(physicalPath, out var contentType);
+
+//        context.Response.ContentType = contentType ?? "application/octet-stream";
+
+//        await context.Response.SendFileAsync(physicalPath);
+//        return;
+//    }
+//    await next();
+//});
