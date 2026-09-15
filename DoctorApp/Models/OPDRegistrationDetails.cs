@@ -109,4 +109,20 @@
         public string RegistrationCode { get; set; }= string.Empty;
         public string Message { get; set; } = string.Empty;
     }
+    public class RunningAndUpcomingTokenRequest
+    {
+        public int RoomIDF { get; set; }
+        public int DoctorIDF { get; set; }
+    }
+    public class RunningAndUpcomingTokenResponse
+    {
+        public string RunningTokenIssueIDP { get; set; } = string.Empty;
+        public string RunningPatientName { get; set; } = string.Empty;
+        public string RunningCRNumber { get; set; } = string.Empty;
+        public string RunningToken { get; set; } = string.Empty;
+        public string UpcomingTokenIssueIDP { get; set; } = string.Empty;
+        public string UpcomingPatientName { get; set; } = string.Empty;
+        public string UpcomingCRNumber { get; set; } = string.Empty;
+        public string UpcomingToken { get; set; } = string.Empty;
+    }
 }
