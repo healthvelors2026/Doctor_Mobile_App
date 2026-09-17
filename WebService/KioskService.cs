@@ -1,8 +1,12 @@
 ﻿using DoctorMobileApp.CommonClass;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Data;
 using System.Net;
+using System.Text;
+using System.Text.Json;
 using static DoctorMobileApp.Models.KioskModel;
 
 namespace DoctorMobileApp.WebServices
@@ -15,14 +19,14 @@ namespace DoctorMobileApp.WebServices
         private readonly HttpClient _httpClient;
 
 
-        public KioskService(IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor,HttpClient httpClient)
+        public KioskService(IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
         {
             _dbHelper = db;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _httpClient = httpClient;
         }
-     
+
         public async Task<List<PatientDetail>> GetPatientSearchListAsync(PatientSearchModel searchModel, int hospitalidf)
         {
             var list = new List<PatientDetail>();
@@ -36,8 +40,8 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<PatientDetail>("Kiosk_API_PatientSearch", CommandType.StoredProcedure, patientParams);
             return list;
         }
-        public async Task<List<SkillSetResponseModel>> GetSkillSetListAsync(int hospitalgroupidf,string hospitalCode,string baseUrl,CancellationToken cancellationToken = default)
-            {
+        public async Task<List<SkillSetResponseModel>> GetSkillSetListAsync(int hospitalgroupidf, string hospitalCode, string baseUrl, CancellationToken cancellationToken = default)
+        {
             var skillSetParams = new[]
             {
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
@@ -45,7 +49,7 @@ namespace DoctorMobileApp.WebServices
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var list = await _dbHelper.QueryAsync<SkillSetResponseModel>("API_SP_GetStandardSkillSetList",CommandType.StoredProcedure,skillSetParams);
+            var list = await _dbHelper.QueryAsync<SkillSetResponseModel>("API_SP_GetStandardSkillSetList", CommandType.StoredProcedure, skillSetParams);
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -90,7 +94,7 @@ namespace DoctorMobileApp.WebServices
             return list;
         }
 
-        public async Task<GeneratePatientOTPResponseModel?> GenerateOTPAsync(GeneratePatientOTPRequestModel requestModel,int hospitalidf)
+        public async Task<GeneratePatientOTPResponseModel?> GenerateOTPAsync(GeneratePatientOTPRequestModel requestModel, int hospitalidf)
         {
             var otpParams = new[]
             {
@@ -100,7 +104,7 @@ namespace DoctorMobileApp.WebServices
               new SqlParameter("@HospitalIDF", hospitalidf)
             };
 
-            var results = await _dbHelper.QueryAsync<GeneratePatientOTPResponseModel>("Kiosk_API_GeneratePatientOTP",CommandType.StoredProcedure,otpParams);
+            var results = await _dbHelper.QueryAsync<GeneratePatientOTPResponseModel>("Kiosk_API_GeneratePatientOTP", CommandType.StoredProcedure, otpParams);
             var result = results.FirstOrDefault();
             if (result == null)
             {
@@ -116,7 +120,7 @@ namespace DoctorMobileApp.WebServices
             }
             bool smsSent = false;
             if (System.Diagnostics.Debugger.IsAttached == false)
-                 smsSent = await SendOtpAsync(result.MobileNo,generatedOtp,hospitalidf);
+                smsSent = await SendOtpAsync(result.MobileNo, generatedOtp, hospitalidf);
 
             result.Message = smsSent ? $"OTP sent successfully on {MaskMobileNumber(result.MobileNo)}" : "OTP generated but SMS could not be sent.";
 
@@ -157,7 +161,7 @@ namespace DoctorMobileApp.WebServices
             return list;
         }
         //Pending GetVoucherResultAsync  OPD test have an 2 Output so Modify that 
-        public async Task<SaveOPDTestReceiptResponseModel> SaveOPDTestReceiptAsync(SaveOPDTestReceiptRequestModel model, int userIdf, int hospitalidf)
+        public async Task<SaveOPDTestReceiptResponseModel> SaveOPDTestReceiptAsync(SaveOPDTestReceiptRequestModel model, int userIdf, int hospitalidf, int hospitalgroupidf, string hospitalName, string hospitalCode)
         {
             try
             {
@@ -205,6 +209,142 @@ namespace DoctorMobileApp.WebServices
                    voucherParam, voucherNAParam
                 };
                 await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_OPDTestReceipt_Save", CommandType.StoredProcedure, parameters);
+
+
+                #region WhatsApp Send Message OPD Test Receipt
+                string? _VoucherIDF = Convert.ToString(voucherParam.Value == DBNull.Value ? 0 : voucherParam.Value);
+                string? _CashlessVoucherIDF = Convert.ToString(voucherNAParam.Value == DBNull.Value ? 0 : voucherNAParam.Value);
+                int hospitalIDP = hospitalidf;
+                int hospitalGroupIDP = hospitalgroupidf;
+                var OPDRegistrationIDF = model.OPDRegistrationIDF;
+                //string? _VoucherIDP = Convert.ToString(voucherParam.Value == DBNull.Value ? 0 : voucherParam.Value);
+                string? apiBaseUrl = _configuration["AppSettings:HIMS_WhatsApp_APIBaseURI"];
+                string apiUrl = "";
+                object? value = null;
+
+                bool Result = await IsWhatsAppTemplateAvailableAsync(hospitalCode, 16);
+
+                if (Result == true)
+                {
+                    if (!string.IsNullOrEmpty(_VoucherIDF) && _VoucherIDF != "0")
+                    {
+
+                        // Send WhatsApp message for OPD Test Receipt Cash voucher
+
+                        apiUrl = $"{apiBaseUrl.TrimEnd('/')}/api/WhatsAppOPDRegistrationMessageApi/WhatsAppOPDTestReceipt";
+
+                        value = new
+                        {
+                            Template_Enum = 16,
+                            PatientIDP = model.PatientIDF,
+                            VoucherIDP = _VoucherIDF,
+                            HospitalIDP = hospitalIDP,
+                            HospitalGroupIDP = hospitalGroupIDP,
+                            OPDRegistrationIDP = OPDRegistrationIDF,
+                            HospitalName = hospitalName,
+                            UserIDF = userIdf
+                        };
+
+
+                        try
+                        {
+                            if (value != null)
+                            {
+                                string json = JsonSerializer.Serialize(value);
+
+                                using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+
+                                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                                using var response = await _httpClient.SendAsync(request);
+
+                                string responseText = await response.Content.ReadAsStringAsync();
+
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    // WhatsApp API call successful
+                                    Console.WriteLine($"WhatsApp API Response: {responseText}");
+                                }
+                                else
+                                {
+                                    // WhatsApp API call failed
+                                    Console.WriteLine($"WhatsApp API Error: {response.StatusCode} - {responseText}");
+                                }
+
+                            }
+                            else
+                            {
+
+                                Console.WriteLine("WhatsApp Template not available");
+                            }
+                        }
+
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"WhatsApp API Exception: {ex.Message}");
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(_CashlessVoucherIDF) && _CashlessVoucherIDF != "0")
+                    {
+                        // Send WhatsApp message for OPD Test Receipt Cashless Voucher
+
+                        apiUrl = $"{apiBaseUrl.TrimEnd('/')}/api/WhatsAppOPDRegistrationMessageApi/WhatsAppOPDTestReceipt";
+
+                        value = new
+                        {
+                            Template_Enum = 16,
+                            PatientIDP = model.PatientIDF,
+                            VoucherIDP = _CashlessVoucherIDF,
+                            HospitalIDP = hospitalIDP,
+                            HospitalGroupIDP = hospitalGroupIDP,
+                            OPDRegistrationIDP = OPDRegistrationIDF,
+                            HospitalName = hospitalName,
+                            UserIDF = userIdf
+                        };
+
+
+                        try
+                        {
+                            if (value != null)
+                            {
+                                string json = JsonSerializer.Serialize(value);
+
+                                using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+
+                                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                                using var response = await _httpClient.SendAsync(request);
+
+                                string responseText = await response.Content.ReadAsStringAsync();
+
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    // WhatsApp API call successful
+                                    Console.WriteLine($"WhatsApp API Response: {responseText}");
+                                }
+                                else
+                                {
+                                    // WhatsApp API call failed
+                                    Console.WriteLine($"WhatsApp API Error: {response.StatusCode} - {responseText}");
+                                }
+
+                            }
+                            else
+                            {
+
+                                Console.WriteLine("WhatsApp Template not available");
+                            }
+                        }
+
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"WhatsApp API Exception: {ex.Message}");
+                        }
+                    }
+                }
+                #endregion
+
                 return new SaveOPDTestReceiptResponseModel
                 {
                     VoucherIDP = Convert.ToInt32(voucherParam.Value == DBNull.Value ? 0 : voucherParam.Value),
@@ -252,7 +392,7 @@ namespace DoctorMobileApp.WebServices
             return list;
 
         }
-        public async Task<SaveOPDRegistrationReceiptResponseModel?> SaveAdvanceDepositAsync(AdvanceDepositModel model, int hospitalidf, int fasModeOFPaymentIDF, int userIdf)
+        public async Task<SaveOPDRegistrationReceiptResponseModel?> SaveAdvanceDepositAsync(AdvanceDepositModel model, int hospitalidf, int fasModeOFPaymentIDF, int userIdf, int hospitalgroupidf, string hospitalName, string hospitalCode)
         {
             try
             {
@@ -278,15 +418,15 @@ namespace DoctorMobileApp.WebServices
 
                 if (voucherId <= 0)
                     return null;
-
-                return await GetVoucherResultAsync(voucherId);
+                int _WhatsAppEnum = 1;
+                return await GetVoucherResultAsync(voucherId, _WhatsAppEnum, hospitalidf, hospitalgroupidf, hospitalName, hospitalCode, userIdf, model.PatientIDF);
             }
             catch
             {
                 return null;
             }
         }
-        public async Task<SaveOPDRegistrationReceiptResponseModel?>SaveOPDRegistrationAsync(SaveOPDRegistrationModel model,int userIdf,int hospitalidf)
+        public async Task<SaveOPDRegistrationReceiptResponseModel?> SaveOPDRegistrationAsync(SaveOPDRegistrationModel model, int userIdf, int hospitalidf, int hospitalgroupidf, string hospitalName, string hospitalCode)
         {
             try
             {
@@ -306,32 +446,126 @@ namespace DoctorMobileApp.WebServices
                     new("@IPAdress",string.IsNullOrWhiteSpace(model.IPAdress)? DBNull.Value: model.IPAdress),voucherParam
                 };
 
-                await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_Insert_OPD_Registration",CommandType.StoredProcedure,parameters);
+                await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_Insert_OPD_Registration", CommandType.StoredProcedure, parameters);
 
                 int voucherId = Convert.ToInt32(voucherParam.Value);
 
                 if (voucherId <= 0)
                     return null;
-
-                return await GetVoucherResultAsync(voucherId);
+                int _WhatsAppEnum = 12;
+                return await GetVoucherResultAsync(voucherId, _WhatsAppEnum, hospitalidf, hospitalgroupidf, hospitalName, hospitalCode, userIdf, model.PatientIDF);
             }
             catch
             {
                 return null;
             }
         }
-        private async Task<SaveOPDRegistrationReceiptResponseModel?>GetVoucherResultAsync(int voucherId)
+        private async Task<SaveOPDRegistrationReceiptResponseModel?> GetVoucherResultAsync(int voucherId, int WhatsAppEnum, int hospitalidf, int hospitalgroupidf, string hospitalName, string hospitalCode, int userIdf, int patientIdf)
         {
             var parameters = new SqlParameter[]
             {
                 new SqlParameter("@VoucherIDP", voucherId)
             };
 
-            var results = await _dbHelper.QueryAsync<SaveOPDRegistrationReceiptResponseModel>("Kiosk_API_Get_OPD_Registration_Receipt_Result", CommandType.StoredProcedure,parameters);
+            var results = await _dbHelper.QueryAsync<SaveOPDRegistrationReceiptResponseModel>("Kiosk_API_Get_OPD_Registration_Receipt_Result", CommandType.StoredProcedure, parameters);
+
+
+            #region WhatsApp Send Message 
+
+
+            int hospitalIDP = hospitalidf;
+            int hospitalGroupIDP = hospitalgroupidf;
+            var OPDRegistrationIDF = results.FirstOrDefault()?.OPDRegistrationIDP ?? 0;
+            string? apiBaseUrl = _configuration["AppSettings:HIMS_WhatsApp_APIBaseURI"];
+            string apiUrl = "";
+            object? value = null;
+            if (WhatsAppEnum == 12)
+            {
+                bool Result = await IsWhatsAppTemplateAvailableAsync(hospitalCode, WhatsAppEnum);
+
+                if (Result == true)
+                {
+                    // Send WhatsApp message for OPD Registration
+
+                    apiUrl = $"{apiBaseUrl.TrimEnd('/')}/api/WhatsAppOPDRegistrationMessageApi/WhatsAppNormalOPDRegistration";
+
+                    value = new
+                    {
+                        Template_Enum = WhatsAppEnum,
+                        PatientIDP = patientIdf,
+                        VoucherIDP = voucherId,
+                        HospitalIDP = hospitalIDP,
+                        HospitalGroupIDP = hospitalGroupIDP,
+                        OPDRegistrationIDP = OPDRegistrationIDF,
+                        HospitalName = hospitalName,
+                        UserIDF = userIdf
+                    };
+                }
+            }
+            else if (WhatsAppEnum == 1)
+            {
+                bool Result = await IsWhatsAppTemplateAvailableAsync(hospitalCode, WhatsAppEnum);
+
+                if (Result == true)
+                {
+
+                    // Send WhatsApp message for Advance Receipt
+                    apiUrl = $"{apiBaseUrl.TrimEnd('/')}/api/WhatsAppMessageApi/SendWhatsAppMessage";
+
+                    value = new
+                    {
+                        Template_Enum = WhatsAppEnum,
+                        PatientIDP = patientIdf,
+                        VoucherIDP = voucherId,
+                        HospitalIDP = hospitalIDP,
+                        HospitalGroupIDP = hospitalGroupIDP,
+                        HospitalName = hospitalName,
+                        UserIDF = userIdf
+                    };
+                }
+            }
+            try
+            {
+                if (value != null)
+                {
+                    string json = JsonSerializer.Serialize(value);
+
+                    using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+
+                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    using var response = await _httpClient.SendAsync(request);
+
+                    string responseText = await response.Content.ReadAsStringAsync();
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // WhatsApp API call successful
+                        Console.WriteLine($"WhatsApp API Response: {responseText}");
+                    }
+                    else
+                    {
+                        // WhatsApp API call failed
+                        Console.WriteLine($"WhatsApp API Error: {response.StatusCode} - {responseText}");
+                    }
+
+                }
+                else
+                {
+
+                    Console.WriteLine("WhatsApp Template not available");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"WhatsApp API Exception: {ex.Message}");
+            }
+
+            #endregion
 
             return results.FirstOrDefault();
         }
-        private async Task<bool> SendOtpAsync(string mobileNo,string otp,int hospitalidf)
+        private async Task<bool> SendOtpAsync(string mobileNo, string otp, int hospitalidf)
         {
 
             string? smsUrl = _configuration["AppSettings:SMSUrl"];
@@ -353,7 +587,7 @@ namespace DoctorMobileApp.WebServices
                   INNER JOIN tbSMSConfigurationDetail
                       ON SMSConfigurationIDP = SMSConfigurationIDF
                   WHERE ConfigureType = 86
-                    AND HospitalIDF = @HospitalIDF",CommandType.Text,configurationParameters);
+                    AND HospitalIDF = @HospitalIDF", CommandType.Text, configurationParameters);
 
                 var databaseConfiguration = configurations.FirstOrDefault();
 
@@ -365,7 +599,7 @@ namespace DoctorMobileApp.WebServices
             }
             catch (Exception ex)
             {
-                _dbHelper.LogError(ex,"GetSmsConfiguration",new[]{new SqlParameter("@HospitalIDF", hospitalidf)});
+                _dbHelper.LogError(ex, "GetSmsConfiguration", new[] { new SqlParameter("@HospitalIDF", hospitalidf) });
             }
 
             if (string.IsNullOrWhiteSpace(smsUrl) || string.IsNullOrWhiteSpace(smsTemplate))
@@ -380,18 +614,18 @@ namespace DoctorMobileApp.WebServices
                 string encodedMessage = Uri.EscapeDataString(smsMessage);
                 string requestUrl = smsUrl
                     .Replace("&amp;", "&", StringComparison.OrdinalIgnoreCase)
-                    .Replace("'@YourMobNo'",correctedMobileNumber,StringComparison.Ordinal)
-                    .Replace("'@YourMessage'",encodedMessage,StringComparison.Ordinal)
-                    .Replace("@YourMobNo",correctedMobileNumber,StringComparison.Ordinal)
-                    .Replace("@YourMessage",encodedMessage,StringComparison.Ordinal);
+                    .Replace("'@YourMobNo'", correctedMobileNumber, StringComparison.Ordinal)
+                    .Replace("'@YourMessage'", encodedMessage, StringComparison.Ordinal)
+                    .Replace("@YourMobNo", correctedMobileNumber, StringComparison.Ordinal)
+                    .Replace("@YourMessage", encodedMessage, StringComparison.Ordinal);
 
                 using HttpResponseMessage response = await _httpClient.GetAsync(requestUrl);
 
-                return  response.IsSuccessStatusCode;
+                return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
             {
-                _dbHelper.LogError(ex,nameof(SendOtpAsync),new[]
+                _dbHelper.LogError(ex, nameof(SendOtpAsync), new[]
                 {
                     new SqlParameter("@HospitalIDF", hospitalidf)
                 });
@@ -401,7 +635,7 @@ namespace DoctorMobileApp.WebServices
         private static string MaskMobileNumber(string mobileNo)
         {
             string correctedMobileNumber = mobileNo.Replace("+91", string.Empty, StringComparison.Ordinal).Trim();
-            string lastFourDigits = correctedMobileNumber.Length > 4 ? correctedMobileNumber[^4..]: correctedMobileNumber;
+            string lastFourDigits = correctedMobileNumber.Length > 4 ? correctedMobileNumber[^4..] : correctedMobileNumber;
 
             return $"XXXXXX{lastFourDigits}";
         }
@@ -409,6 +643,53 @@ namespace DoctorMobileApp.WebServices
         {
             public string? URL { get; set; }
             public string? SMSText { get; set; }
+        }
+
+        private async Task<bool> IsWhatsAppTemplateAvailableAsync(string hospitalCode = "", int templateEnum = 0)
+        {
+            try
+            {
+                string query = @"
+            SELECT
+                CASE
+                    WHEN EXISTS
+                    (
+                        SELECT 1
+                        FROM tbWhatsAppTemplateDetail
+                        WHERE TemplateIDF =
+                        (
+                            SELECT TemplateIDP
+                            FROM tbWhatsAppTemplateMaster
+                            WHERE TemplateEnum = @TemplateEnum
+                              AND HospitalIDF =
+                              (
+                                  SELECT HospitalIDF
+                                  FROM tbHospitalMaster
+                                  WHERE HospitalCode = @HospitalCode
+                              )
+                        )
+                    )
+                    THEN 1
+                    ELSE 0
+                END AS IsAvailable";
+
+                var parameters = new SqlParameter[]
+                {
+                     new SqlParameter("@TemplateEnum", SqlDbType.Int){ Value = templateEnum },
+
+                     new SqlParameter("@HospitalCode", SqlDbType.VarChar){ Value = hospitalCode ?? string.Empty }
+                };
+
+
+                var result = await _dbHelper.QueryAsync<WhatsAppTemplateAvailability>(query, CommandType.Text, parameters);
+
+                return result.FirstOrDefault()?.IsAvailable == 1;
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

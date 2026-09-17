@@ -195,5 +195,9 @@ namespace DoctorMobileApp.Models
             public int TokenNumber { get; set; }
             public int RoomNumber { get; set; }
         }
+        public class WhatsAppTemplateAvailability
+        {
+            public int IsAvailable { get; set; }
+        }
     }
 }
