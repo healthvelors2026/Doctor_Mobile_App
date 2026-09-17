@@ -273,7 +273,7 @@ namespace DoctorMobileApp.Controllers
                     Message = "Invalid Request"
                 });
             }
-            var result = await _kioskService.SaveAdvanceDepositAsync(depositmodel, hospitalidf, fasModeOFPaymentIDF, userIdf);
+            //var result = await _kioskService.SaveAdvanceDepositAsync(depositmodel, hospitalidf, fasModeOFPaymentIDF, userIdf);
 
             var result = await _kioskService.SaveAdvanceDepositAsync(depositmodel, hospitalidf, fasModeOFPaymentIDF, userIdf, hospitalgroupidf, HospitalName, hospitalCode);
             if (result == null || result.VoucherIDP <= 0)

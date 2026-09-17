@@ -19,6 +19,12 @@ builder.Services.AddHttpClient();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "HIMS Doctor & Kiosk API",
+        Version = "v1",
+        Description = "API services for HIMS Doctor Mobile Application and Patient Kiosk Software"
+    });
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
