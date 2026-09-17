@@ -58,3 +58,9 @@ appsettings.json
 *.suo
 *.userosscache
 *.sln.docstates
+
+# Generated Reports
+Reports/
+
+# Report Generation API
+/../ReportGenerationAPI/
