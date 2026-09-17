@@ -56,40 +56,7 @@ namespace DoctorMobileApp.WebServices
 
             foreach (var item in list)
             {
-                if (string.IsNullOrWhiteSpace(item.IconPath) || string.IsNullOrWhiteSpace(hospitalCode) || string.IsNullOrWhiteSpace(baseUrl))
-                {
-                    item.IconPath = null;
-                    continue;
-                }
-
-                string fileName;
-                try
-                {
-                    fileName = Path.GetFileName(item.IconPath);
-                }
-                catch (ArgumentException)
-                {
-                    item.IconPath = null;
-                    continue;
-                }
-
-                string extension = Path.GetExtension(fileName);
-                string nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
-
-                bool hasSupportedExtension =
-                    extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                    extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                    extension.Equals(".png", StringComparison.OrdinalIgnoreCase) ||
-                    extension.Equals(".gif", StringComparison.OrdinalIgnoreCase);
-
-                bool hasValidFileName =
-                    !string.IsNullOrWhiteSpace(nameWithoutExtension) &&
-                    nameWithoutExtension.All(character =>
-                        char.IsLetterOrDigit(character) || character == '_' || character == '-');
-
-                item.IconPath = hasSupportedExtension && hasValidFileName
-                    ? $"{baseUrl.TrimEnd('/')}/{hospitalCode}/MobileApp/DoctorSkillset/{fileName}"
-                    : null;
+                item.IconPath = BuildImageUrl(baseUrl, hospitalCode, "MobileApp/DoctorSkillset", item.IconPath);
             }
 
             return list;
@@ -249,6 +216,7 @@ namespace DoctorMobileApp.WebServices
         public async Task<List<DoctorResponseModel>> GetDoctorListAsync(DoctorRequestModel requestModel, int hospitalidf, string hospitalCode, string baseUrl)
         {
             var list = new List<DoctorResponseModel>();
+
             var doctorParams = new[]
             {
                 new SqlParameter("@HospitalID", hospitalidf),
@@ -256,6 +224,25 @@ namespace DoctorMobileApp.WebServices
                 new SqlParameter("@PatientID", requestModel.PatientID)
             };
             list = await _dbHelper.QueryAsync<DoctorResponseModel>("KIOSK_API_GetSkillSetWise_Doctor", CommandType.StoredProcedure, doctorParams);
+
+            if (!string.IsNullOrWhiteSpace(hospitalCode) && !string.IsNullOrWhiteSpace(baseUrl))
+            {
+                string folderPath = Path.Combine(@"D:\", hospitalCode, "Kiosk", "EmployeePhoto");
+                foreach (var doctor in list)
+                {
+                    doctor.Photo = null;
+                    if (Directory.Exists(folderPath))
+                    {
+                        var match = Directory.GetFiles(folderPath, doctor.EmployeeIDP + ".*")
+                            .FirstOrDefault(f => AllowedImageExtensions.Contains(Path.GetExtension(f), StringComparer.OrdinalIgnoreCase));
+                        if (match != null)
+                        {
+                            doctor.Photo = $"{baseUrl.TrimEnd('/')}/{hospitalCode}/Kiosk/EmployeePhoto/{Path.GetFileName(match)}";
+                        }
+                    }
+                }
+            }
+
             return list;
         }
         public async Task<List<PatientLatestAppointmentResponseModel>> GetLatestPatientAppointmentDetailAsync(PatientLatestAppointmentRequestModel requestModel, int hospitalidf)
@@ -340,6 +327,7 @@ namespace DoctorMobileApp.WebServices
         public async Task<List<HealthCardActivePatientResponseModel>> GetHealthCardActivePatientListAsync(HealthCardActivePatientRequestModel requestModel, int hospitalidf)
         {
             var HCAPatientlist = new List<HealthCardActivePatientResponseModel>();
+
             var HCAPParam = new[]
             {
                 new SqlParameter("@PatientID" , requestModel.PatientID),
@@ -352,25 +340,12 @@ namespace DoctorMobileApp.WebServices
         public async Task<List<KioskBannerResponseModel>> GetActiveKioskBannersAsync(int hospitalidf, string hospitalCode, string baseUrl)
         {
             var parameters = new[] { new SqlParameter("@HospitalIDP", hospitalidf) };
+
             var list = await _dbHelper.QueryAsync<KioskBannerResponseModel>("Kiosk_API_GetActiveKioskBanners_GetList", CommandType.StoredProcedure, parameters);
 
             foreach (var item in list)
             {
-                if (string.IsNullOrWhiteSpace(item.KioskBannerPath) || string.IsNullOrWhiteSpace(hospitalCode) || string.IsNullOrWhiteSpace(baseUrl))
-                {
-                    item.BannerImageUrl = null;
-                    continue;
-                }
-                string fileName = Path.GetFileName(item.KioskBannerPath);
-                string extension = Path.GetExtension(fileName);
-
-                bool validExtension =
-                    extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                    extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                    extension.Equals(".png", StringComparison.OrdinalIgnoreCase) ||
-                    extension.Equals(".gif", StringComparison.OrdinalIgnoreCase);
-
-                item.BannerImageUrl = validExtension ? $"{baseUrl.TrimEnd('/')}/{hospitalCode}/Kiosk/KioskBanners/{fileName}" : null;
+                item.BannerImageUrl = BuildImageUrl(baseUrl, hospitalCode, "Kiosk/KioskBanners", item.KioskBannerPath);
             }
             return list;
         }
@@ -454,11 +429,28 @@ namespace DoctorMobileApp.WebServices
 
             return $"XXXXXX{lastFourDigits}";
         }
-        //private sealed class SmsConfigurationModel
-        //{
-        //    public string? URL { get; set; }
-        //    public string? SMSText { get; set; }
-        //}
+        private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+
+        private static string? BuildImageUrl(string baseUrl, string hospitalCode, string folderPath, string? storedPath)
+        {
+            if (string.IsNullOrWhiteSpace(storedPath) || string.IsNullOrWhiteSpace(hospitalCode) || string.IsNullOrWhiteSpace(baseUrl))
+                return null;
+
+            string fileName;
+            try { fileName = Path.GetFileName(storedPath); }
+            catch (ArgumentException) { return null; }
+
+            string extension = Path.GetExtension(fileName);
+            string nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+
+            bool hasSupportedExtension = AllowedImageExtensions.Any(e => e.Equals(extension, StringComparison.OrdinalIgnoreCase));
+            bool hasValidFileName = !string.IsNullOrWhiteSpace(nameWithoutExtension) &&
+                nameWithoutExtension.All(c => char.IsLetterOrDigit(c) || c == '_' || c == '-');
+
+            return hasSupportedExtension && hasValidFileName
+                ? $"{baseUrl.TrimEnd('/')}/{hospitalCode}/{folderPath}/{fileName}"
+                : null;
+        }
 
         #region PDF Prints
 

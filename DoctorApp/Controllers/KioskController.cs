@@ -436,6 +436,92 @@ namespace DoctorMobileApp.Controllers
                 Data = banners
             });
         }
+
+        #region PDF Prints
+        [HttpPost]
+        [Route("get-opd-receipt")]
+        public async Task<IActionResult> GetOPDReceipt([FromBody] OPDReceiptRequestModel requestModel)
+        {
+            var opdReceipt = await _kioskService.GetOPDReceiptAsync(requestModel.VoucherID, hospitalidf);
+            if (opdReceipt == null)
+            {
+                return NotFound(new
+                {
+                    Status = false,
+                    Message = "Record Not Found"
+                });
+            }
+            return Ok(new
+            {
+                Status = true,
+                Message = "Success",
+                Data = opdReceipt.OPDReceiptPDFPath
+            });
+        }
+
+        [HttpPost]
+        [Route("get-opd-test-receipt-print")]
+        public async Task<IActionResult> GetOPDTestReceipt([FromBody] OPDReceiptRequestModel requestModel)
+        {
+            var opdReceipt = await _kioskService.GetOPDTestReceiptAsync(requestModel.VoucherID, hospitalidf);
+            if (opdReceipt == null)
+            {
+                return NotFound(new
+                {
+                    Status = false,
+                    Message = "Record Not Found"
+                });
+            }
+            return Ok(new
+            {
+                Status = true,
+                Message = "Success",
+                Data = opdReceipt.OPDTestReceiptPDFPath
+            });
+        }
+
+        [HttpPost]
+        [Route("get-advance-receipt-print")]
+        public async Task<IActionResult> GetAdvanceReceipt([FromBody] AdvanceReceiptRequestModel requestModel)
+        {
+            var opdReceipt = await _kioskService.GetAdvanceReceiptAsync(requestModel.VoucherID, requestModel.VoucherNumber, hospitalidf);
+            if (opdReceipt == null)
+            {
+                return NotFound(new
+                {
+                    Status = false,
+                    Message = "Record Not Found"
+                });
+            }
+            return Ok(new
+            {
+                Status = true,
+                Message = "Success",
+                Data = opdReceipt.AdvanceReceiptPDFPath
+            });
+        }
+
+        [HttpPost]
+        [Route("get-pathology-report-print")]
+        public async Task<IActionResult> GetPathologyReportPrint([FromBody] PathologyReportPrintRequestModel requestModel)
+        {
+            var pathologyReport = await _kioskService.GetPathologyReportAsync(requestModel.PathoRegistrationIDs, requestModel.CrNumber, hospitalidf);
+            if (pathologyReport == null)
+            {
+                return NotFound(new
+                {
+                    Status = false,
+                    Message = "Record Not Found"
+                });
+            }
+            return Ok(new
+            {
+                Status = true,
+                Message = "Success",
+                Data = pathologyReport.PathologyReportPDFPath
+            });
+        }
+        #endregion
     }
 }
 
