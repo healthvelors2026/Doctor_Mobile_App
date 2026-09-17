@@ -128,7 +128,7 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<OPDTestReceiptResponseModel>("Kiosk_API_OPDTestReceipt_GetList", CommandType.StoredProcedure, OPDParams);
             return list;
         }
-        public async Task<SaveOPDTestReceiptResponseModel> SaveOPDTestReceiptAsync(SaveOPDTestReceiptRequestModel model, int userIdf, int hospitalidf)
+        public async Task<SaveOPDTestReceiptResponseModel> SaveOPDTestReceiptAsync(SaveOPDTestReceiptRequestModel model, int userIdf, int hospitalidf, int hospitalgroupidf, string HospitalName, string hospitalCode)
         {
             try
             {
@@ -257,7 +257,7 @@ namespace DoctorMobileApp.WebServices
             return list;
 
         }
-        public async Task<SaveOPDRegistrationReceiptResponseModel?> SaveAdvanceDepositAsync(AdvanceDepositModel model, int hospitalidf, int fasModeOFPaymentIDF, int userIdf)
+        public async Task<SaveOPDRegistrationReceiptResponseModel?> SaveAdvanceDepositAsync(AdvanceDepositModel model, int hospitalidf, int fasModeOFPaymentIDF, int userIdf, int hospitalgroupidf, string HospitalName, string hospitalCode)
         {
             try
             {
@@ -291,7 +291,7 @@ namespace DoctorMobileApp.WebServices
                 return null;
             }
         }
-        public async Task<SaveOPDRegistrationReceiptResponseModel?> SaveOPDRegistrationAsync(SaveOPDRegistrationModel model, int userIdf, int hospitalidf)
+        public async Task<SaveOPDRegistrationReceiptResponseModel?> SaveOPDRegistrationAsync(SaveOPDRegistrationModel model, int userIdf, int hospitalidf, int hospitalgroupidf, string HospitalName, string hospitalCode)
         {
             try
             {
