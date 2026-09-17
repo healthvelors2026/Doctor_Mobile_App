@@ -31,6 +31,8 @@ namespace DoctorMobileApp.Controllers
         private int userIdf => int.TryParse(User.FindFirst("UserIdf")?.Value, out var id) ? id : 0;
         private int fasModeOFPaymentIDF => int.TryParse(User.FindFirst("FASModeOFPaymentIDF")?.Value, out var id) ? id : 0;
         public KioskController(IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient, IWebHostEnvironment environment)
+        private string HospitalName => User.FindFirst("HospitalName")?.Value ?? string.Empty;
+        public KioskController( IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
         {
             // _kioskService = kioskService;
             _db = db;
@@ -175,7 +177,7 @@ namespace DoctorMobileApp.Controllers
                     Message = "Invalid Request"
                 });
             }
-            var receipt = await _kioskService.SaveOPDTestReceiptAsync(receiptModel, userIdf, hospitalidf);
+            var receipt = await _kioskService.SaveOPDTestReceiptAsync(receiptModel, userIdf, hospitalidf, hospitalgroupidf, HospitalName, hospitalCode);
 
             if (receipt == null || (receipt.VoucherIDP <= 0 && receipt.VoucherIDP_NA <= 0))
             {
@@ -272,6 +274,7 @@ namespace DoctorMobileApp.Controllers
             }
             var result = await _kioskService.SaveAdvanceDepositAsync(depositmodel, hospitalidf, fasModeOFPaymentIDF, userIdf);
 
+            var result = await _kioskService.SaveAdvanceDepositAsync(depositmodel, hospitalidf, fasModeOFPaymentIDF, userIdf, hospitalgroupidf, HospitalName, hospitalCode);
             if (result == null || result.VoucherIDP <= 0)
             {
                 return BadRequest(new
@@ -307,7 +310,7 @@ namespace DoctorMobileApp.Controllers
                 });
             }
 
-            var result = await _kioskService.SaveOPDRegistrationAsync(receiptModel, userIdf, hospitalidf);
+            var result = await _kioskService.SaveOPDRegistrationAsync(receiptModel, userIdf, hospitalidf, hospitalgroupidf, HospitalName, hospitalCode);
 
             if (result == null || result.VoucherIDP <= 0)
             {
