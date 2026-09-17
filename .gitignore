@@ -51,3 +51,10 @@ docs/
 Logs/
 appsettings.json
 /Logs/error_log.txt
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates

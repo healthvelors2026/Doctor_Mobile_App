@@ -1,0 +1,33 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=43.248.56.39,807;Database=dbHIMSGRP_MMPJ_MobileApp_Shyam_Demo;user id=sa;password=hv@123;TrustServerCertificate=True"
+  },
+  "AppSettings": {
+    "LogPath": "Logs/error_log.txt",
+    "SMSUrl": "",
+    "SMSTemplate": "",
+    "HIMS_WhatsApp_APIBaseURI": "http://localhost:57753"
+  },
+  "Jwt": {
+    "Key": "ThisIsMySuperSecretKey1234567890",
+    "Issuer": "MyApi",
+    "Audience": "MyApiUsers",
+    "DurationInMinutes": 60,
+    "WarningMinutes": 50
+  },
+  "TokenDisplayBridge": {
+    "Url": "",
+    "ApiKey": ""
+  }
+}
+
+
+ //"SMSUrl": "https://api.spicksms.com/index.php/sms/urlsms?sender=DHRSMS&response=Y&apikey=fce2b5-504ed2-26b3fd-9a36be-68cc2f&messagetype=TXT&numbers=@YourMobNo&message=@YourMessage",
+ //   "SMSTemplate": "Your OTP number is 'OTP '. For Dr.Hedgewar Rugnalaya Application Login. -DHR"
