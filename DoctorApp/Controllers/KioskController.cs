@@ -30,9 +30,10 @@ namespace DoctorMobileApp.Controllers
         private string hospitalCode => User.FindFirst("HospitalCode")?.Value ?? string.Empty;
         private int userIdf => int.TryParse(User.FindFirst("UserIdf")?.Value, out var id) ? id : 0;
         private int fasModeOFPaymentIDF => int.TryParse(User.FindFirst("FASModeOFPaymentIDF")?.Value, out var id) ? id : 0;
-        public KioskController(IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient, IWebHostEnvironment environment)
+       //public KioskController(IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient, IWebHostEnvironment environment)
         private string HospitalName => User.FindFirst("HospitalName")?.Value ?? string.Empty;
-        public KioskController( IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
+        public KioskController(IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient, IWebHostEnvironment environment)
+
         {
             // _kioskService = kioskService;
             _db = db;
