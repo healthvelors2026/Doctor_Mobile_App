@@ -1,0 +1,66 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+bin/
+obj/
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# NuGet
+*.nupkg
+packages/
+!packages/build/
+
+# Logs
+*.log
+
+# Test Results
+TestResults/
+
+# Publish output
+publish/
+
+# Azure
+*.PublishSettings
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# OS files
+.DS_Store
+
+# Visual Studio publish profiles (user-specific)
+*.pubxml.user
+SQL/
+docs/
+
+Logs/
+appsettings.json
+/Logs/error_log.txt
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Generated Reports
+Reports/
+
+# Report Generation API
+/../ReportGenerationAPI/
