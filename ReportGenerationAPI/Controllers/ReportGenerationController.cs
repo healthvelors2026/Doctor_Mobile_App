@@ -770,7 +770,7 @@ namespace ReportGenerationAPI.Controllers
                 SetFormulaField(rdVoucher, "DispatchApplicable", Convert.ToInt32(request.SampleCollection).ToString());
                 SetFormulaField(rdVoucher, "DoneByApplicable", Convert.ToInt32(request.SampleCollection).ToString());
                 rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = "1";
-                string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + request.ImagePath + "\\" + "ReceiptHeader.png";
+                string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + "\\" + request.ImagePath + "\\" + "ReceiptHeader.png";
                 SetFormulaField(rdVoucher, "ImagePath", receiptHeaderImagePath);
 
                 rdVoucher.DataDefinition.FormulaFields["ReportDigitalInstrument"].Text = "";

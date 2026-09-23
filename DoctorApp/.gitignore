@@ -49,7 +49,6 @@ SQL/
 docs/
 
 Logs/
-appsettings.json
 /Logs/error_log.txt
 
 # Visual Studio
@@ -58,3 +57,4 @@ appsettings.json
 *.suo
 *.userosscache
 *.sln.docstates
+Reports
