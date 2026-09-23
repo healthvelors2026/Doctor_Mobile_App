@@ -1059,7 +1059,7 @@ namespace DoctorMobileApp.WebServices
                     CrNumber = Convert.ToString(receiptModel.CrNumber),
                     UserName = "",
                     HospitalCode = hospConfig.HospitalCode,
-                    IPAddress = "",
+                    IPAddress = _configuration["AppSettings:IPReceiptHeader"] ?? string.Empty,
                     ImagePath = _configuration["AppSettings:ReceiptHeader"] ?? string.Empty,
                     OutputFolderPath = outputFolderPath
                 };
