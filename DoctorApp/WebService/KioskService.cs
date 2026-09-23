@@ -605,7 +605,7 @@ namespace DoctorMobileApp.WebServices
                     RefVouNo = Convert.ToString(formulaModel?.RefVouNo),
                     RefVouAmt = Convert.ToString(formulaModel?.RefVouAmt),
                     HospitalCode = Convert.ToString(formulaModel?.HospitalCode),
-                    IPAddress = "",
+                    IPAddress = _configuration["AppSettings:IPReceiptHeader"] ?? string.Empty,
                     ImagePath = _configuration["AppSettings:ReceiptHeader"] ?? string.Empty,
                     OutputFolderPath = outputFolderPath
                 };
@@ -773,7 +773,7 @@ namespace DoctorMobileApp.WebServices
                     RefVouNo = Convert.ToString(formulaModel?.RefVouNo),
                     RefVouAmt = Convert.ToString(formulaModel?.RefVouAmt),
                     HospitalCode = Convert.ToString(formulaModel?.HospitalCode),
-                    IPAddress = "",
+                    IPAddress = _configuration["AppSettings:IPReceiptHeader"] ?? string.Empty,
                     ImagePath = _configuration["AppSettings:ReceiptHeader"] ?? string.Empty,
                     OutputFolderPath = outputFolderPath
                 };
@@ -934,7 +934,7 @@ namespace DoctorMobileApp.WebServices
                     CrNumber = Convert.ToString(receiptModel.CrNumber),
                     UserName = Convert.ToString(formulaModel?.UserName),
                     HospitalCode = Convert.ToString(formulaModel?.HospitalCode),
-                    IPAddress = "",
+                    IPAddress = _configuration["AppSettings:IPReceiptHeader"] ?? string.Empty,
                     ImagePath = _configuration["AppSettings:ReceiptHeader"] ?? string.Empty,
                     OutputFolderPath = outputFolderPath
                 };
