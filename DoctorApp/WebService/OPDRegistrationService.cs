@@ -19,7 +19,6 @@ namespace DoctorMobileApp.WebService
         }
         public async Task<OPDRegistration?> GetOPDRegistrationDetailsAsync(OPDRegistrationDetailsRequest request, int hospitalidf, int hospitalgroupidf)
         {
-            //// Get OPD Registration Details With Test Details
             var parameters = new SqlParameter[]
             {
                 new SqlParameter("@RegistrationCode", request.RegistrationCode),
@@ -78,6 +77,7 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
             };
             var result = await _dbHelper.QueryAsync<SaveOPDEntryWithTestResponse>("API_SP_InsertUpdateOPDEntryWithTest", CommandType.StoredProcedure, parameters);
+            
             return result.FirstOrDefault();
         }
         private static DataTable CreateTestServiceDataTable(IEnumerable<InvestigationTestReport> list, int nonCashLess, bool classForReimbursement)
@@ -127,7 +127,6 @@ namespace DoctorMobileApp.WebService
         {
             return nonCashLess != 2 || classForReimbursement || na == 1;
         }
-
         public async Task<List<DoctorOPDEntryTokenList>> GetDoctorOPDEntryTokenListAsync(int doctorIdf)
         {
             var parameters = new SqlParameter[]
@@ -137,17 +136,14 @@ namespace DoctorMobileApp.WebService
             return await _dbHelper.QueryAsync<DoctorOPDEntryTokenList>(
                 "API_Sp_GetDoctorOPDEntryTokenList_WithStatus", CommandType.StoredProcedure, parameters);
         }
-
         public async Task<List<ConsultingRoom>> GetConsultingRoomListAsync(int hospitalidf)
         {
             var parameters = new SqlParameter[]
             {
                 new SqlParameter("@HospitalIDF", hospitalidf)
             };
-            return await _dbHelper.QueryAsync<ConsultingRoom>(
-                "API_Sp_GetConsultingRoomList", CommandType.StoredProcedure, parameters);
+            return await _dbHelper.QueryAsync<ConsultingRoom>("API_Sp_GetConsultingRoomList", CommandType.StoredProcedure, parameters);
         }
-
         public async Task<InsertTokenDisplayResult> InsertTokenDisplayAsync(InsertTokenDisplayRequest request, bool isDirectSelection, CancellationToken cancellationToken = default)
         {
             var parameters = new SqlParameter[]
@@ -157,18 +153,16 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@DoctorIDF", request.DoctorIDF),
                 new SqlParameter("@IsDirectSelection", isDirectSelection)
             };
-            var rows = await _dbHelper.QueryAsync<InsertTokenDisplayResult>(
-                "API_Sp_InsertTokenDisplay", CommandType.StoredProcedure, parameters);
+            var rows = await _dbHelper.QueryAsync<InsertTokenDisplayResult>("API_Sp_InsertTokenDisplay", CommandType.StoredProcedure, parameters);
             var result = rows.FirstOrDefault() ?? new InsertTokenDisplayResult { IsInserted = 0, Message = "No result returned" };
             if (isDirectSelection)
             {
                 await _tokenDisplayBroadcast.BroadcastOPDEntryTokenAsync(request.RoomIDF, request.TokenIDF, request.DoctorIDF, isDirectSelection, null, cancellationToken); // clicked token -> update Upcoming cell
                 return result;
             }
-
             if (result.IsInserted == 1)
             {
-                if (result.IsPromotion) // true only when a promote happened - one click changed two cells
+                if (result.IsPromotion) 
                 {
                     var promotedCRNumber = await GetPatientCRNumberAsync(result.PromotedTokenIDF);
                     var clickedCRNumber = await GetPatientCRNumberAsync(request.TokenIDF);
@@ -178,6 +172,7 @@ namespace DoctorMobileApp.WebService
                 else
                 {
                     var crNumber = await GetPatientCRNumberAsync(request.TokenIDF);
+                    
                     await _tokenDisplayBroadcast.BroadcastOPDEntryTokenAsync(request.RoomIDF, request.TokenIDF, request.DoctorIDF, result.IsUpcomingToken, crNumber, cancellationToken);
                 }
             }
@@ -215,8 +210,8 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@RoomIDF", request.RoomIDF),
                 new SqlParameter("@DoctorIDF", request.DoctorIDF)
             };
-            var rows = await _dbHelper.QueryAsync<RunningAndUpcomingTokenResponse>(
-                "API_Sp_OPDGetRunningAndUpcomingToken", CommandType.StoredProcedure, parameters);
+            var rows = await _dbHelper.QueryAsync<RunningAndUpcomingTokenResponse>("API_Sp_OPDGetRunningAndUpcomingToken", CommandType.StoredProcedure, parameters);
+            
             return rows.FirstOrDefault();
         }
     }

@@ -228,7 +228,7 @@ namespace DoctorMobileApp.Models
             public string? Status { get; set; }
         }
         // Get from HIMS 
-        public class KioskBannerImageUploadModel
+        public class ImageUploadModel
         {
             public string? FileName { get; set; }
             public string? FileBase64 { get; set; }

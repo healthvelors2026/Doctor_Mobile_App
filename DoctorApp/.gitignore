@@ -57,4 +57,9 @@ Logs/
 *.suo
 *.userosscache
 *.sln.docstates
-Reports
+
+# Generated Reports
+Reports/
+
+# Report Generation API
+/../ReportGenerationAPI/
