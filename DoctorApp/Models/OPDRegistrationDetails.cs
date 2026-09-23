@@ -1,5 +1,6 @@
 ﻿namespace DoctorMobileApp.Models
 {
+    // Add
     public class OPDRegistration
     {
         public OPDRegistrationDetails OPDRegistrationDetails { get; set; } = new OPDRegistrationDetails();
