@@ -112,7 +112,7 @@ namespace ReportGenerationAPI.Controllers
                 SetFormulaField(rdVoucher, "RefVouNo", request.RefVouNo);
                 SetFormulaField(rdVoucher, "RefVouAmt", request.RefVouAmt);
                 rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = "1";
-                string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + request.ImagePath + "\\" + "ReceiptHeader.png";
+                string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + "\\" + request.ImagePath + "\\" + "ReceiptHeader.png";
                 SetFormulaField(rdVoucher, "ImagePath", receiptHeaderImagePath);
                 #endregion
 
@@ -293,7 +293,7 @@ namespace ReportGenerationAPI.Controllers
                 SetFormulaField(rdVoucher, "Original", "0");
                 SetFormulaField(rdVoucher, "PatientSearch", "CRNumber");
                 SetFormulaField(rdVoucher, "CompanyNo", "Company No");
-                string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + request.ImagePath + "\\" + "ReceiptHeader.png";
+                string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + "\\" + request.ImagePath + "\\" + "ReceiptHeader.png";
                 SetFormulaField(rdVoucher, "ImagePath", receiptHeaderImagePath);
                 rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = "1";
                 rdVoucher.DataDefinition.FormulaFields["PatientPhoto"].Text = "";
@@ -442,7 +442,7 @@ namespace ReportGenerationAPI.Controllers
                 SetFormulaField(rdVoucher, "RefVouNo", request.RefVouNo);
                 SetFormulaField(rdVoucher, "RefVouAmt", request.RefVouAmt);
                 rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = "1";
-                string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + request.ImagePath + "\\" + "ReceiptHeader.png";
+                string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + "\\" + request.ImagePath + "\\" + "ReceiptHeader.png";
                 SetFormulaField(rdVoucher, "ImagePath", receiptHeaderImagePath);
                 #endregion
 
@@ -610,7 +610,7 @@ namespace ReportGenerationAPI.Controllers
                 SetFormulaField(rdVoucher, "PatientSearch", "CRNumber");
 
                 rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = "1";
-                string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + request.ImagePath + "\\" + "ReceiptHeader.png";
+                string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + "\\" + request.ImagePath + "\\" + "ReceiptHeader.png";
                 SetFormulaField(rdVoucher, "ImagePath", receiptHeaderImagePath);
 
                 SetFormulaField(rdVoucher, "ReportInstruction", "");
