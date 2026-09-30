@@ -60,3 +60,4 @@ appsettings.json
 *.sln.docstates
 /DoctorApp/appsettings.json.bak
 /DoctorApp/appsettings.json.bak
+/ReportGenerationAPI/Properties/PublishProfiles
