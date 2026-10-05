@@ -61,3 +61,5 @@ appsettings.json
 /DoctorApp/appsettings.json.bak
 /DoctorApp/appsettings.json.bak
 /ReportGenerationAPI/Properties/PublishProfiles
+/DoctorApp.rar
+/.gitignore
