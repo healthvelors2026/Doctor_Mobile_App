@@ -8,6 +8,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 
 namespace ReportGenerationAPI.Controllers
@@ -97,7 +98,8 @@ namespace ReportGenerationAPI.Controllers
                 rdVoucher.SetParameterValue("@a_lng_HospitalIDF", request.HospitalID);
                 rdVoucher.SetParameterValue("@a_lng_OPDRegistrationIDP", request.OPDRegistrationID);
                 rdVoucher.SetParameterValue("@a_lng_VoucherIDP", request.VoucherId);
-                rdVoucher.SetParameterValue("@a_int_IsRefund", Convert.ToInt32(request.IsRefund));
+                //rdVoucher.SetParameterValue("@a_int_IsRefund", Convert.ToInt32(request.IsRefund));
+                rdVoucher.SetParameterValue("@a_int_IsRefund", 0);
                 #endregion
 
                 #region Formula Fields
@@ -114,6 +116,10 @@ namespace ReportGenerationAPI.Controllers
                 rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = "1";
                 string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + "\\" + request.ImagePath + "\\" + "ReceiptHeader.png";
                 SetFormulaField(rdVoucher, "ImagePath", receiptHeaderImagePath);
+
+                //rdVoucher.DataDefinition.FormulaFields["ShowDemo"].Text = "'false'";
+                rdVoucher.DataDefinition.FormulaFields["ShowDuplicate"].Text = "0";
+                //WriteLog(receiptHeaderImagePath);
                 #endregion
 
                 #region Database Connection
@@ -233,6 +239,36 @@ namespace ReportGenerationAPI.Controllers
             }
 
             return Ok(response);
+        }
+
+
+
+        public static void WriteLog(string message)
+        {
+            try
+            {
+                string logFolder = HttpContext.Current.Server.MapPath("~/Logs");
+
+                if (!Directory.Exists(logFolder))
+                {
+                    Directory.CreateDirectory(logFolder);
+                }
+
+                string logFile = Path.Combine(logFolder, "log.txt");
+
+                string logMessage = string.Format(
+                    "[{0:yyyy-MM-dd HH:mm:ss}] {1}{2}",
+                    DateTime.Now,
+                    message,
+                    Environment.NewLine
+                );
+
+                File.AppendAllText(logFile, logMessage);
+            }
+            catch
+            {
+                // Don't allow logging failure to affect the application
+            }
         }
 
 

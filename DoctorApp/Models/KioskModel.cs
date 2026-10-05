@@ -296,6 +296,7 @@ namespace DoctorMobileApp.Models
             public string HeaderRequired { get; set; } = string.Empty;
             public string HospitalCode { get; set; } = string.Empty;
             public int PharmacyDiscountType { get; set; }
+            public string VoucherNumber { get; set; } = string.Empty;
         }
 
 
