@@ -927,7 +927,8 @@ namespace DoctorMobileApp.WebServices
                 var pdfRequest = new AdvanceReceiptPdfRequest
                 {
                     VoucherId = voucherId,
-                    VoucherNumber = voucherNumber,
+                    //VoucherNumber = voucherNumber,
+                    VoucherNumber = Convert.ToString(formulaModel?.VoucherNumber),
                     HospitalID = Convert.ToInt32(receiptModel.hospitalIDF),
                     ReportRootPath = _configuration["AppSettings:CrReportPath"] ?? string.Empty,
                     PaperType = Convert.ToString(printConfig.PaperType),
