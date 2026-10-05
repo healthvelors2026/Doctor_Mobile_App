@@ -530,7 +530,7 @@ namespace DoctorMobileApp.WebServices
 
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@VoucherID", voucherId)
+             new SqlParameter("@VoucherID", voucherId)
                 };
 
                 var results = await _dbHelper.QueryAsync<OPDReceiptResponseModel>("Kiosk_API_GetOPDReceipt_Print", CommandType.StoredProcedure, parameters);
@@ -548,8 +548,8 @@ namespace DoctorMobileApp.WebServices
 
                 var parametersHCP = new SqlParameter[]
                 {
-                    new SqlParameter("@HospitalID", hospitalidf),
-                    new SqlParameter("@ReceiptName", "OPD Normal Reg.")
+             new SqlParameter("@HospitalID", hospitalidf),
+             new SqlParameter("@ReceiptName", "OPD Normal Reg.")
                 };
 
                 var resultsHCP = await _dbHelper.QueryAsync<HospitalPrintConfigurationModel>("Kiosk_API_GetHospitalPrintConfiguration_Print", CommandType.StoredProcedure, parametersHCP);
@@ -567,12 +567,12 @@ namespace DoctorMobileApp.WebServices
 
                 var parametersFormulaFields = new SqlParameter[]
                 {
-                    new SqlParameter("@HMSEmailConfigurationIDP", printConfig.HospitalPrintConfigIDP),
-                    new SqlParameter("@VoucherIDP", voucherId),
-                    new SqlParameter("@RegistrationIDP", receiptModel.OPDReceiptPDFPath)
+             new SqlParameter("@HMSEmailConfigurationIDP", printConfig.HospitalPrintConfigIDP),
+             new SqlParameter("@VoucherIDP", voucherId),
+             new SqlParameter("@RegistrationIDP", receiptModel.OPDReceiptPDFPath)
                 };
 
-                var resultsFormulaFields = await _dbHelper.QueryAsync<FormulaFieldForOPDRegistrationReceiptModel>("SP_GetFormulaFieldForOPDRegistrationReceipt", CommandType.StoredProcedure, parametersFormulaFields);
+                var resultsFormulaFields = await _dbHelper.QueryAsync<FormulaFieldForOPDRegistrationReceiptModel>("SP_GetFormulaFieldForOPDRegistrationReceipt_Kiosk", CommandType.StoredProcedure, parametersFormulaFields);
 
                 FormulaFieldForOPDRegistrationReceiptModel formulaModel = resultsFormulaFields.FirstOrDefault();
 
@@ -698,7 +698,7 @@ namespace DoctorMobileApp.WebServices
 
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@VoucherID", voucherId)
+             new SqlParameter("@VoucherID", voucherId)
                 };
 
                 var results = await _dbHelper.QueryAsync<OPDTestReceiptPrintResponseModel>("Kiosk_API_GetOPDReceipt_Print", CommandType.StoredProcedure, parameters);
@@ -716,8 +716,8 @@ namespace DoctorMobileApp.WebServices
 
                 var parametersHCP = new SqlParameter[]
                 {
-                    new SqlParameter("@HospitalID", hospitalidf),
-                    new SqlParameter("@ReceiptName", "OPD Normal Reg.")
+             new SqlParameter("@HospitalID", hospitalidf),
+             new SqlParameter("@ReceiptName", "OPD Normal Reg.")
                 };
 
                 var resultsHCP = await _dbHelper.QueryAsync<HospitalPrintConfigurationModel>("Kiosk_API_GetHospitalPrintConfiguration_Print", CommandType.StoredProcedure, parametersHCP);
@@ -735,12 +735,12 @@ namespace DoctorMobileApp.WebServices
 
                 var parametersFormulaFields = new SqlParameter[]
                 {
-                    new SqlParameter("@HMSEmailConfigurationIDP", printConfig.HospitalPrintConfigIDP),
-                    new SqlParameter("@VoucherIDP", voucherId),
-                    new SqlParameter("@RegistrationIDP", receiptModel.OPDTestReceiptPDFPath)
+             new SqlParameter("@HMSEmailConfigurationIDP", printConfig.HospitalPrintConfigIDP),
+             new SqlParameter("@VoucherIDP", voucherId),
+             new SqlParameter("@RegistrationIDP", receiptModel.OPDTestReceiptPDFPath)
                 };
 
-                var resultsFormulaFields = await _dbHelper.QueryAsync<FormulaFieldForOPDRegistrationReceiptModel>("SP_GetFormulaFieldForOPDRegistrationReceipt", CommandType.StoredProcedure, parametersFormulaFields);
+                var resultsFormulaFields = await _dbHelper.QueryAsync<FormulaFieldForOPDRegistrationReceiptModel>("SP_GetFormulaFieldForOPDRegistrationReceipt_Kiosk", CommandType.StoredProcedure, parametersFormulaFields);
 
                 FormulaFieldForOPDRegistrationReceiptModel formulaModel = resultsFormulaFields.FirstOrDefault();
 
@@ -866,7 +866,7 @@ namespace DoctorMobileApp.WebServices
 
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@VoucherID", voucherId)
+             new SqlParameter("@VoucherID", voucherId)
                 };
 
                 var results = await _dbHelper.QueryAsync<AdvanceReceiptPrintResponseModel>("Kiosk_API_GetOPDReceipt_Print", CommandType.StoredProcedure, parameters);
@@ -884,8 +884,8 @@ namespace DoctorMobileApp.WebServices
 
                 var parametersHCP = new SqlParameter[]
                 {
-                    new SqlParameter("@HospitalID", hospitalidf),
-                    new SqlParameter("@ReceiptName", "Advance")
+             new SqlParameter("@HospitalID", hospitalidf),
+             new SqlParameter("@ReceiptName", "Advance")
                 };
 
                 var resultsHCP = await _dbHelper.QueryAsync<HospitalPrintConfigurationModel>("Kiosk_API_GetHospitalPrintConfiguration_Print", CommandType.StoredProcedure, parametersHCP);
@@ -903,12 +903,12 @@ namespace DoctorMobileApp.WebServices
 
                 var parametersFormulaFields = new SqlParameter[]
                 {
-                    new SqlParameter("@HMSEmailConfigurationIDP", printConfig.HospitalPrintConfigIDP),
-                    new SqlParameter("@VoucherIDP", voucherId),
-                    new SqlParameter("@RegistrationIDP", 0)
+             new SqlParameter("@HMSEmailConfigurationIDP", printConfig.HospitalPrintConfigIDP),
+             new SqlParameter("@VoucherIDP", voucherId),
+             new SqlParameter("@RegistrationIDP", 0)
                 };
 
-                var resultsFormulaFields = await _dbHelper.QueryAsync<FormulaFieldForOPDRegistrationReceiptModel>("SP_GetFormulaFieldForOPDRegistrationReceipt", CommandType.StoredProcedure, parametersFormulaFields);
+                var resultsFormulaFields = await _dbHelper.QueryAsync<FormulaFieldForOPDRegistrationReceiptModel>("SP_GetFormulaFieldForOPDRegistrationReceipt_Kiosk", CommandType.StoredProcedure, parametersFormulaFields);
 
                 FormulaFieldForOPDRegistrationReceiptModel formulaModel = resultsFormulaFields.FirstOrDefault();
 
@@ -1027,7 +1027,7 @@ namespace DoctorMobileApp.WebServices
 
                 var parametersHCP = new SqlParameter[]
                 {
-                    new SqlParameter("@HospitalIDF", hospitalidf)
+             new SqlParameter("@HospitalIDF", hospitalidf)
                 };
 
                 var resultsHCP = await _dbHelper.QueryAsync<HospitalConfigurationModel>("KIOSK_Sp_GetHospitalAndConfiguration", CommandType.StoredProcedure, parametersHCP);
