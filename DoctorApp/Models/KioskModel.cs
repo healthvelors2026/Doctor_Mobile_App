@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace DoctorMobileApp.Models
 {
@@ -75,6 +76,26 @@ namespace DoctorMobileApp.Models
             public string? HealthCardNumber { get; set; }
             public int HealthCardPatientIssueDetailIDP { get; set; }
         }
+
+        // START : Point#479 : Get Service Logic Details
+        public class ServiceWithLogicRequestModel
+        {
+            public int DoctorID { get; set; }
+            public int PatientID { get; set; }
+            public int HealthCardPatientIssueDetailIDP { get; set; }
+        }
+        public class ServiceWithLogicResponseModel
+        {
+            public int ServiceIDF { get; set; }
+            public string ServiceName { get; set; }
+            public decimal HealthCardDiscountPercentage { get; set; }
+            public decimal ServiceAmount { get; set; }
+            public decimal DiscountAmount { get; set; }
+            public decimal NetServiceAmount { get; set; }
+            
+        }
+        // END : Point#479 : Get Service Logic Details
+
         public class PathoReportRequestModel
         {
             public int PatientIDF { get; set; }
@@ -296,6 +317,7 @@ namespace DoctorMobileApp.Models
             public string HeaderRequired { get; set; } = string.Empty;
             public string HospitalCode { get; set; } = string.Empty;
             public int PharmacyDiscountType { get; set; }
+            public string VoucherNumber { get; set; } = string.Empty;
         }
 
 

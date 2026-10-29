@@ -1,4 +1,5 @@
-﻿using DoctorMobileApp.CommonClass;
+﻿
+using DoctorMobileApp.CommonClass;
 using DoctorMobileApp.Models;
 using DoctorMobileApp.WebService;
 using DoctorMobileApp.WebServices;
@@ -361,6 +362,31 @@ namespace DoctorMobileApp.Controllers
                 Data = patientList
             });
         }
+
+        // START : Point#479 : Get Service Logic Details
+        [HttpPost]
+        [Route("get-Service-With-Logic")]
+        public async Task<IActionResult> GetServiceWithLogic([FromBody] ServiceWithLogicRequestModel requestModel)
+        {
+            var serviceLogic = await _kioskService.GetServiceWithLogicAsync(requestModel, hospitalidf);
+
+            if (serviceLogic == null)
+            {
+                return NotFound(new
+                {
+                    Status = false,
+                    Message = "Active Service Not Found"
+                });
+            }
+            return Ok(new
+            {
+                Status = true,
+                Message = "Success",
+                Data = serviceLogic
+            });
+        }
+        // END : Point#479 : Get Service Logic Details
+
         [HttpPost]
         [AllowAnonymous]
         [ApiExplorerSettings(IgnoreApi = true)]
