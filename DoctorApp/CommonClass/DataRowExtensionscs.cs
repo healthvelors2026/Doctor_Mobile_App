@@ -11,6 +11,15 @@ namespace DoctorMobileApp.CommonClass
         {
             return row[column] != DBNull.Value ? Convert.ToInt32(row[column]) : 0;
         }
+        
+        // START : Point#479 : Get Service Logic Details
+        public static decimal ToDecimal(this DataRow row, string column)
+        {
+            return row[column] != DBNull.Value ? Convert.ToDecimal(row[column]) : Convert.ToDecimal(0.00);
+        }
+        // END : Point#479 : Get Service Logic Details
+
+
         public static string ToStr(this DataRow row, string column)
         {
             return row[column] != DBNull.Value ? row[column].ToString() : string.Empty;

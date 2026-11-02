@@ -1,13 +1,14 @@
 ﻿using DoctorMobileApp.CommonClass;
+using DoctorMobileApp.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Data;
+using System.IO;
 using System.Net;
+using System.Net.Http.Json;
 using System.Runtime.Serialization;
 using static DoctorMobileApp.Models.KioskModel;
-using System.Net.Http.Json;
-using System.IO;
-using Microsoft.AspNetCore.Hosting;
 
 namespace DoctorMobileApp.WebServices
 {
@@ -337,6 +338,41 @@ namespace DoctorMobileApp.WebServices
             HCAPatientlist = await _dbHelper.QueryAsync<HealthCardActivePatientResponseModel>("Kiosk_API_GetActivePatientHealthCard_GetList", CommandType.StoredProcedure, HCAPParam);
             return HCAPatientlist;
         }
+
+        // START : Point#479 : Get Service Logic Details
+        public async Task<ServiceWithLogicResponseModel> GetServiceWithLogicAsync(ServiceWithLogicRequestModel requestModel, int hospitalidf)
+        {
+            var ServiceLogicDetail = new ServiceWithLogicResponseModel();
+
+            var SLDParam = new[]
+            {
+                new SqlParameter("@DoctorIDF" , requestModel.DoctorID),
+                new SqlParameter("@PatientIDF" , requestModel.PatientID),
+                new SqlParameter("@HealthCardPatientIssueDetailIDP" , requestModel.HealthCardPatientIssueDetailIDP),
+                new SqlParameter("@HospitalIDF", hospitalidf)
+            };
+
+            var dataTable = await _dbHelper.ExecuteDataTableAsync(
+                "Kiosk_API_GetServiceDetails",
+                CommandType.StoredProcedure,
+                SLDParam
+            );
+            if (dataTable == null || dataTable.Rows.Count == 0)
+                return null;
+            var row = dataTable.Rows[0];
+            var response = new ServiceWithLogicResponseModel
+            {
+                ServiceIDF = row.ToInt("ServiceIDF"),
+                ServiceName = row.ToStr("ServiceName"),
+                HealthCardDiscountPercentage = row.ToDecimal("HealthCardDiscountPercentage"),
+                ServiceAmount = row.ToDecimal("ServiceAmount"),
+                DiscountAmount = row.ToDecimal("DiscountAmount"),
+                NetServiceAmount = row.ToDecimal("NetServiceAmount")
+            };
+            return response; ;
+        }
+        // END : Point#479 : Get Service Logic Details
+
         public async Task<List<KioskBannerResponseModel>> GetActiveKioskBannersAsync(int hospitalidf, string hospitalCode, string baseUrl)
         {
             var parameters = new[] { new SqlParameter("@HospitalIDP", hospitalidf) };
@@ -927,7 +963,8 @@ namespace DoctorMobileApp.WebServices
                 var pdfRequest = new AdvanceReceiptPdfRequest
                 {
                     VoucherId = voucherId,
-                    VoucherNumber = voucherNumber,
+                    //VoucherNumber = voucherNumber,
+                    VoucherNumber = Convert.ToString(formulaModel?.VoucherNumber),
                     HospitalID = Convert.ToInt32(receiptModel.hospitalIDF),
                     ReportRootPath = _configuration["AppSettings:CrReportPath"] ?? string.Empty,
                     PaperType = Convert.ToString(printConfig.PaperType),
