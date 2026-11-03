@@ -86,10 +86,11 @@ namespace DoctorMobileApp.WebServices
                 result.Message = "OTP generated but SMS could not be sent.";
                 return result;
             }
-            bool smsSent = false;
-            if (System.Diagnostics.Debugger.IsAttached == false)
-                smsSent = await SendOtpAsync(result.MobileNo, generatedOtp, hospitalidf);
+            //bool smsSent = false;
+            //if (System.Diagnostics.Debugger.IsAttached == false)
+            //    smsSent = await SendOtpAsync(result.MobileNo, generatedOtp, hospitalidf);
 
+            bool smsSent = await SendOtpAsync(result.MobileNo, generatedOtp, hospitalidf);
             result.Message = smsSent ? $"OTP sent successfully on {MaskMobileNumber(result.MobileNo)}" : "OTP generated but SMS could not be sent.";
 
             return result;
@@ -401,10 +402,6 @@ namespace DoctorMobileApp.WebServices
 
             string? smsUrl = _configuration["AppSettings:SMSUrl"];
             string? smsTemplate = _configuration["AppSettings:SMSTemplate"];
-            if (!string.IsNullOrEmpty(smsUrl) && !string.IsNullOrEmpty(smsTemplate))
-            {
-                return false;
-            }
             try
             {
                 var configurationParameters = new[]
