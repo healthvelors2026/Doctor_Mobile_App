@@ -3,6 +3,7 @@ using DoctorMobileApp.Models;
 using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
 
 namespace DoctorMobileApp.WebService
 {
@@ -48,6 +49,18 @@ namespace DoctorMobileApp.WebService
         }
         public async Task<SaveOPDEntryWithTestResponse?> SaveOPDEntryWithTestAsync(OPDRegistration request, int UserIdf, int hospitalidf, int hospitalgroupidf)
         {
+            var voucherParam = new SqlParameter("@VoucherIDP_Return", SqlDbType.Int)
+            {
+                Direction = ParameterDirection.Output
+            };
+            var voucherNAParam = new SqlParameter("@VoucherIDP_NA_Return", SqlDbType.Int)
+            {
+                Direction = ParameterDirection.Output
+            };
+            var voucherNumberParam = new SqlParameter("@VoucherNumber_Return", SqlDbType.VarChar, 50) { Direction = ParameterDirection.Output };
+            var voucherNumberNAParam = new SqlParameter("@VoucherNumber_NA_Return", SqlDbType.VarChar, 50) { Direction = ParameterDirection.Output };
+
+
             SqlParameter[] parameters = new
                 SqlParameter[]
             {
@@ -74,10 +87,16 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@IPAddress", request.OPDRegistrationDetails.IPAddress ?? (object)DBNull.Value),
                 new SqlParameter("@BrowserName", request.OPDRegistrationDetails.BrowserName ?? (object)DBNull.Value),
                 new SqlParameter("@HospitalIDF", hospitalidf),
-                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
+                new SqlParameter("@HospitalGroupIDF", hospitalgroupidf),
+                new SqlParameter("@UPITransactionNo",
+                   string.IsNullOrWhiteSpace(request.OPDRegistrationDetails.UPITransactionNo)? DBNull.Value: (object)request.OPDRegistrationDetails.UPITransactionNo),
+                 voucherParam,
+                 voucherNAParam,
+                 voucherNumberParam,
+                 voucherNumberNAParam
             };
             var result = await _dbHelper.QueryAsync<SaveOPDEntryWithTestResponse>("API_SP_InsertUpdateOPDEntryWithTest", CommandType.StoredProcedure, parameters);
-            
+
             return result.FirstOrDefault();
         }
         private static DataTable CreateTestServiceDataTable(IEnumerable<InvestigationTestReport> list, int nonCashLess, bool classForReimbursement)
@@ -162,7 +181,7 @@ namespace DoctorMobileApp.WebService
             }
             if (result.IsInserted == 1)
             {
-                if (result.IsPromotion) 
+                if (result.IsPromotion)
                 {
                     var promotedCRNumber = await GetPatientCRNumberAsync(result.PromotedTokenIDF);
                     var clickedCRNumber = await GetPatientCRNumberAsync(request.TokenIDF);
@@ -172,7 +191,7 @@ namespace DoctorMobileApp.WebService
                 else
                 {
                     var crNumber = await GetPatientCRNumberAsync(request.TokenIDF);
-                    
+
                     await _tokenDisplayBroadcast.BroadcastOPDEntryTokenAsync(request.RoomIDF, request.TokenIDF, request.DoctorIDF, result.IsUpcomingToken, crNumber, cancellationToken);
                 }
             }
@@ -211,7 +230,7 @@ namespace DoctorMobileApp.WebService
                 new SqlParameter("@DoctorIDF", request.DoctorIDF)
             };
             var rows = await _dbHelper.QueryAsync<RunningAndUpcomingTokenResponse>("API_Sp_OPDGetRunningAndUpcomingToken", CommandType.StoredProcedure, parameters);
-            
+
             return rows.FirstOrDefault();
         }
     }
