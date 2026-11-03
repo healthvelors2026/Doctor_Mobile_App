@@ -29,12 +29,12 @@ namespace ReportGenerationAPI.Controllers
             string opdCasePaperFilePath = string.Empty;
             string finalPdfFilePath = string.Empty;
 
-            int isReportHeader = 0;
+            //int isReportHeader = 0;
 
-            if (ConfigurationManager.AppSettings["ReportHeader"] != null)
-            {
-                int.TryParse(ConfigurationManager.AppSettings["ReportHeader"], out isReportHeader);
-            }
+            //if (ConfigurationManager.AppSettings["ReportHeader"] != null)
+            //{
+            //    int.TryParse(ConfigurationManager.AppSettings["ReportHeader"], out isReportHeader);
+            //}
 
             try
             {
@@ -122,7 +122,8 @@ namespace ReportGenerationAPI.Controllers
                 SetFormulaField(rdVoucher, "RefVouAmt", request.RefVouAmt);
                 
                 //rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = "1";
-                rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = isReportHeader.ToString();
+                //rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = isReportHeader.ToString();
+                rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = request.ReportHeader.ToString();
 
                 string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + "\\" + request.ImagePath + "\\" + "ReceiptHeader.png";
                 SetFormulaField(rdVoucher, "ImagePath", receiptHeaderImagePath);
@@ -292,12 +293,12 @@ namespace ReportGenerationAPI.Controllers
 
             ReportDocument rdVoucher = null;
 
-            int isReportHeader = 0;
+            //int isReportHeader = 0;
 
-            if (ConfigurationManager.AppSettings["ReportHeader"] != null)
-            {
-                int.TryParse(ConfigurationManager.AppSettings["ReportHeader"], out isReportHeader);
-            }
+            //if (ConfigurationManager.AppSettings["ReportHeader"] != null)
+            //{
+            //    int.TryParse(ConfigurationManager.AppSettings["ReportHeader"], out isReportHeader);
+            //}
 
             try
             {
@@ -353,7 +354,8 @@ namespace ReportGenerationAPI.Controllers
                 SetFormulaField(rdVoucher, "ImagePath", receiptHeaderImagePath);
 
                 //rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = "1";
-                rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = isReportHeader.ToString();
+                //rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = isReportHeader.ToString();
+                rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = request.ReportHeader.ToString();
 
                 rdVoucher.DataDefinition.FormulaFields["PatientPhoto"].Text = "";
                 SetFormulaField(rdVoucher, "ReportInstruction", "");
@@ -416,12 +418,12 @@ namespace ReportGenerationAPI.Controllers
             string pdfFilePath = string.Empty;
             string opdCasePaperFilePath = string.Empty;
 
-            int isReportHeader = 0;
+            //int isReportHeader = 0;
 
-            if (ConfigurationManager.AppSettings["ReportHeader"] != null)
-            {
-                int.TryParse(ConfigurationManager.AppSettings["ReportHeader"], out isReportHeader);
-            }
+            //if (ConfigurationManager.AppSettings["ReportHeader"] != null)
+            //{
+            //    int.TryParse(ConfigurationManager.AppSettings["ReportHeader"], out isReportHeader);
+            //}
 
             try
             {
@@ -508,7 +510,8 @@ namespace ReportGenerationAPI.Controllers
                 SetFormulaField(rdVoucher, "RefVouAmt", request.RefVouAmt);
 
                 //rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = "1";
-                rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = isReportHeader.ToString();
+                //rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = isReportHeader.ToString();
+                rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = request.ReportHeader.ToString();
 
                 string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + "\\" + request.ImagePath + "\\" + "ReceiptHeader.png";
                 SetFormulaField(rdVoucher, "ImagePath", receiptHeaderImagePath);
@@ -598,12 +601,12 @@ namespace ReportGenerationAPI.Controllers
             string pdfFilePath = string.Empty;
             string opdCasePaperFilePath = string.Empty;
 
-            int isReportHeader = 0;
+            //int isReportHeader = 0;
 
-            if (ConfigurationManager.AppSettings["ReportHeader"] != null)
-            {
-                int.TryParse(ConfigurationManager.AppSettings["ReportHeader"], out isReportHeader);
-            }
+            //if (ConfigurationManager.AppSettings["ReportHeader"] != null)
+            //{
+            //    int.TryParse(ConfigurationManager.AppSettings["ReportHeader"], out isReportHeader);
+            //}
 
             try
             {
@@ -684,7 +687,8 @@ namespace ReportGenerationAPI.Controllers
                 SetFormulaField(rdVoucher, "PatientSearch", "CRNumber");
 
                 //rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = "1";
-                rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = isReportHeader.ToString();
+                //rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = isReportHeader.ToString();
+                rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = request.ReportHeader.ToString();
 
                 string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + "\\" + request.ImagePath + "\\" + "ReceiptHeader.png";
                 SetFormulaField(rdVoucher, "ImagePath", receiptHeaderImagePath);
@@ -778,12 +782,12 @@ namespace ReportGenerationAPI.Controllers
             string pdfFilePath = string.Empty;
             string opdCasePaperFilePath = string.Empty;
 
-            int isReportHeader = 0;
+            //int isReportHeader = 0;
 
-            if (ConfigurationManager.AppSettings["ReportHeader"] != null)
-            {
-                int.TryParse(ConfigurationManager.AppSettings["ReportHeader"], out isReportHeader);
-            }
+            //if (ConfigurationManager.AppSettings["ReportHeader"] != null)
+            //{
+            //    int.TryParse(ConfigurationManager.AppSettings["ReportHeader"], out isReportHeader);
+            //}
 
             try
             {
@@ -851,18 +855,20 @@ namespace ReportGenerationAPI.Controllers
                 SetFormulaField(rdVoucher, "CollectionApplicable", Convert.ToInt32(request.SampleCollection).ToString());
                 SetFormulaField(rdVoucher, "DispatchApplicable", Convert.ToInt32(request.SampleCollection).ToString());
                 SetFormulaField(rdVoucher, "DoneByApplicable", Convert.ToInt32(request.SampleCollection).ToString());
-                
+
                 //rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = "1";
-                rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = isReportHeader.ToString();
+                //rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = isReportHeader.ToString();
+                rdVoucher.DataDefinition.FormulaFields["HeaderRequired"].Text = request.ReportHeader.ToString();
 
                 string receiptHeaderImagePath = request.IPAddress + "\\" + request.HospitalCode + "\\" + request.ImagePath + "\\" + "ReceiptHeader.png";
                 SetFormulaField(rdVoucher, "ImagePath", receiptHeaderImagePath);
 
                 rdVoucher.DataDefinition.FormulaFields["ReportDigitalInstrument"].Text = "";
-                rdVoucher.DataDefinition.FormulaFields["ShowPreviousTestResult"].Text = Convert.ToInt32(request.ShowPreviousTestResult).ToString();
-                rdVoucher.DataDefinition.FormulaFields["ShowDrInFooter"].Text = Convert.ToInt32(request.ShowDrInReportFooter).ToString();
+                rdVoucher.DataDefinition.FormulaFields["ShowPreviousTestResult"].Text = "'" + Convert.ToInt32(request.ShowPreviousTestResult).ToString() + "'";
+                rdVoucher.DataDefinition.FormulaFields["ShowDrInFooter"].Text = "'" + Convert.ToInt32(request.ShowDrInReportFooter).ToString() + "'";
 
-                rdVoucher.DataDefinition.FormulaFields["SignaturePath"].Text = "";
+                //rdVoucher.DataDefinition.FormulaFields["SignaturePath"].Text = "";
+                rdVoucher.DataDefinition.FormulaFields["SignaturePath"].Text = "'" + request.IPPathologyDoctor + "\\" + request.HospitalCode + "\\" + request.PathologyDoctor + "\\" + request.PathologyFaculty + "'";
                 #endregion
 
                 #region Database Connection

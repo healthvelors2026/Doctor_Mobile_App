@@ -27,6 +27,7 @@ namespace ReportGenerationAPI.Models
             public string IPAddress { get; set; }
             public string ImagePath { get; set; }
             public string OutputFolderPath { get; set; }
+            public string ReportHeader { get; set; }
         }
 
         public class OPDTestReceiptPdfRequest
@@ -49,6 +50,7 @@ namespace ReportGenerationAPI.Models
             public string IPAddress { get; set; }
             public string ImagePath { get; set; }
             public string OutputFolderPath { get; set; }
+            public string ReportHeader { get; set; }
         }
 
 
@@ -66,6 +68,7 @@ namespace ReportGenerationAPI.Models
             public string IPAddress { get; set; }
             public string ImagePath { get; set; }
             public string OutputFolderPath { get; set; }
+            public string ReportHeader { get; set; }
         }
 
 
@@ -86,6 +89,10 @@ namespace ReportGenerationAPI.Models
             public string IPAddress { get; set; }
             public string ImagePath { get; set; }
             public string OutputFolderPath { get; set; }
+            public string IPPathologyDoctor { get; set; }
+            public string PathologyDoctor { get; set; }
+            public string PathologyFaculty { get; set; }
+            public string ReportHeader { get; set; }
         }
 
         
