@@ -643,7 +643,8 @@ namespace DoctorMobileApp.WebServices
                     HospitalCode = Convert.ToString(formulaModel?.HospitalCode),
                     IPAddress = _configuration["AppSettings:IPReceiptHeader"] ?? string.Empty,
                     ImagePath = _configuration["AppSettings:ReceiptHeader"] ?? string.Empty,
-                    OutputFolderPath = outputFolderPath
+                    OutputFolderPath = outputFolderPath,
+                    ReportHeader = _configuration["AppSettings:ReportHeader"] ?? "0"
                 };
 
                 #endregion
@@ -811,7 +812,8 @@ namespace DoctorMobileApp.WebServices
                     HospitalCode = Convert.ToString(formulaModel?.HospitalCode),
                     IPAddress = _configuration["AppSettings:IPReceiptHeader"] ?? string.Empty,
                     ImagePath = _configuration["AppSettings:ReceiptHeader"] ?? string.Empty,
-                    OutputFolderPath = outputFolderPath
+                    OutputFolderPath = outputFolderPath,
+                    ReportHeader = _configuration["AppSettings:ReportHeader"] ?? "0"
                 };
 
                 #endregion
@@ -973,7 +975,8 @@ namespace DoctorMobileApp.WebServices
                     HospitalCode = Convert.ToString(formulaModel?.HospitalCode),
                     IPAddress = _configuration["AppSettings:IPReceiptHeader"] ?? string.Empty,
                     ImagePath = _configuration["AppSettings:ReceiptHeader"] ?? string.Empty,
-                    OutputFolderPath = outputFolderPath
+                    OutputFolderPath = outputFolderPath,
+                    ReportHeader = _configuration["AppSettings:ReportHeader"] ?? "0"
                 };
 
                 #endregion
@@ -1098,7 +1101,13 @@ namespace DoctorMobileApp.WebServices
                     HospitalCode = hospConfig.HospitalCode,
                     IPAddress = _configuration["AppSettings:IPReceiptHeader"] ?? string.Empty,
                     ImagePath = _configuration["AppSettings:ReceiptHeader"] ?? string.Empty,
-                    OutputFolderPath = outputFolderPath
+                    OutputFolderPath = outputFolderPath,
+
+                    IPPathologyDoctor = _configuration["AppSettings:IPPathologyDoctor"] ?? string.Empty,
+                    PathologyDoctor = _configuration["AppSettings:PathologyDoctor"] ?? string.Empty,
+                    PathologyFaculty = _configuration["AppSettings:PathologyFaculty"] ?? string.Empty,
+                    
+                    ReportHeader = _configuration["AppSettings:ReportHeader"] ?? "0"
                 };
 
                 #endregion
