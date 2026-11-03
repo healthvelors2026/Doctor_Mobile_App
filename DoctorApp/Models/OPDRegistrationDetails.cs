@@ -41,6 +41,7 @@
         public string ProcedureItems { get; set; } = string.Empty;
         public string IPAddress { get; set; } = string.Empty;
         public string BrowserName { get; set; } = string.Empty;
+        public string? UPITransactionNo { get; set; }
     }
     public class OPDRegistrationDetailsRequest
     {
