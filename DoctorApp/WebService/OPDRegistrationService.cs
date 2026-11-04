@@ -47,7 +47,7 @@ namespace DoctorMobileApp.WebService
             };
             return response;
         }
-        public async Task<SaveOPDEntryWithTestResponse?> SaveOPDEntryWithTestAsync(OPDRegistration request, int UserIdf, int hospitalidf, int hospitalgroupidf)
+        public async Task<SaveOPDEntryWithTestResponse?> SaveOPDEntryWithTestAsync_Old(OPDRegistration request, int UserIdf, int hospitalidf, int hospitalgroupidf)
         {
             var voucherParam = new SqlParameter("@VoucherIDP_Return", SqlDbType.Int)
             {
@@ -99,6 +99,91 @@ namespace DoctorMobileApp.WebService
 
             return result.FirstOrDefault();
         }
+
+
+
+
+
+
+
+
+
+
+
+
+        public async Task<SaveOPDEntryWithTestResponse?> SaveOPDEntryWithTestAsync(OPDRegistration request, int UserIdf, int hospitalidf, int hospitalgroupidf)
+        {
+            SqlParameter[] parameters = new
+                SqlParameter[]
+            {
+        new SqlParameter("@OPDRegistrationIDF", request.OPDRegistrationDetails.OPDRegistrationIDP),
+        new SqlParameter("@tbPathoRegistrationUDTT", SqlDbType.Structured)
+        {
+           TypeName = "dbo.tbIPDTestServiceRegAmtTVP",
+           Value = CreateTestServiceDataTable(request.PathoTestList,request.OPDRegistrationDetails.OPDRegistrationIDP,request.OPDRegistrationDetails.ClassForReimbursement)
+        },
+        new SqlParameter("@tbRadioRegistrationUDTT", SqlDbType.Structured)
+        {
+           TypeName = "dbo.tbIPDTestServiceRegAmtTVP",
+           Value = CreateTestServiceDataTable(request.RadioTestList,request.OPDRegistrationDetails.OPDRegistrationIDP,request.OPDRegistrationDetails.ClassForReimbursement)
+        },
+        new SqlParameter("@tbMedicalProcedureRegistrationUDTT", SqlDbType.Structured)
+        {
+           TypeName = "dbo.tbIPDTestServiceRegAmtTVP",
+           Value = CreateTestServiceDataTable(request.ProcedureTestList,request.OPDRegistrationDetails.OPDRegistrationIDP,request.OPDRegistrationDetails.ClassForReimbursement)
+        },
+        new SqlParameter("@PathoRemarks", request.OPDRegistrationDetails.PathoRemarks ?? (object)DBNull.Value),
+        new SqlParameter("@RadioRemarks", request.OPDRegistrationDetails.RadioRemarks ?? (object)DBNull.Value),
+        new SqlParameter("@ProcRemarks", request.OPDRegistrationDetails.ProcRemarks ?? (object)DBNull.Value),
+        new SqlParameter("@UserIDF", UserIdf),
+        new SqlParameter("@IPAddress", request.OPDRegistrationDetails.IPAddress ?? (object)DBNull.Value),
+        new SqlParameter("@BrowserName", request.OPDRegistrationDetails.BrowserName ?? (object)DBNull.Value),
+        new SqlParameter("@HospitalIDF", hospitalidf),
+        new SqlParameter("@HospitalGroupIDF", hospitalgroupidf)
+            };
+            var result = await _dbHelper.QueryAsync<SaveOPDEntryWithTestResponse>("API_SP_InsertUpdateOPDEntryWithTest", CommandType.StoredProcedure, parameters);
+
+            var voucherParam = new SqlParameter("@VoucherIDP_Return", SqlDbType.Int)
+            {
+                Direction = ParameterDirection.Output
+            };
+            var voucherNAParam = new SqlParameter("@VoucherIDP_NA_Return", SqlDbType.Int)
+            {
+                Direction = ParameterDirection.Output
+            };
+            var voucherNumberParam = new SqlParameter("@VoucherNumber_Return", SqlDbType.VarChar, 50) { Direction = ParameterDirection.Output };
+            var voucherNumberNAParam = new SqlParameter("@VoucherNumber_NA_Return", SqlDbType.VarChar, 50) { Direction = ParameterDirection.Output };
+            var parameters1 = new SqlParameter[]
+            {
+           new SqlParameter("@HospitalIDF",hospitalidf),
+           new SqlParameter("@OPDRegistrationIDF", request.OPDRegistrationDetails.OPDRegistrationIDP),
+           new SqlParameter("@UserIDF",UserIdf),
+           new SqlParameter("@UPITransactionNo",
+           string.IsNullOrWhiteSpace(request.OPDRegistrationDetails.UPITransactionNo)? DBNull.Value: (object)request.OPDRegistrationDetails.UPITransactionNo),
+           voucherParam,
+           voucherNAParam,
+           voucherNumberParam,
+           voucherNumberNAParam
+            };
+            await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_OPDTestReceipt_Save_DoctorApp", CommandType.StoredProcedure, parameters1);
+            int voucherId = voucherParam.Value == null || voucherParam.Value == DBNull.Value ? 0 : Convert.ToInt32(voucherParam.Value);
+            int voucherIdNA = voucherNAParam.Value == null || voucherNAParam.Value == DBNull.Value ? 0 : Convert.ToInt32(voucherNAParam.Value);
+            string voucherNumber = voucherNumberParam.Value == null || voucherNumberParam.Value == DBNull.Value ? string.Empty : Convert.ToString(voucherNumberParam.Value) ?? string.Empty;
+            string voucherNumberNA = voucherNumberNAParam.Value == null || voucherNumberNAParam.Value == DBNull.Value ? string.Empty : Convert.ToString(voucherNumberNAParam.Value) ?? string.Empty;
+            return result.FirstOrDefault();
+        }
+
+
+
+
+
+
+
+
+
+
+
+
         private static DataTable CreateTestServiceDataTable(IEnumerable<InvestigationTestReport> list, int nonCashLess, bool classForReimbursement)
         {
             var table = new DataTable();
