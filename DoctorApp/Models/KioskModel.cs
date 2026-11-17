@@ -27,6 +27,8 @@ namespace DoctorMobileApp.Models
             public string? IPDRegistrationCode { get; set; }
             public string? Doctor {  get; set; }
             public string? BedWard { get; set; }
+            public bool IsPrint { get; set; }
+            public bool IsWhatsApp { get; set; }
 
         }
         public class SkillSetResponseModel
@@ -102,13 +104,17 @@ namespace DoctorMobileApp.Models
         }
         public class PathoReportResponseModel
         {
+            public int OPDRegistrationIDP { get; set; }
             public int PathoRegistrationIDP { get; set; }
+            public int PatientIDF { get; set; }
+            public int OPDIPDFlag { get; set; }
             public string? ReportName { get; set; }
             public string? RegistrationCode { get; set; }
             public DateTime RegistrationDateTime { get; set; }
             public string? ReportStatusDisplay { get; set; }
             public bool ReportStatus { get; set; }
             public string? Doctor { get; set; }
+
         }
         public class OPDTestReceiptRequestModel
         {
@@ -263,7 +269,10 @@ namespace DoctorMobileApp.Models
             public string? URL { get; set; }
             public string? SMSText { get; set; }
         }
-
+        public class WhatsAppTemplateAvailability
+        {
+            public int IsAvailable { get; set; }
+        }
         #region Print Models
         public class HospitalPrintConfigurationModel
         {
@@ -422,6 +431,10 @@ namespace DoctorMobileApp.Models
             public int PatientId { get; set; }
             public string CrNumber { get; set; }
             public string PathoRegistrationIDs { get; set; }
+            public int OPDRegistrationID { get; set; }
+            public int OPDIPDFlag { get; set; }
+
+
         }
 
         public class PathologyReportPrintResponseModel
