@@ -8,6 +8,13 @@ using System.IO;
 using System.Net;
 using System.Net.Http.Json;
 using System.Runtime.Serialization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.HttpResults;
+using System.Data;
+using System.Net.Http.Json;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Text.Json;
 using static DoctorMobileApp.Models.KioskModel;
 
 namespace DoctorMobileApp.WebServices
@@ -130,7 +137,8 @@ namespace DoctorMobileApp.WebServices
             list = await _dbHelper.QueryAsync<OPDTestReceiptResponseModel>("Kiosk_API_OPDTestReceipt_GetList", CommandType.StoredProcedure, OPDParams);
             return list;
         }
-        public async Task<SaveOPDTestReceiptResponseModel> SaveOPDTestReceiptAsync(SaveOPDTestReceiptRequestModel model, int userIdf, int hospitalidf, int hospitalgroupidf, string HospitalName, string hospitalCode)
+        public async Task<SaveOPDTestReceiptResponseModel> SaveOPDTestReceiptAsync(SaveOPDTestReceiptRequestModel model, int userIdf, int hospitalidf, int hospitalgroupidf, string hospitalName, string hospitalCode)
+
         {
             try
             {
@@ -186,8 +194,145 @@ namespace DoctorMobileApp.WebServices
                 int voucherIdNA = voucherNAParam.Value == null || voucherNAParam.Value == DBNull.Value ? 0 : Convert.ToInt32(voucherNAParam.Value);
                 string voucherNumber = voucherNumberParam.Value == null || voucherNumberParam.Value == DBNull.Value ? string.Empty : Convert.ToString(voucherNumberParam.Value) ?? string.Empty;
                 string voucherNumberNA = voucherNumberNAParam.Value == null || voucherNumberNAParam.Value == DBNull.Value ? string.Empty : Convert.ToString(voucherNumberNAParam.Value) ?? string.Empty;
-                var receiptDetail = voucherId > 0 ? await GetVoucherResultAsync(voucherId) : null;
-                var notApplicableReceiptDetail = voucherIdNA > 0 ? await GetVoucherResultAsync(voucherIdNA) : null;
+
+
+                var receiptDetail = voucherId > 0 ? await GetVoucherResultAsync(voucherId, 0, hospitalidf, hospitalgroupidf, hospitalName, hospitalCode, userIdf, model.PatientIDF) : null;
+                var notApplicableReceiptDetail = voucherIdNA > 0 ? await GetVoucherResultAsync(voucherIdNA, 0, hospitalidf, hospitalgroupidf, hospitalName, hospitalCode, userIdf, model.PatientIDF) : null;
+
+                #region WhatsApp Send Message OPD Test Receipt
+
+                string? _VoucherIDF = Convert.ToString(voucherParam.Value == DBNull.Value ? 0 : voucherParam.Value);
+                string? _CashlessVoucherIDF = Convert.ToString(voucherNAParam.Value == DBNull.Value ? 0 : voucherNAParam.Value);
+                int hospitalIDP = hospitalidf;
+                int hospitalGroupIDP = hospitalgroupidf;
+                var OPDRegistrationIDF = model.OPDRegistrationIDF;
+                //string? _VoucherIDP = Convert.ToString(voucherParam.Value == DBNull.Value ? 0 : voucherParam.Value);
+                string? apiBaseUrl = _configuration["AppSettings:HIMS_WhatsApp_APIBaseURI"];
+                string apiUrl = "";
+                object? value = null;
+
+                bool Result = await IsWhatsAppTemplateAvailableAsync(hospitalCode, 16);
+
+                if (Result == true)
+                {
+                    if (!string.IsNullOrEmpty(_VoucherIDF) && _VoucherIDF != "0")
+                    {
+
+                        // Send WhatsApp message for OPD Test Receipt Cash voucher
+
+                        apiUrl = $"{apiBaseUrl.TrimEnd('/')}/api/WhatsAppOPDRegistrationMessageApi/WhatsAppOPDTestReceipt";
+
+                        value = new
+                        {
+                            Template_Enum = 16,
+                            PatientIDP = model.PatientIDF,
+                            VoucherIDP = _VoucherIDF,
+                            HospitalIDP = hospitalIDP,
+                            HospitalGroupIDP = hospitalGroupIDP,
+                            OPDRegistrationIDP = OPDRegistrationIDF,
+                            HospitalName = hospitalName,
+                            UserIDF = userIdf
+                        };
+
+
+                        try
+                        {
+                            if (value != null)
+                            {
+                                string json = JsonSerializer.Serialize(value);
+
+                                using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+
+                                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                                using var response = await _httpClient.SendAsync(request);
+
+                                string responseText = await response.Content.ReadAsStringAsync();
+
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    // WhatsApp API call successful
+                                    //Console.WriteLine($"WhatsApp API Response: {responseText}");
+                                }
+                                else
+                                {
+                                    // WhatsApp API call failed
+                                    //Console.WriteLine($"WhatsApp API Error: {response.StatusCode} - {responseText}");
+                                }
+
+                            }
+                            else
+                            {
+
+                                //Console.WriteLine("WhatsApp Template not available");
+                            }
+                        }
+
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"WhatsApp API Exception: {ex.Message}");
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(_CashlessVoucherIDF) && _CashlessVoucherIDF != "0")
+                    {
+                        // Send WhatsApp message for OPD Test Receipt Cashless Voucher
+
+                        apiUrl = $"{apiBaseUrl.TrimEnd('/')}/api/WhatsAppOPDRegistrationMessageApi/WhatsAppOPDTestReceipt";
+
+                        value = new
+                        {
+                            Template_Enum = 16,
+                            PatientIDP = model.PatientIDF,
+                            VoucherIDP = _CashlessVoucherIDF,
+                            HospitalIDP = hospitalIDP,
+                            HospitalGroupIDP = hospitalGroupIDP,
+                            OPDRegistrationIDP = OPDRegistrationIDF,
+                            HospitalName = hospitalName,
+                            UserIDF = userIdf
+                        };
+
+
+                        try
+                        {
+                            if (value != null)
+                            {
+                                string json = JsonSerializer.Serialize(value);
+
+                                using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+
+                                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                                using var response = await _httpClient.SendAsync(request);
+
+                                string responseText = await response.Content.ReadAsStringAsync();
+
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    // WhatsApp API call successful
+                                    //Console.WriteLine($"WhatsApp API Response: {responseText}");
+                                }
+                                else
+                                {
+                                    // WhatsApp API call failed
+                                    //Console.WriteLine($"WhatsApp API Error: {response.StatusCode} - {responseText}");
+                                }
+
+                            }
+                            else
+                            {
+
+                                //Console.WriteLine("WhatsApp Template not available");
+                            }
+                        }
+
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"WhatsApp API Exception: {ex.Message}");
+                        }
+                    }
+                }
+                #endregion
                 return new SaveOPDTestReceiptResponseModel
                 {
                     VoucherIDP = voucherId,
@@ -259,7 +404,8 @@ namespace DoctorMobileApp.WebServices
             return list;
 
         }
-        public async Task<SaveOPDRegistrationReceiptResponseModel?> SaveAdvanceDepositAsync(AdvanceDepositModel model, int hospitalidf, int fasModeOFPaymentIDF, int userIdf, int hospitalgroupidf, string HospitalName, string hospitalCode)
+        public async Task<SaveOPDRegistrationReceiptResponseModel?> SaveAdvanceDepositAsync(AdvanceDepositModel model, int hospitalidf, int fasModeOFPaymentIDF, int userIdf, int hospitalgroupidf, string hospitalName, string hospitalCode)
+
         {
             try
             {
@@ -285,8 +431,9 @@ namespace DoctorMobileApp.WebServices
 
                 if (voucherId <= 0)
                     return null;
+                int _WhatsAppEnum = 1; //WhatsAppEnum for Advance Receipt
 
-                return await GetVoucherResultAsync(voucherId);
+                return await GetVoucherResultAsync(voucherId, _WhatsAppEnum, hospitalidf, hospitalgroupidf, hospitalName, hospitalCode, userIdf, model.PatientIDF);
             }
             catch
             {
@@ -319,7 +466,8 @@ namespace DoctorMobileApp.WebServices
                 if (voucherId <= 0)
                     return null;
 
-                return await GetVoucherResultAsync(voucherId);
+                int _WhatsAppEnum = 12;//WhatsAppEnum for OPD Registration Receipt
+                return await GetVoucherResultAsync(voucherId, _WhatsAppEnum, hospitalidf, hospitalgroupidf, HospitalName, hospitalCode, userIdf, model.PatientIDF);
             }
             catch
             {
@@ -386,14 +534,109 @@ namespace DoctorMobileApp.WebServices
             }
             return list;
         }
-        public async Task<SaveOPDRegistrationReceiptResponseModel?> GetVoucherResultAsync(int voucherId)
+        public async Task<SaveOPDRegistrationReceiptResponseModel?> GetVoucherResultAsync(int voucherId, int WhatsAppEnum, int hospitalidf, int hospitalgroupidf, string hospitalName, string hospitalCode, int userIdf, int patientIdf)
         {
             var parameters = new SqlParameter[]
             {
-                new SqlParameter("@VoucherIDP", voucherId)
+         new SqlParameter("@VoucherIDP", voucherId)
             };
 
             var results = await _dbHelper.QueryAsync<SaveOPDRegistrationReceiptResponseModel>("Kiosk_API_Get_OPD_Registration_Receipt_Result", CommandType.StoredProcedure, parameters);
+
+
+            #region WhatsApp Send Message 
+
+
+            int hospitalIDP = hospitalidf;
+            int hospitalGroupIDP = hospitalgroupidf;
+            var OPDRegistrationIDF = results.FirstOrDefault()?.OPDRegistrationIDP ?? 0;
+            string? apiBaseUrl = _configuration["AppSettings:HIMS_WhatsApp_APIBaseURI"];
+            string apiUrl = "";
+            object? value = null;
+            if (WhatsAppEnum == 12) // OPD Registration Receipt WhatsAppEnum
+            {
+                bool Result = await IsWhatsAppTemplateAvailableAsync(hospitalCode, WhatsAppEnum);
+
+                if (Result == true)
+                {
+                    // Send WhatsApp message for OPD Registration
+
+                    apiUrl = $"{apiBaseUrl.TrimEnd('/')}/api/WhatsAppOPDRegistrationMessageApi/WhatsAppNormalOPDRegistration";
+
+                    value = new
+                    {
+                        Template_Enum = WhatsAppEnum,
+                        PatientIDP = patientIdf,
+                        VoucherIDP = voucherId,
+                        HospitalIDP = hospitalIDP,
+                        HospitalGroupIDP = hospitalGroupIDP,
+                        OPDRegistrationIDP = OPDRegistrationIDF,
+                        HospitalName = hospitalName,
+                        UserIDF = userIdf
+                    };
+                }
+            }
+            else if (WhatsAppEnum == 1) // Advance Receipt WhatsAppEnum
+            {
+                bool Result = await IsWhatsAppTemplateAvailableAsync(hospitalCode, WhatsAppEnum);
+
+                if (Result == true)
+                {
+
+                    // Send WhatsApp message for Advance Receipt
+                    apiUrl = $"{apiBaseUrl.TrimEnd('/')}/api/WhatsAppMessageApi/SendWhatsAppMessage";
+
+                    value = new
+                    {
+                        Template_Enum = WhatsAppEnum,
+                        PatientIDP = patientIdf,
+                        VoucherIDP = voucherId,
+                        HospitalIDP = hospitalIDP,
+                        HospitalGroupIDP = hospitalGroupIDP,
+                        HospitalName = hospitalName,
+                        UserIDF = userIdf
+                    };
+                }
+            }
+            try
+            {
+                if (value != null)
+                {
+                    string json = JsonSerializer.Serialize(value);
+
+                    using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+
+                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    using var response = await _httpClient.SendAsync(request);
+
+                    string responseText = await response.Content.ReadAsStringAsync();
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // WhatsApp API call successful
+                        //Console.WriteLine($"WhatsApp API Response: {responseText}");
+                    }
+                    else
+                    {
+                        // WhatsApp API call failed
+                        //Console.WriteLine($"WhatsApp API Error: {response.StatusCode} - {responseText}");
+                    }
+
+                }
+                else
+                {
+
+                    //Console.WriteLine("WhatsApp Template not available");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"WhatsApp API Exception: {ex.Message}");
+            }
+
+            #endregion
+
 
             return results.FirstOrDefault();
         }
@@ -1054,7 +1297,7 @@ namespace DoctorMobileApp.WebServices
 
 
 
-        public async Task<PathologyReportPrintResponseModel> GetPathologyReportAsync(string PathoRegistrationIDs, string CrNumber, int hospitalidf)
+        public async Task<PathologyReportPrintResponseModel> GetPathologyReportAsync(PathologyReportPrintRequestModel requestModel, string PathoRegistrationIDs, string CrNumber, int hospitalidf, int hospitalgroupidf, int userIdf, string hospitalName, string hospitalCode, bool isKioskWhatsApp, bool isKioskPrint)
         {
             PathologyReportPrintResponseModel receiptModel = new PathologyReportPrintResponseModel();
 
@@ -1078,9 +1321,101 @@ namespace DoctorMobileApp.WebServices
 
                 #endregion
 
-                #region Prepare PDF Request
+                #region  PathoRegistration Update PrintFlag
+                SqlParameter[] parameters =
+                                {
+                                                new SqlParameter("@PathoRegistrationIDs", SqlDbType.NVarChar){ Value = PathoRegistrationIDs},
+                                                new SqlParameter("@HospitalIDF", SqlDbType.Int){Value = hospitalidf}
+                                            };
 
-                string applicationPath = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+                await _dbHelper.ExecuteNonQueryAsync("Kiosk_API_PathoRegistration_UpdatePrintFlag", CommandType.StoredProcedure, parameters);
+                #endregion
+
+
+                #region whatsapp send and Print for Pathology Report
+
+                if (isKioskPrint == false && isKioskWhatsApp == true)
+                {
+                    #region WhatsApp Send for Pathology Report
+
+                    int _hospitalIDP = hospitalidf;
+                    int _hospitalGroupIDP = hospitalgroupidf;
+                    int _OPDRegistrationIDF = requestModel.OPDRegistrationID;
+                    string? _PathoRegistrationID = requestModel.PathoRegistrationIDs;
+                    int _OPDIPDPatientType = requestModel.OPDIPDFlag;
+                    int _patientIdf = requestModel.PatientId;
+                    string? apiBaseUrl = _configuration["AppSettings:HIMS_WhatsApp_APIBaseURI"];
+                    string apiUrl = "";
+                    object? value = null;
+                    int WhatsAppEnum = 17; // Enum value for Pathology Report for patient
+
+                    bool Result = await IsWhatsAppTemplateAvailableAsync(hospitalCode, WhatsAppEnum);
+
+                    if (Result == true)
+                    {
+
+                        // Send WhatsApp message for Pathology Report
+                        apiUrl = $"{apiBaseUrl.TrimEnd('/')}/api/WhatsAppMessageApi/PathoTestReportManualSendWhatsAppMessage";
+
+                        value = new
+                        {
+                            Template_Enum = WhatsAppEnum,
+                            PatientIDP = _patientIdf,
+                            RegistrationID = _OPDRegistrationIDF,
+                            PathoRegistrationID = _PathoRegistrationID,
+                            OPDIPDFlagType = _OPDIPDPatientType,
+                            HospitalIDP = _hospitalIDP,
+                            HospitalGroupIDP = _hospitalGroupIDP,
+                            HospitalName = hospitalName,
+                            UserID = userIdf
+                        };
+
+                        try
+                        {
+                            if (value != null)
+                            {
+                                string json = JsonSerializer.Serialize(value);
+
+                                using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+
+                                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                                using var response = await _httpClient.SendAsync(request);
+
+                                string responseText = await response.Content.ReadAsStringAsync();
+
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    // WhatsApp API call successful
+                                    //Console.WriteLine($"WhatsApp API Response: {responseText}");
+                                }
+                                else
+                                {
+                                    // WhatsApp API call failed
+                                    //Console.WriteLine($"WhatsApp API Error: {response.StatusCode} - {responseText}");
+                                }
+
+                            }
+                            else
+                            {
+
+                                //Console.WriteLine("WhatsApp Template not available");
+                            }
+                        }
+
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"WhatsApp API Exception: {ex.Message}");
+                        }
+                    }
+                    #endregion
+                }
+                else
+                {
+
+                    #region Prepare PDF Request
+
+                    string applicationPath = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
                 string outputFolderPath = Path.Combine(applicationPath, "Reports");
 
                 if (!Directory.Exists(outputFolderPath))
@@ -1138,6 +1473,8 @@ namespace DoctorMobileApp.WebServices
 
                 #endregion
             }
+                #endregion
+            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
@@ -1183,5 +1520,51 @@ namespace DoctorMobileApp.WebServices
             }
         }
         #endregion
+        private async Task<bool> IsWhatsAppTemplateAvailableAsync(string hospitalCode = "", int templateEnum = 0)
+        {
+            try
+            {
+                string query = @"
+      SELECT
+          CASE
+              WHEN EXISTS
+              (
+                  SELECT 1
+                  FROM tbWhatsAppTemplateDetail
+                  WHERE TemplateIDF =
+                  (
+                      SELECT TemplateIDP
+                      FROM tbWhatsAppTemplateMaster
+                      WHERE TemplateEnum = @TemplateEnum
+                        AND HospitalIDF =
+                        (
+                            SELECT HospitalIDF
+                            FROM tbHospitalMaster
+                            WHERE HospitalCode = @HospitalCode
+                        )
+                  )
+              )
+              THEN 1
+              ELSE 0
+          END AS IsAvailable";
+
+                var parameters = new SqlParameter[]
+                {
+               new SqlParameter("@TemplateEnum", SqlDbType.Int){ Value = templateEnum },
+
+               new SqlParameter("@HospitalCode", SqlDbType.VarChar){ Value = hospitalCode ?? string.Empty }
+                };
+
+
+                var result = await _dbHelper.QueryAsync<WhatsAppTemplateAvailability>(query, CommandType.Text, parameters);
+
+                return result.FirstOrDefault()?.IsAvailable == 1;
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
