@@ -33,6 +33,10 @@ namespace DoctorMobileApp.Controllers
         private int fasModeOFPaymentIDF => int.TryParse(User.FindFirst("FASModeOFPaymentIDF")?.Value, out var id) ? id : 0;
        //public KioskController(IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient, IWebHostEnvironment environment)
         private string HospitalName => User.FindFirst("HospitalName")?.Value ?? string.Empty;
+
+        private bool IsKioskWhatsApp => bool.TryParse(User.FindFirst("IsKioskWhatsApp")?.Value, out var isKioskWhatsApp) && isKioskWhatsApp;
+        private bool IsKioskPrint => bool.TryParse(User.FindFirst("IsKioskPrint")?.Value, out var isKioskPrint) && isKioskPrint;
+
         public KioskController(IDbConnectionFactory db, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, HttpClient httpClient, IWebHostEnvironment environment)
 
         {
@@ -487,7 +491,7 @@ namespace DoctorMobileApp.Controllers
 
         [HttpPost]
         [Route("get-opd-test-receipt-print")]
-        public async Task<IActionResult> GetOPDTestReceipt([FromBody] OPDReceiptRequestModel requestModel)
+        public async Task<IActionResult> GetOPDTestReceiptPrint([FromBody] OPDReceiptRequestModel requestModel)
         {
             var opdReceipt = await _kioskService.GetOPDTestReceiptAsync(requestModel.VoucherID, hospitalidf);
             if (opdReceipt == null)
@@ -508,7 +512,7 @@ namespace DoctorMobileApp.Controllers
 
         [HttpPost]
         [Route("get-advance-receipt-print")]
-        public async Task<IActionResult> GetAdvanceReceipt([FromBody] AdvanceReceiptRequestModel requestModel)
+        public async Task<IActionResult> GetAdvanceReceiptPrint([FromBody] AdvanceReceiptRequestModel requestModel)
         {
             var opdReceipt = await _kioskService.GetAdvanceReceiptAsync(requestModel.VoucherID, requestModel.VoucherNumber, hospitalidf);
             if (opdReceipt == null)
@@ -531,7 +535,8 @@ namespace DoctorMobileApp.Controllers
         [Route("get-pathology-report-print")]
         public async Task<IActionResult> GetPathologyReportPrint([FromBody] PathologyReportPrintRequestModel requestModel)
         {
-            var pathologyReport = await _kioskService.GetPathologyReportAsync(requestModel.PathoRegistrationIDs, requestModel.CrNumber, hospitalidf);
+            var pathologyReport = await _kioskService.GetPathologyReportAsync(requestModel, requestModel.PathoRegistrationIDs, requestModel.CrNumber, hospitalidf, hospitalgroupidf, userIdf, HospitalName, hospitalCode, IsKioskWhatsApp, IsKioskPrint);
+
             if (pathologyReport == null)
             {
                 return NotFound(new
