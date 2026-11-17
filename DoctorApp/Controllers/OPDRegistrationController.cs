@@ -4,6 +4,7 @@ using DoctorMobileApp.WebService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
 namespace DoctorMobileApp.Controllers
 {
@@ -17,11 +18,15 @@ namespace DoctorMobileApp.Controllers
         private int hospitalidf => int.TryParse(User.FindFirst("HospitalIDF")?.Value, out var id) ? id : 0;
         private int hospitalgroupidf => int.TryParse(User.FindFirst("HospitalGroupIDF")?.Value, out var id) ? id : 0;
         private int UserIdf => int.TryParse(User.FindFirst("UserIdf")?.Value, out var id) ? id : 0;
-        public OPDRegistrationController(IDbConnectionFactory db, IConfiguration configuration, ITokenDisplayBroadcastService tokenDisplayBroadcast)
+        private string hospitalCode => User.FindFirst("HospitalCode")?.Value ?? string.Empty;
+        private string HospitalName => User.FindFirst("HospitalName")?.Value ?? string.Empty;
+        public OPDRegistrationController(IDbConnectionFactory db, IConfiguration configuration, HttpClient httpClient, ITokenDisplayBroadcastService tokenDisplayBroadcast)
         {
             _db = db;
             _configuration = configuration;
-            _OPDRegistrationservice = new OPDRegistrationService(_db, _configuration, tokenDisplayBroadcast);
+            
+
+            _OPDRegistrationservice = new OPDRegistrationService(_db, _configuration, httpClient, tokenDisplayBroadcast);
         }
         [Authorize]
         [HttpPost("get-opd-registration-details")]
@@ -44,7 +49,7 @@ namespace DoctorMobileApp.Controllers
             {
                 return BadRequest("At least one investigation test list is required.");
             }
-            var result = await _OPDRegistrationservice.SaveOPDEntryWithTestAsync(request,UserIdf,hospitalidf,hospitalgroupidf);
+            var result = await _OPDRegistrationservice.SaveOPDEntryWithTestAsync(request,UserIdf,hospitalidf,hospitalgroupidf, hospitalCode, HospitalName);
             
             return Ok(result);
         }

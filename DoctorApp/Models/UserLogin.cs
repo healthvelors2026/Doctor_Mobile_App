@@ -16,7 +16,8 @@ namespace DoctorMobileApp.Models
         public string Token { get; set; } = string.Empty;
         public DateTime ExpireDate { get; set; }
         public int FASModeOFPaymentIDF {  get; set; }
-
+        public bool IsKioskWhatsApp { get; set; }
+        public bool IsKioskPrint { get; set; }
     }
     public class LoginResponse
     {

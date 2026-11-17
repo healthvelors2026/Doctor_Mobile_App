@@ -94,7 +94,9 @@ namespace DoctorMobileApp.WebService
                 HospitalCode = row.ToStr("HospitalCode"),
                 EmployeeIDF = row.ToInt("EmployeeIDF"),
                 EmployeeName = row.ToStr("EmployeeName"),
-                FASModeOFPaymentIDF = row.ToInt("FASModeOFPaymentIDF")
+                FASModeOFPaymentIDF = row.ToInt("FASModeOFPaymentIDF"),
+                IsKioskWhatsApp = Convert.ToBoolean(row["IsWhatsApp"]),
+                IsKioskPrint = Convert.ToBoolean(row["IsPrint"]),
             };
             user.Token = GenerateToken(user);
             var refreshToken = GenerateRefreshToken();
@@ -130,6 +132,8 @@ namespace DoctorMobileApp.WebService
                 new Claim("EmployeeIDF", obj.EmployeeIDF.ToString()),
                 new Claim("EmployeeName", obj.EmployeeName ?? ""),
                 new Claim("FASModeOFPaymentIDF", obj.FASModeOFPaymentIDF.ToString()),
+                  new Claim("IsKioskWhatsApp", obj.IsKioskWhatsApp.ToString()),
+                new Claim("IsKioskPrint", obj.IsKioskPrint.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             var key = new SymmetricSecurityKey(
