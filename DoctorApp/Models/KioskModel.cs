@@ -194,6 +194,10 @@ namespace DoctorMobileApp.Models
             public DateTime TodayDate { get; set; }
             public string? Slot { get; set; }
             public string? Status { get; set; }
+            
+            // START : Point#495 : Kiosk : Appointment Arrival, 1. Show only Consultation Appointment in Kiosk, 2. upon clicking appointment in kiosk, make the opd reg normal and mark the appointment as arrived
+            public int AppointmentIDP { get; set; }
+            // END : Point#495 : Kiosk : Appointment Arrival, 1. Show only Consultation Appointment in Kiosk, 2. upon clicking appointment in kiosk, make the opd reg normal and mark the appointment as arrived
         }
         public class DoctorRequestModel
         {
@@ -227,6 +231,10 @@ namespace DoctorMobileApp.Models
             public string? BrowserName { get; set; }
             public string? IPAdress { get; set; }
             public int HealthCardPatientIssueDetailIDP { get; set; }
+
+            // START : Point#495 : Kiosk : Appointment Arrival, 1. Show only Consultation Appointment in Kiosk, 2. upon clicking appointment in kiosk, make the opd reg normal and mark the appointment as arrived
+            public int AppointmentIDP { get; set; }
+            // END : Point#495 : Kiosk : Appointment Arrival, 1. Show only Consultation Appointment in Kiosk, 2. upon clicking appointment in kiosk, make the opd reg normal and mark the appointment as arrived
         }
         public class SaveOPDRegistrationReceiptResponseModel
         {

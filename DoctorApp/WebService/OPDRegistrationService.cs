@@ -479,7 +479,7 @@ namespace DoctorMobileApp.WebService
                   (
                       SELECT TemplateIDP
                       FROM tbWhatsAppTemplateMaster
-                      WHERE TemplateEnum = @TemplateEnum
+                      WHERE TemplateEnum = @TemplateEnum and NonActive=0
                         AND HospitalIDF =
                         (
                             SELECT HospitalIDF

@@ -455,6 +455,7 @@ namespace DoctorMobileApp.WebServices
                     new("@DoctorIDF", model.DoctorIDF),
                     new("@HospitalIDF", hospitalidf),
                     new("@Kiosk_UserIDF", userIdf),
+                    new("@AppointmentIDP", model.AppointmentIDP),
                     new("@UPITransactionNo",string.IsNullOrWhiteSpace(model.UPITransactionNo)? DBNull.Value: model.UPITransactionNo),
                     new("@BrowserName",string.IsNullOrWhiteSpace(model.BrowserName)? DBNull.Value: model.BrowserName),
                     new("@IPAdress",string.IsNullOrWhiteSpace(model.IPAdress)? DBNull.Value: model.IPAdress),voucherParam
@@ -1535,7 +1536,7 @@ namespace DoctorMobileApp.WebServices
                   (
                       SELECT TemplateIDP
                       FROM tbWhatsAppTemplateMaster
-                      WHERE TemplateEnum = @TemplateEnum
+                      WHERE TemplateEnum = @TemplateEnum and NonActive=0
                         AND HospitalIDF =
                         (
                             SELECT HospitalIDF
