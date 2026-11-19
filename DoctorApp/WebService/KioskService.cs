@@ -455,7 +455,15 @@ namespace DoctorMobileApp.WebServices
                     new("@DoctorIDF", model.DoctorIDF),
                     new("@HospitalIDF", hospitalidf),
                     new("@Kiosk_UserIDF", userIdf),
+
+                    // START : Point#495 : Kiosk : Appointment Arrival, 1. Show only Consultation Appointment in Kiosk, 2. upon clicking appointment in kiosk, make the opd reg normal and mark the appointment as arrived
                     new("@AppointmentIDP", model.AppointmentIDP),
+                    // END : Point#495 : Kiosk : Appointment Arrival, 1. Show only Consultation Appointment in Kiosk, 2. upon clicking appointment in kiosk, make the opd reg normal and mark the appointment as arrived
+
+                    // START : Point#496 : Kiosk : Kiosk : Appointment Arrival : Service should be used which is selected at the time of booking the appointment.
+                    new("@ServiceID", model.ServiceID),
+                    // END : Point#496 : Kiosk : Kiosk : Appointment Arrival : Service should be used which is selected at the time of booking the appointment.
+                    
                     new("@UPITransactionNo",string.IsNullOrWhiteSpace(model.UPITransactionNo)? DBNull.Value: model.UPITransactionNo),
                     new("@BrowserName",string.IsNullOrWhiteSpace(model.BrowserName)? DBNull.Value: model.BrowserName),
                     new("@IPAdress",string.IsNullOrWhiteSpace(model.IPAdress)? DBNull.Value: model.IPAdress),voucherParam
@@ -499,7 +507,8 @@ namespace DoctorMobileApp.WebServices
                 new SqlParameter("@DoctorIDF" , requestModel.DoctorID),
                 new SqlParameter("@PatientIDF" , requestModel.PatientID),
                 new SqlParameter("@HealthCardPatientIssueDetailIDP" , requestModel.HealthCardPatientIssueDetailIDP),
-                new SqlParameter("@HospitalIDF", hospitalidf)
+                new SqlParameter("@HospitalIDF", hospitalidf),
+                new SqlParameter("@ServiceID", requestModel.ServiceID)
             };
 
             var dataTable = await _dbHelper.ExecuteDataTableAsync(
