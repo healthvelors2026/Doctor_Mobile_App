@@ -85,6 +85,10 @@ namespace DoctorMobileApp.Models
             public int DoctorID { get; set; }
             public int PatientID { get; set; }
             public int HealthCardPatientIssueDetailIDP { get; set; }
+
+            // START : Point#496 : Kiosk : Kiosk : Appointment Arrival : Service should be used which is selected at the time of booking the appointment.
+            public int ServiceID { get; set; }
+            // END : Point#496 : Kiosk : Kiosk : Appointment Arrival : Service should be used which is selected at the time of booking the appointment.
         }
         public class ServiceWithLogicResponseModel
         {
@@ -198,6 +202,10 @@ namespace DoctorMobileApp.Models
             // START : Point#495 : Kiosk : Appointment Arrival, 1. Show only Consultation Appointment in Kiosk, 2. upon clicking appointment in kiosk, make the opd reg normal and mark the appointment as arrived
             public int AppointmentIDP { get; set; }
             // END : Point#495 : Kiosk : Appointment Arrival, 1. Show only Consultation Appointment in Kiosk, 2. upon clicking appointment in kiosk, make the opd reg normal and mark the appointment as arrived
+
+            // START : Point#496 : Kiosk : Kiosk : Appointment Arrival : Service should be used which is selected at the time of booking the appointment.
+            public int ServiceIDF { get; set; }
+            // END : Point#496 : Kiosk : Kiosk : Appointment Arrival : Service should be used which is selected at the time of booking the appointment.
         }
         public class DoctorRequestModel
         {
@@ -235,6 +243,10 @@ namespace DoctorMobileApp.Models
             // START : Point#495 : Kiosk : Appointment Arrival, 1. Show only Consultation Appointment in Kiosk, 2. upon clicking appointment in kiosk, make the opd reg normal and mark the appointment as arrived
             public int AppointmentIDP { get; set; }
             // END : Point#495 : Kiosk : Appointment Arrival, 1. Show only Consultation Appointment in Kiosk, 2. upon clicking appointment in kiosk, make the opd reg normal and mark the appointment as arrived
+
+            // START : Point#496 : Kiosk : Kiosk : Appointment Arrival : Service should be used which is selected at the time of booking the appointment.
+            public int ServiceID { get; set; }
+            // END : Point#496 : Kiosk : Kiosk : Appointment Arrival : Service should be used which is selected at the time of booking the appointment.
         }
         public class SaveOPDRegistrationReceiptResponseModel
         {
